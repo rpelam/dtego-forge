@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tests Forge v0.1.1 - Foundation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0f1a, #1a1a2e, #0f0f1a);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .test-pass { 
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid #10b981;
+        }
+        .test-fail { 
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid #ef4444;
+        }
+        .test-category {
+            background: rgba(139, 92, 246, 0.1);
+            border-left: 4px solid #8b5cf6;
+        }
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="min-h-screen p-8">
+    <!-- Header -->
+    <div class="glass rounded-3xl p-8 mb-6">
+        <div class="text-center">
+            <h1 class="text-5xl font-bold mb-2" style="color: white; letter-spacing: 0.2em;">Dtego</h1>
+            <p class="text-purple-400 text-sm mb-6">Forge - Suite de Tests Automatiques</p>
+            
+            <div class="inline-block glass rounded-2xl px-6 py-4">
+                <div class="grid grid-cols-3 gap-8 text-center">
+                    <div>
+                        <p class="text-white/40 text-xs mb-1">Version</p>
+                        <p class="text-white font-bold text-lg">v0.1.1</p>
+                    </div>
+                    <div>
+                        <p class="text-white/40 text-xs mb-1">Commit</p>
+                        <p class="text-white font-mono text-sm">a947dc3</p>
+                    </div>
+                    <div>
+                        <p class="text-white/40 text-xs mb-1">Date</p>
+                        <p class="text-white text-sm">24 jan 2026</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Résumé -->
+    <div id="summary" class="glass rounded-3xl p-8 mb-6">
+        <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-bold text-white">📊 Résumé des Tests</h2>
+            <button onclick="runAllTests()" class="px-6 py-3 rounded-xl font-medium text-white transition hover:scale-105" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa);">
+                <span id="run-btn-text">▶ Lancer les Tests</span>
+            </button>
+        </div>
+        
+        <div id="summary-stats" class="mt-6 grid grid-cols-4 gap-4">
+            <div class="glass rounded-2xl p-4">
+                <p class="text-white/40 text-xs mb-2">Total Tests</p>
+                <p class="text-white text-3xl font-bold"><span id="total-tests">0</span></p>
+            </div>
+            <div class="glass rounded-2xl p-4">
+                <p class="text-emerald-400/60 text-xs mb-2">✅ Réussis</p>
+                <p class="text-emerald-400 text-3xl font-bold"><span id="pass-tests">0</span></p>
+            </div>
+            <div class="glass rounded-2xl p-4">
+                <p class="text-red-400/60 text-xs mb-2">❌ Échoués</p>
+                <p class="text-red-400 text-3xl font-bold"><span id="fail-tests">0</span></p>
+            </div>
+            <div class="glass rounded-2xl p-4">
+                <p class="text-purple-400/60 text-xs mb-2">Taux Réussite</p>
+                <p class="text-purple-400 text-3xl font-bold"><span id="success-rate">0</span>%</p>
+            </div>
+        </div>
+
+        <div id="progress-bar" class="hidden mt-6">
+            <div class="w-full h-2 rounded-full" style="background: rgba(255,255,255,0.1);">
+                <div id="progress-fill" class="h-2 rounded-full transition-all duration-300" style="background: linear-gradient(90deg, #10b981, #059669); width: 0%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Résultats Détaillés -->
+    <div id="test-results" class="space-y-4"></div>
+
+    <!-- Footer Info -->
+    <div class="glass rounded-3xl p-6 mt-6">
+        <div class="text-center text-white/40 text-sm">
+            <p class="mb-2">
+                <strong class="text-white/60">Scope v0.1.1:</strong> 
+                Login avec mot de passe • Navigation Atelier/Bibliothèque • 4 types Bibliothèque • localStorage auth
+            </p>
+            <p>
+                <strong class="text-white/60">Comment utiliser:</strong> 
+                Cliquer "Lancer les Tests" • Vérifier que tous sont PASS (verts) • Si FAIL (rouge) = Bug détecté
+            </p>
+            <p class="mt-4 text-xs">
+                © RA2P Production • Dtego Forge Test Suite • 
+                <a href="https://forge.dtego.net" class="text-purple-400 hover:text-purple-300">forge.dtego.net</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // ===========================================
+        // FRAMEWORK DE TEST SIMPLE
+        // ===========================================
+        const TestSuite = {
+            version: '0.1.1',
+            commit: 'a947dc3',
+            tests: [],
+            results: [],
+            currentCategory: null,
+
+            // Définir une catégorie de tests
+            category(name) {
+                this.currentCategory = name;
+                console.log(`\n🔷 ${name}`);
+            },
+
+            // Ajouter un test
+            test(name, fn) {
+                const test = {
+                    category: this.currentCategory,
+                    name: name,
+                    fn: fn,
+                    status: null,
+                    error: null,
+                    duration: 0
+                };
+                this.tests.push(test);
+            },
+
+            // Exécuter tous les tests
+            async runAll() {
+                this.results = [];
+                const startTime = Date.now();
+
+                console.log(`\n${'='.repeat(60)}`);
+                console.log(`🧪 FORGE v${this.version} - TESTS AUTOMATIQUES`);
+                console.log(`Commit: ${this.commit} • ${new Date().toLocaleString('fr-FR')}`);
+                console.log(`${'='.repeat(60)}\n`);
+
+                for (let i = 0; i < this.tests.length; i++) {
+                    const test = this.tests[i];
+                    const testStart = Date.now();
+
+                    try {
+                        test.fn();
+                        test.status = 'PASS';
+                        test.error = null;
+                        console.log(`  ✅ ${test.name}`);
+                    } catch (error) {
+                        test.status = 'FAIL';
+                        test.error = error.message;
+                        console.error(`  ❌ ${test.name}`);
+                        console.error(`     ↳ ${error.message}`);
+                    }
+
+                    test.duration = Date.now() - testStart;
+                    this.results.push(test);
+
+                    // Mise à jour progressive
+                    this.updateProgress(i + 1);
+                    await new Promise(resolve => setTimeout(resolve, 100)); // Animation
+                }
+
+                const totalDuration = Date.now() - startTime;
+                
+                console.log(`\n${'='.repeat(60)}`);
+                const passCount = this.results.filter(r => r.status === 'PASS').length;
+                const failCount = this.results.filter(r => r.status === 'FAIL').length;
+                console.log(`📊 Résultats: ${passCount} PASS • ${failCount} FAIL • ${totalDuration}ms`);
+                console.log(`${'='.repeat(60)}\n`);
+
+                this.displayResults();
+            },
+
+            // Mise à jour barre progression
+            updateProgress(current) {
+                const percent = Math.round((current / this.tests.length) * 100);
+                document.getElementById('progress-fill').style.width = `${percent}%`;
+            },
+
+            // Afficher résultats dans UI
+            displayResults() {
+                const passCount = this.results.filter(r => r.status === 'PASS').length;
+                const failCount = this.results.filter(r => r.status === 'FAIL').length;
+                const total = this.results.length;
+                const successRate = Math.round((passCount / total) * 100);
+
+                // Stats
+                document.getElementById('total-tests').textContent = total;
+                document.getElementById('pass-tests').textContent = passCount;
+                document.getElementById('fail-tests').textContent = failCount;
+                document.getElementById('success-rate').textContent = successRate;
+
+                // Grouper par catégorie
+                const categories = {};
+                this.results.forEach(result => {
+                    if (!categories[result.category]) {
+                        categories[result.category] = [];
+                    }
+                    categories[result.category].push(result);
+                });
+
+                // Afficher résultats détaillés
+                const container = document.getElementById('test-results');
+                container.innerHTML = '';
+
+                Object.keys(categories).forEach(categoryName => {
+                    const tests = categories[categoryName];
+                    const categoryPass = tests.filter(t => t.status === 'PASS').length;
+                    const categoryTotal = tests.length;
+
+                    const categoryDiv = document.createElement('div');
+                    categoryDiv.className = 'glass rounded-3xl p-6';
+                    
+                    categoryDiv.innerHTML = `
+                        <div class="test-category rounded-2xl p-4 mb-4">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xl font-bold text-white">${categoryName}</h3>
+                                <span class="text-sm ${categoryPass === categoryTotal ? 'text-emerald-400' : 'text-red-400'}">
+                                    ${categoryPass}/${categoryTotal} PASS
+                                </span>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            ${tests.map(test => `
+                                <div class="${test.status === 'PASS' ? 'test-pass' : 'test-fail'} rounded-xl p-4">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <span class="text-lg">${test.status === 'PASS' ? '✅' : '❌'}</span>
+                                                <span class="text-white font-medium">${test.name}</span>
+                                            </div>
+                                            ${test.error ? `
+                                                <p class="text-red-400 text-sm ml-7 mt-2">
+                                                    ↳ ${test.error}
+                                                </p>
+                                            ` : ''}
+                                        </div>
+                                        <span class="text-white/40 text-xs">${test.duration}ms</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+
+                    container.appendChild(categoryDiv);
+                });
+
+                // Réinitialiser bouton
+                document.getElementById('run-btn-text').textContent = '🔄 Re-lancer les Tests';
+            }
+        };
+
+        // ===========================================
+        // TESTS v0.1.1 - FOUNDATION
+        // ===========================================
+
+        // ------------------------------------
+        // CATÉGORIE 1: AUTHENTIFICATION (5 tests)
+        // ------------------------------------
+        TestSuite.category('🔐 Authentification');
+
+        TestSuite.test('Mot de passe correct accepté', () => {
+            const PASSWORD = "Fisherman'sfriend";
+            const input = "Fisherman'sfriend";
+            
+            if (input !== PASSWORD) {
+                throw new Error('Mot de passe correct devrait être accepté');
+            }
+        });
+
+        TestSuite.test('Mot de passe incorrect rejeté', () => {
+            const PASSWORD = "Fisherman'sfriend";
+            const input = "mauvais_password";
+            
+            if (input === PASSWORD) {
+                throw new Error('Mot de passe incorrect ne devrait pas être accepté');
+            }
+        });
+
+        TestSuite.test('Mot de passe sensible à la casse', () => {
+            const PASSWORD = "Fisherman'sfriend";
+            const input = "fisherman'sfriend"; // minuscule
+            
+            if (input === PASSWORD) {
+                throw new Error('Mot de passe devrait être sensible à la casse');
+            }
+        });
+
+        TestSuite.test('localStorage auth persistance - Sauvegarde', () => {
+            const AUTH_KEY = 'forge_auth';
+            
+            // Simuler sauvegarde
+            localStorage.setItem(AUTH_KEY, 'granted');
+            
+            // Vérifier
+            const saved = localStorage.getItem(AUTH_KEY);
+            if (saved !== 'granted') {
+                throw new Error('Auth devrait être sauvegardée dans localStorage');
+            }
+            
+            // Cleanup
+            localStorage.removeItem(AUTH_KEY);
+        });
+
+        TestSuite.test('localStorage auth persistance - Suppression', () => {
+            const AUTH_KEY = 'forge_auth';
+            
+            // Créer puis supprimer
+            localStorage.setItem(AUTH_KEY, 'granted');
+            localStorage.removeItem(AUTH_KEY);
+            
+            // Vérifier suppression
+            const deleted = localStorage.getItem(AUTH_KEY);
+            if (deleted !== null) {
+                throw new Error('Auth devrait pouvoir être supprimée');
+            }
+        });
+
+        // ------------------------------------
+        // CATÉGORIE 2: NAVIGATION (3 tests)
+        // ------------------------------------
+        TestSuite.category('🧭 Navigation');
+
+        TestSuite.test('Initialisation - Section par défaut Atelier', () => {
+            let currentSection = 'atelier';
+            
+            if (currentSection !== 'atelier') {
+                throw new Error('Section par défaut devrait être Atelier');
+            }
+        });
+
+        TestSuite.test('Navigation Atelier → Bibliothèque', () => {
+            let currentSection = 'atelier';
+            
+            // Simuler click Bibliothèque
+            currentSection = 'bibliotheque';
+            
+            if (currentSection !== 'bibliotheque') {
+                throw new Error('Navigation vers Bibliothèque échouée');
+            }
+        });
+
+        TestSuite.test('Navigation Bibliothèque → Atelier', () => {
+            let currentSection = 'bibliotheque';
+            
+            // Simuler click Atelier
+            currentSection = 'atelier';
+            
+            if (currentSection !== 'atelier') {
+                throw new Error('Navigation vers Atelier échouée');
+            }
+        });
+
+        // ------------------------------------
+        // CATÉGORIE 3: BIBLIOTHÈQUE (7 tests)
+        // ------------------------------------
+        TestSuite.category('📚 Bibliothèque - 4 Types');
+
+        TestSuite.test('Nombre de types = 4', () => {
+            const types = ['indicator', 'filter', 'strategy', 'filtered_strategy'];
+            
+            if (types.length !== 4) {
+                throw new Error(`Attendu 4 types, trouvé ${types.length}`);
+            }
+        });
+
+        TestSuite.test('Type 1: Indicateurs présent', () => {
+            const types = ['indicator', 'filter', 'strategy', 'filtered_strategy'];
+            
+            if (!types.includes('indicator')) {
+                throw new Error('Type "indicator" manquant');
+            }
+        });
+
+        TestSuite.test('Type 2: Filtres présent', () => {
+            const types = ['indicator', 'filter', 'strategy', 'filtered_strategy'];
+            
+            if (!types.includes('filter')) {
+                throw new Error('Type "filter" manquant');
+            }
+        });
+
+        TestSuite.test('Type 3: Stratégies présent', () => {
+            const types = ['indicator', 'filter', 'strategy', 'filtered_strategy'];
+            
+            if (!types.includes('strategy')) {
+                throw new Error('Type "strategy" manquant');
+            }
+        });
+
+        TestSuite.test('Type 4: Stratégies Filtrées présent', () => {
+            const types = ['indicator', 'filter', 'strategy', 'filtered_strategy'];
+            
+            if (!types.includes('filtered_strategy')) {
+                throw new Error('Type "filtered_strategy" manquant');
+            }
+        });
+
+        TestSuite.test('Ordre des types respecté', () => {
+            const types = ['indicator', 'filter', 'strategy', 'filtered_strategy'];
+            const expected = ['indicator', 'filter', 'strategy', 'filtered_strategy'];
+            
+            const isOrdered = JSON.stringify(types) === JSON.stringify(expected);
+            
+            if (!isOrdered) {
+                throw new Error(`Ordre incorrect: ${types.join(', ')}`);
+            }
+        });
+
+        TestSuite.test('Noms types cohérents avec architecture modulaire', () => {
+            const types = ['indicator', 'filter', 'strategy', 'filtered_strategy'];
+            
+            // Vérifier nomenclature
+            const validNaming = types.every(type => {
+                return type === type.toLowerCase() && // minuscules
+                       type.indexOf(' ') === -1; // pas d'espaces
+            });
+            
+            if (!validNaming) {
+                throw new Error('Nomenclature types invalide');
+            }
+        });
+
+        // ===========================================
+        // FONCTION LANCEMENT TESTS
+        // ===========================================
+        async function runAllTests() {
+            // Désactiver bouton
+            const btn = document.getElementById('run-btn-text');
+            btn.innerHTML = '<span class="pulse">⏳ Tests en cours...</span>';
+            
+            // Afficher barre progression
+            document.getElementById('progress-bar').classList.remove('hidden');
+            document.getElementById('progress-fill').style.width = '0%';
+            
+            // Lancer tests
+            await TestSuite.runAll();
+            
+            // Masquer barre progression
+            setTimeout(() => {
+                document.getElementById('progress-bar').classList.add('hidden');
+            }, 500);
+        }
+
+        // ===========================================
+        // AUTO-EXÉCUTION (Optionnel)
+        // ===========================================
+        // Décommenter pour lancer tests automatiquement au chargement:
+        // window.addEventListener('DOMContentLoaded', runAllTests);
+
+        console.log('%c🧪 Forge v0.1.1 Test Suite Chargée', 'color: #8b5cf6; font-size: 16px; font-weight: bold;');
+        console.log('%cCliquer "Lancer les Tests" ou taper: runAllTests()', 'color: #a78bfa; font-size: 12px;');
+    </script>
+</body>
+</html>

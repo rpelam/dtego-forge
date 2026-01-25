@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atelier - Forge</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .atelier-container {
+            max-width: 1600px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .coming-soon {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+        .coming-soon h2 {
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+        }
+        .coming-soon p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+        .version-badge {
+            display: inline-block;
+            background: var(--bg-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 2rem;
+        }
+        .version-badge span {
+            color: var(--forge);
+            font-weight: 600;
+        }
+        .feature-preview {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 3rem;
+            text-align: left;
+        }
+        .feature-preview-item {
+            background: rgba(217, 119, 6, 0.1);
+            border: 1px solid var(--forge);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        .feature-preview-item h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--forge);
+            margin-bottom: 0.75rem;
+        }
+        .feature-preview-item ul {
+            list-style: none;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        .feature-preview-item li {
+            padding: 0.3rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .feature-preview-item li::before {
+            content: "→";
+            color: var(--forge);
+        }
+        @media (max-width: 768px) {
+            .feature-preview { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="index.html" class="nav-brand">FORGE</a>
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-link">Accueil</a></li>
+            <li><a href="atelier.html" class="nav-link active">Atelier</a></li>
+            <li><a href="bibliotheque.html" class="nav-link">Bibliothèque</a></li>
+        </ul>
+    </nav>
+
+    <div class="atelier-container">
+        <div style="margin-bottom: 2rem;">
+            <h1 style="font-size: 2.5rem; font-weight: 300; color: var(--forge); margin-bottom: 0.5rem;">Atelier</h1>
+            <p style="color: var(--text-secondary);">Créez, convertissez et testez vos stratégies de trading</p>
+        </div>
+
+        <div class="coming-soon">
+            <h2>En Construction</h2>
+            <p>
+                L'Atelier est actuellement en développement.<br>
+                Version complète disponible dans la v0.5 (2-3 jours).
+            </p>
+
+            <div class="version-badge">
+                <span>Version actuelle : v0.1 Foundation</span>
+            </div>
+
+            <div class="feature-preview">
+                <div class="feature-preview-item">
+                    <h3>v0.5 - Conversion Basic</h3>
+                    <ul>
+                        <li>Éditeur Pine Script</li>
+                        <li>Bouton "Convertir"</li>
+                        <li>Affichage Python</li>
+                        <li>Copy-to-clipboard</li>
+                        <li>Gestion erreurs</li>
+                    </ul>
+                </div>
+
+                <div class="feature-preview-item">
+                    <h3>v1.0 - Atelier Complet</h3>
+                    <ul>
+                        <li>Triple mode (Natural/Pine/Python)</li>
+                        <li>Auto-conversion (debounce 2s)</li>
+                        <li>Sauvegarde projets</li>
+                        <li>Historique versions</li>
+                        <li>Import/Export fichiers</li>
+                    </ul>
+                </div>
+
+                <div class="feature-preview-item">
+                    <h3>v1.5 - Intelligence</h3>
+                    <ul>
+                        <li>Scoring qualité</li>
+                        <li>Détection similarité</li>
+                        <li>Suggestions contextuelles</li>
+                        <li>Templates populaires</li>
+                        <li>Feedback utilisateur</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; text-align: center;">
+            <button id="testApiBtn" class="btn btn-secondary">Tester Connexion API</button>
+            <div id="apiStatus" style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p style="font-size: 0.875rem; color: var(--text-secondary);">
+            Forge v0.1 Foundation • Partie de l'écosystème Dtego<br>
+            © RA2P Production • Janvier 2026
+        </p>
+    </footer>
+
+    <script>
+        document.getElementById('testApiBtn').addEventListener('click', async () => {
+            const statusDiv = document.getElementById('apiStatus');
+            statusDiv.textContent = 'Test en cours...';
+            statusDiv.style.color = '#f59e0b';
+
+            try {
+                const response = await fetch('https://api.dtego.net/api/forge/parse', {
+                    method: 'OPTIONS'
+                });
+
+                if (response.ok || response.status === 405) {
+                    statusDiv.textContent = '✓ API accessible (api.dtego.net)';
+                    statusDiv.style.color = '#10b981';
+                } else {
+                    statusDiv.textContent = '⚠ API réponse inattendue (status: ' + response.status + ')';
+                    statusDiv.style.color = '#f59e0b';
+                }
+            } catch (error) {
+                statusDiv.textContent = '✗ Erreur connexion API: ' + error.message;
+                statusDiv.style.color = '#f43f5e';
+            }
+        });
+    </script>
+</body>
+</html>

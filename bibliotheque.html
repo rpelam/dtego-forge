@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bibliothèque - Forge</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .biblio-container {
+            max-width: 1600px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .coming-soon {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+        .coming-soon h2 {
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+        }
+        .coming-soon p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+        .version-badge {
+            display: inline-block;
+            background: var(--bg-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 2rem;
+        }
+        .version-badge span {
+            color: var(--biblio);
+            font-weight: 600;
+        }
+        .feature-preview {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 3rem;
+            text-align: left;
+        }
+        .feature-preview-item {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid var(--biblio);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        .feature-preview-item h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--biblio);
+            margin-bottom: 0.75rem;
+        }
+        .feature-preview-item ul {
+            list-style: none;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        .feature-preview-item li {
+            padding: 0.3rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .feature-preview-item li::before {
+            content: "→";
+            color: var(--biblio);
+        }
+        @media (max-width: 768px) {
+            .feature-preview { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="index.html" class="nav-brand">FORGE</a>
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-link">Accueil</a></li>
+            <li><a href="atelier.html" class="nav-link">Atelier</a></li>
+            <li><a href="bibliotheque.html" class="nav-link active">Bibliothèque</a></li>
+        </ul>
+    </nav>
+
+    <div class="biblio-container">
+        <div style="margin-bottom: 2rem;">
+            <h1 style="font-size: 2.5rem; font-weight: 300; color: var(--biblio); margin-bottom: 0.5rem;">Bibliothèque</h1>
+            <p style="color: var(--text-secondary);">Stockage intelligent de vos stratégies, indicateurs et filtres</p>
+        </div>
+
+        <div class="coming-soon">
+            <h2>En Construction</h2>
+            <p>
+                La Bibliothèque est actuellement en développement.<br>
+                Version complète disponible dans la v1.0 (6-10 jours).
+            </p>
+
+            <div class="version-badge">
+                <span>Version actuelle : v0.1 Foundation</span>
+            </div>
+
+            <div class="feature-preview">
+                <div class="feature-preview-item">
+                    <h3>v1.0 - Bibliothèque Core</h3>
+                    <ul>
+                        <li>Liste library_items (indicateurs + stratégies)</li>
+                        <li>Filtres par type / catégorie</li>
+                        <li>Recherche texte (titre, description)</li>
+                        <li>Détail item (modale avec code preview)</li>
+                        <li>Suppression item (avec confirmation)</li>
+                        <li>Auto-save après conversion réussie</li>
+                    </ul>
+                </div>
+
+                <div class="feature-preview-item">
+                    <h3>v1.5 - Intelligence</h3>
+                    <ul>
+                        <li>Dashboard statistiques</li>
+                        <li>Templates stratégies populaires</li>
+                        <li>Top indicateurs utilisés</li>
+                        <li>Suggestions contextuelles</li>
+                        <li>Détection doublons (similarité)</li>
+                        <li>Export/Import bulk</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 3rem; padding: 2rem; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border);">
+            <h3 style="font-size: 1.5rem; font-weight: 300; margin-bottom: 1rem; color: var(--biblio);">
+                Concept : Hub Auto-Apprenant
+            </h3>
+            <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 1.5rem;">
+                La Bibliothèque est le cœur de Forge. Chaque conversion réussie enrichit automatiquement
+                la base de connaissances, améliorant la qualité des futures conversions. Les indicateurs,
+                filtres et stratégies sont stockés comme des briques réutilisables que vous pouvez
+                composer librement.
+            </p>
+
+            <div class="grid grid-3">
+                <div style="text-align: center; padding: 1.5rem;">
+                    <div style="font-size: 2.5rem; color: var(--biblio); margin-bottom: 0.5rem;">📊</div>
+                    <div style="font-weight: 600; margin-bottom: 0.25rem;">Indicateurs</div>
+                    <div style="font-size: 0.9rem; color: var(--text-secondary);">Briques techniques</div>
+                </div>
+
+                <div style="text-align: center; padding: 1.5rem;">
+                    <div style="font-size: 2.5rem; color: var(--biblio); margin-bottom: 0.5rem;">🎯</div>
+                    <div style="font-weight: 600; margin-bottom: 0.25rem;">Stratégies</div>
+                    <div style="font-size: 0.9rem; color: var(--text-secondary);">Logique pure</div>
+                </div>
+
+                <div style="text-align: center; padding: 1.5rem;">
+                    <div style="font-size: 2.5rem; color: var(--biblio); margin-bottom: 0.5rem;">🔍</div>
+                    <div style="font-weight: 600; margin-bottom: 0.25rem;">Filtres</div>
+                    <div style="font-size: 0.9rem; color: var(--text-secondary);">Conditions modulaires</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p style="font-size: 0.875rem; color: var(--text-secondary);">
+            Forge v0.1 Foundation • Partie de l'écosystème Dtego<br>
+            © RA2P Production • Janvier 2026
+        </p>
+    </footer>
+</body>
+</html>
