@@ -4501,7 +4501,7 @@ async function forgeRunBacktest() {
             const convertRes = await fetch(`${API_BASE}/api/forge/convert`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pine_code: forgeState.pineCode })
+                body: JSON.stringify({ pine_code: forgeState.pineCode, use_ai: true })
             });
             const convertData = await convertRes.json();
             if (convertData.success) {
@@ -4583,7 +4583,7 @@ async function forgeGenerateAndTest() {
             const convertRes = await fetch(`${API_BASE}/api/forge/convert`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pine_code: forgeState.pineCode })
+                body: JSON.stringify({ pine_code: forgeState.pineCode, use_ai: true })
             });
             const convertData = await convertRes.json();
             if (convertData.success) {
@@ -4692,7 +4692,7 @@ async function forgeRunBacktest() {
             const convertRes = await fetch(`${API_BASE}/api/forge/convert`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pine_code: forgeState.pineCode })
+                body: JSON.stringify({ pine_code: forgeState.pineCode, use_ai: true })
             });
             const convertData = await convertRes.json();
             if (convertData.success) {
