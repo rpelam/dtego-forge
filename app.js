@@ -4107,145 +4107,44 @@ hline(overbought, "Surachat", color.red)
     showToast('Template Pine généré - Personnalisez-le!', 'success');
 }
 
-// Convertir Pine Script en Python (conversion basique)
-function forgeConvertToPython() {
+// Convertir Pine Script en Python via API avec Claude AI
+async function forgeConvertToPython() {
     if (!forgeState.pineCode) {
-        showToast('Aucun code Pine Ã  convertir', 'error');
+        showToast('Aucun code Pine à convertir', 'error');
         return;
     }
-    
-    showToast('Conversion en Python...', 'info');
-    
-    // Extraction du nom de la stratégie
-    const nameMatch = forgeState.pineCode.match(/strategy\s*\(\s*["']([^"']+)["']/);
-    const strategyName = nameMatch ? nameMatch[1] : 'ConvertedStrategy';
-    
-    // Extraction des paramètres input
-    const inputs = [];
-    const inputRegex = /(\w+)\s*=\s*input\.(int|float|bool|string)\s*\(\s*([^,)]+)/g;
-    let match;
-    while ((match = inputRegex.exec(forgeState.pineCode)) !== null) {
-        inputs.push({ name: match[1], type: match[2], default: match[3].trim() });
-    }
-    
-    // Détection des indicateurs utilisés
-    const indicators = [];
-    if (/ta\.rsi/i.test(forgeState.pineCode)) indicators.push('RSI');
-    if (/ta\.sma/i.test(forgeState.pineCode)) indicators.push('SMA');
-    if (/ta\.ema/i.test(forgeState.pineCode)) indicators.push('EMA');
-    if (/ta\.macd/i.test(forgeState.pineCode)) indicators.push('MACD');
-    if (/ta\.bb/i.test(forgeState.pineCode)) indicators.push('Bollinger');
-    if (/ta\.atr/i.test(forgeState.pineCode)) indicators.push('ATR');
-    if (/ta\.stoch/i.test(forgeState.pineCode)) indicators.push('Stochastic');
-    
-    // Génération du code Python
-    const pythonCode = `"""
-${strategyName}
-Converti depuis Pine Script par Dtego Trading Forge
-Date: ${new Date().toISOString().slice(0,10)}
-"""
 
-import pandas as pd
-import numpy as np
-from typing import Dict, Any, Tuple
-
-class ${strategyName.replace(/[^a-zA-Z0-9]/g, '')}:
-    """
-    Stratégie convertie depuis Pine Script
-    Indicateurs détectés: ${indicators.join(', ') || 'Aucun'}
-    """
-    
-    def __init__(self):
-# Paramètres (depuis inputs Pine)
-${inputs.map(i => `        self.${i.name} = ${i.default}`).join('\n') || '        self.length = 14'}
-    
-    def calculate_indicators(self, df: pd.DataFrame) -> pd.DataFrame:
-"""Calcule les indicateurs techniques"""
-df = df.copy()
-
-${indicators.includes('RSI') ? `        # RSI
-delta = df['close'].diff()
-gain = (delta.where(delta > 0, 0)).rolling(window=self.length if hasattr(self, 'length') else 14).mean()
-loss = (-delta.where(delta < 0, 0)).rolling(window=self.length if hasattr(self, 'length') else 14).mean()
-rs = gain / loss
-df['rsi'] = 100 - (100 / (1 + rs))
-` : ''}${indicators.includes('SMA') ? `        # SMA
-df['sma'] = df['close'].rolling(window=self.length if hasattr(self, 'length') else 20).mean()
-` : ''}${indicators.includes('EMA') ? `        # EMA
-df['ema'] = df['close'].ewm(span=self.length if hasattr(self, 'length') else 20, adjust=False).mean()
-` : ''}${indicators.includes('MACD') ? `        # MACD
-df['ema12'] = df['close'].ewm(span=12, adjust=False).mean()
-df['ema26'] = df['close'].ewm(span=26, adjust=False).mean()
-df['macd'] = df['ema12'] - df['ema26']
-df['macd_signal'] = df['macd'].ewm(span=9, adjust=False).mean()
-df['macd_hist'] = df['macd'] - df['macd_signal']
-` : ''}${indicators.includes('Bollinger') ? `        # Bollinger Bands
-df['bb_middle'] = df['close'].rolling(window=20).mean()
-df['bb_std'] = df['close'].rolling(window=20).std()
-df['bb_upper'] = df['bb_middle'] + (df['bb_std'] * 2)
-df['bb_lower'] = df['bb_middle'] - (df['bb_std'] * 2)
-` : ''}
-return df
-    
-    def generate_signals(self, df: pd.DataFrame) -> pd.DataFrame:
-"""Génère les signaux de trading"""
-df = self.calculate_indicators(df)
-df['signal'] = 0  # 0 = neutre, 1 = achat, -1 = vente
-
-# TODO: Implémenter la logique de signaux depuis Pine Script
-# Conditions extraites du code Pine original:
-# ${forgeState.pineCode.match(/longCondition\s*=\s*(.+)/)?.[1] || 'À définir'}
-
-return df
-    
-    def backtest(self, df: pd.DataFrame, initial_capital: float = 10000) -> Dict[str, Any]:
-"""Execute le backtest"""
-df = self.generate_signals(df)
-
-capital = initial_capital
-position = 0
-trades = []
-
-for i in range(1, len(df)):
-    if df['signal'].iloc[i] == 1 and position == 0:
-        # Entrée Long
-        position = capital / df['close'].iloc[i]
-        entry_price = df['close'].iloc[i]
-        entry_time = df.index[i]
-    elif df['signal'].iloc[i] == -1 and position > 0:
-        # Sortie
-        capital = position * df['close'].iloc[i]
-        trades.append({
-            'entry': entry_price,
-            'exit': df['close'].iloc[i],
-            'pnl': (df['close'].iloc[i] - entry_price) / entry_price * 100
-        })
-        position = 0
-
-return {
-    'final_capital': capital,
-    'return_pct': (capital - initial_capital) / initial_capital * 100,
-    'trades': len(trades),
-    'win_rate': len([t for t in trades if t['pnl'] > 0]) / len(trades) * 100 if trades else 0
-}
-
-
-# === UTILISATION ===
-if __name__ == "__main__":
-    # Exemple d'utilisation
-    strategy = ${strategyName.replace(/[^a-zA-Z0-9]/g, '')}()
-    
-    # Charger vos données OHLCV
-    # df = pd.read_csv('data.csv', parse_dates=['timestamp'], index_col='timestamp')
-    
-    # results = strategy.backtest(df)
-    # print(f"Résultat: {results['return_pct']:.2f}%")
-`;
-    
-    forgeState.pythonCode = pythonCode;
-    forgeState.inputMode = 'python';
+    showToast('Conversion IA en cours...', 'info');
+    forgeState.isGenerating = true;
     renderSection();
-    showToast('Code Python généré!', 'success');
+
+    try {
+        const response = await fetch(`${API_BASE}/api/forge/convert`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                pine_code: forgeState.pineCode,
+                use_ai: true
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.python_code) {
+            forgeState.pythonCode = data.python_code;
+            forgeState.inputMode = 'python';
+            renderSection();
+            showToast(`Conversion IA réussie (${data.conversion_method})`, 'success');
+        } else {
+            throw new Error(data.error || 'Erreur de conversion');
+        }
+    } catch (error) {
+        console.error('Conversion error:', error);
+        showToast(`Erreur: ${error.message}`, 'error');
+    } finally {
+        forgeState.isGenerating = false;
+        renderSection();
+    }
 }
 
 function forgeIgnoreSuggestion(index) {
