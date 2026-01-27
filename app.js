@@ -90,6 +90,7 @@ let forgeState = {
     isGenerating: false,
     isAnalyzing: false,
     isSimulating: false, // État pour le bouton Simuler
+    isConverting: false, // État pour le bouton Python
     strategyType: 'strategy', // 'strategy' ou 'indicator'
     inputMode: 'natural', // 'natural', 'pine' ou 'python' - Toggle zone d'entrée
     selectedAssets: 'BTCUSDT,ETHUSDT,SOLUSDT,BNBUSDT,XRPUSDT',
@@ -364,9 +365,17 @@ function renderAtelierConvert() {
                                 class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition" title="Ouvrir TradingView">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                             </a>
-                            <button onclick="forgeConvertToPython()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-gradient-to-r from-green-600 to-emerald-500 text-white hover:from-green-500 hover:to-emerald-400 transition flex items-center gap-1.5" title="Convertir en Python">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-                                Python
+                            <button onclick="forgeConvertToPython()"
+                                class="px-3 py-1.5 rounded-lg text-xs font-medium bg-gradient-to-r from-green-600 to-emerald-500 text-white hover:from-green-500 hover:to-emerald-400 transition flex items-center gap-1.5 ${forgeState.isConverting ? 'opacity-50 cursor-not-allowed' : ''}"
+                                title="Convertir en Python"
+                                ${forgeState.isConverting ? 'disabled' : ''}>
+                                ${forgeState.isConverting ? `
+                                    <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                                    Conversion...
+                                ` : `
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                                    Python
+                                `}
                             </button>
                         ` : ''}
                         
@@ -4115,7 +4124,7 @@ async function forgeConvertToPython() {
     }
 
     showToast('Conversion IA en cours...', 'info');
-    forgeState.isGenerating = true;
+    forgeState.isConverting = true;
     renderSection();
 
     try {
@@ -4142,7 +4151,7 @@ async function forgeConvertToPython() {
         console.error('Conversion error:', error);
         showToast(`Erreur: ${error.message}`, 'error');
     } finally {
-        forgeState.isGenerating = false;
+        forgeState.isConverting = false;
         renderSection();
     }
 }
