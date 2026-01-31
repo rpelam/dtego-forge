@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="min-h-screen" style="background: linear-gradient(135deg, #0f0f1a, #1a1a2e);">
-    <!-- Header -->
     <div class="p-6">
         <div class="flex justify-between items-center mb-6">
             <div>
@@ -26,16 +25,13 @@
         </div>
     </div>
 
-    <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        // Supabase Init
         const SUPABASE_URL = 'https://romjkgtvgktpysssagsf.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvbWprZ3R2Z2t0cHlzc3NhZ3NmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3MjIyOTEsImV4cCI6MjA4MzI5ODI5MX0.19xzOoEokS9jqBnPRX00DpvfRMHa9VceiCIoVyI-0v8';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Charger les items
         async function loadLibraryItems() {
             const { data, error } = await supabaseClient.from('library_items').select('*').order('created_at', { ascending: false });
             if (error) {
@@ -50,8 +46,6 @@
             document.getElementById('libraryContainer').innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">' + html + '</div>';
         }
 
-        // SESSION 39 - ÉDITION PARAMÈTRES
-
         async function editParameters(itemId) {
             try {
                 const { data: item, error } = await supabaseClient
@@ -62,9 +56,16 @@
 
                 if (error) throw error;
 
+                if (item.parameter_schema) {
+                    console.log('[SESSION40] Consultation instantanée - Paramètres: ' + (item.parameter_schema.parameters ? item.parameter_schema.parameters.length : 0));
+                    showParameterEditor(item, item.parameter_schema);
+                    return;
+                }
+
+                console.log('[SESSION40] parameter_schema manquant → migration automatique');
                 showLoadingModal('Analyse des paramètres...');
 
-                const response = await fetch('https://api.dtego.net/api/forge/analyze-granule', {
+                const analyzeResponse = await fetch('https://api.dtego.net/api/forge/analyze-granule', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -73,14 +74,36 @@
                     })
                 });
 
-                const result = await response.json();
-                hideLoadingModal();
+                const analyzeResult = await analyzeResponse.json();
 
-                if (!result.success) {
-                    throw new Error(result.error || 'Erreur extraction');
+                if (!analyzeResult.success) {
+                    throw new Error(analyzeResult.error || 'Erreur extraction');
                 }
 
-                showParameterEditor(item, result.parameter_schema);
+                const schema = analyzeResult.parameter_schema;
+                const paramCount = schema.parameters ? schema.parameters.length : 0;
+                console.log('[SESSION40] Migration automatique: ' + item.name + ' - ' + paramCount + ' paramètres');
+
+                const updateResponse = await fetch('https://api.dtego.net/api/library/items/' + itemId + '/parameters', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        parameter_schema: schema,
+                        parameter_values: schema.parameters ? schema.parameters.reduce((acc, p) => {
+                            acc[p.id] = p.default;
+                            return acc;
+                        }, {}) : {}
+                    })
+                });
+
+                if (updateResponse.ok) {
+                    console.log('[SESSION40] Élément migré - prochaine consultation: <1s');
+                } else {
+                    console.warn('[SESSION40] Sauvegarde DB échouée, mais édition continue');
+                }
+
+                hideLoadingModal();
+                showParameterEditor(item, schema);
 
             } catch (error) {
                 console.error('Erreur édition paramètres:', error);
@@ -179,8 +202,8 @@
         function updateParameter(paramId, value) {
             window.currentParameterValues[paramId] = value;
 
-            const slider = document.getElementById(`slider_${paramId}`);
-            const input = document.getElementById(`input_${paramId}`);
+            const slider = document.getElementById('slider_' + paramId);
+            const input = document.getElementById('input_' + paramId);
 
             if (slider) slider.value = value;
             if (input) input.value = value;
@@ -197,34 +220,39 @@
         function generateCodePreview(parameters, values) {
             return parameters.map(param => {
                 const value = values[param.id];
-                const displayValue = param.type === 'string' ? `"${value}"` : value;
-                return `${param.type} ${param.id} = ${displayValue}`;
+                const displayValue = param.type === 'string' ? '"' + value + '"' : value;
+                return param.type + ' ' + param.id + ' = ' + displayValue;
             }).join('\n');
         }
 
         async function saveParameters(itemId) {
             try {
-                const updatedCode = generateCodePreview(
-                    window.currentParameterSchema.parameters,
-                    window.currentParameterValues
-                );
+                showLoadingModal('Sauvegarde...');
 
-                const { error } = await supabaseClient
-                    .from('library_items')
-                    .update({
-                        pine_code: updatedCode,
-                        updated_at: new Date().toISOString()
+                const updatedValues = window.currentParameterValues;
+
+                const response = await fetch('https://api.dtego.net/api/library/items/' + itemId + '/parameters', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        parameter_values: updatedValues
                     })
-                    .eq('id', itemId);
+                });
 
-                if (error) throw error;
+                if (!response.ok) {
+                    throw new Error('Erreur sauvegarde API');
+                }
 
+                console.log('[SESSION40] Paramètres sauvegardés en <1s');
+
+                hideLoadingModal();
                 closeParameterEditor();
                 alert('Paramètres sauvegardés!');
                 loadLibraryItems();
 
             } catch (error) {
                 console.error('Erreur sauvegarde:', error);
+                hideLoadingModal();
                 alert('Erreur: ' + error.message);
             }
         }
