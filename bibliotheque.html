@@ -135,7 +135,13 @@
                     throw new Error(result.error || 'Erreur extraction');
                 }
 
-                console.log('[SESSION40] 🔄 Migration automatique:', item.name, '-', result.parameter_schema?.total_count || 0, 'paramètres');
+                const paramCount = result.parameter_schema?.parameters?.length || 0;
+                console.log('[SESSION40] 🔄 Migration automatique:', item.name, '-', paramCount, 'paramètres');
+                
+                // Ajouter total_count si manquant
+                if (result.parameter_schema && !result.parameter_schema.total_count) {
+                    result.parameter_schema.total_count = paramCount;
+                }
 
                 // NOUVEAU: Sauvegarder en DB pour les prochaines fois
                 try {
