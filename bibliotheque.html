@@ -50,9 +50,71 @@
             document.getElementById('libraryContainer').innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">' + html + '</div>';
         }
 
-        // SESSION 39 - ÉDITION PARAMÈTRES
+        // ============================================================================
+        // SESSION 40 - ÉDITION PARAMÈTRES OPTIMISÉE AVEC FALLBACK
+        // ============================================================================
+        // Stratégie: Essayer Session 40 (instantané), fallback vers ancien système
+        // ============================================================================
 
         async function editParameters(itemId) {
+            try {
+                console.log('[SESSION40] Tentative lecture instantanée...');
+                showLoadingModal('Chargement des paramètres...');
+
+                // ESSAYER Session 40 d'abord (consultation instantanée)
+                const session40Response = await fetch(`https://api.dtego.net/api/library/items/${itemId}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (session40Response.ok) {
+                    const session40Result = await session40Response.json();
+                    
+                    if (session40Result.success && session40Result.item) {
+                        const item = session40Result.item;
+                        
+                        // Vérifier que parameter_schema existe et est valide
+                        if (item.parameter_schema && item.parameter_schema.parameters) {
+                            hideLoadingModal();
+                            
+                            // Parser JSON si nécessaire
+                            const parameterSchema = typeof item.parameter_schema === 'string' 
+                                ? JSON.parse(item.parameter_schema) 
+                                : item.parameter_schema;
+                            
+                            const parameterValues = typeof item.parameter_values === 'string'
+                                ? JSON.parse(item.parameter_values)
+                                : (item.parameter_values || {});
+                            
+                            const paramCount = parameterSchema.total_count || parameterSchema.parameters.length;
+                            console.log(`[SESSION40] ✅ Consultation instantanée - ${paramCount} paramètres`);
+                            
+                            showParameterEditor(item, parameterSchema, parameterValues);
+                            return;
+                        }
+                    }
+                }
+
+                // FALLBACK : Si Session 40 échoue ou pas de paramètres, utiliser ancien système
+                console.warn('[SESSION40] Fallback vers ancien système (extraction live)');
+                await editParametersLegacy(itemId);
+
+            } catch (error) {
+                console.error('[SESSION40] Erreur, tentative fallback...', error);
+                
+                // Fallback en cas d'erreur
+                try {
+                    await editParametersLegacy(itemId);
+                } catch (fallbackError) {
+                    console.error('[SESSION40] Erreur fallback:', fallbackError);
+                    hideLoadingModal();
+                    alert('Erreur lors de l\'édition des paramètres: ' + fallbackError.message);
+                }
+            }
+        }
+
+        // Ancien système (extraction live) - préservé comme fallback
+        async function editParametersLegacy(itemId) {
             try {
                 const { data: item, error } = await supabaseClient
                     .from('library_items')
@@ -62,7 +124,7 @@
 
                 if (error) throw error;
 
-                showLoadingModal('Analyse des paramètres...');
+                showLoadingModal('Analyse des paramètres (extraction live ~30s)...');
 
                 const response = await fetch('https://api.dtego.net/api/forge/analyze-granule', {
                     method: 'POST',
@@ -71,6 +133,23 @@
                         pine_code: item.pine_code || '',
                         filter_name: item.name
                     })
+                });
+
+                const result = await response.json();
+                hideLoadingModal();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Erreur extraction');
+                }
+
+                console.log('[SESSION40] ⚠️ Extraction LIVE utilisée (lent + coûteux)');
+
+                showParameterEditor(item, result.parameter_schema, {});
+
+            } catch (error) {
+                throw error;
+            }
+        })
                 });
 
                 const result = await response.json();
