@@ -50,64 +50,9 @@
             document.getElementById('libraryContainer').innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">' + html + '</div>';
         }
 
-        // ============================================================================
-        // SESSION 40 - ÉDITION PARAMÈTRES OPTIMISÉE AVEC AUTO-MIGRATION
-        // ============================================================================
-        // AVANT: Extraction LIVE (~30s, $0.50) à chaque fois
-        // APRÈS: 
-        //   - 1ère fois: Extraction LIVE + sauvegarde DB (30s)
-        //   - Fois suivantes: Lecture DB (<1s, $0)
-        // ============================================================================
+        // SESSION 39 - ÉDITION PARAMÈTRES
 
         async function editParameters(itemId) {
-            try {
-                showLoadingModal('Chargement des paramètres...');
-
-                // SESSION 40: LECTURE INSTANTANÉE depuis DB
-                const response = await fetch(`https://api.dtego.net/api/library/items/${itemId}`, {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                const result = await response.json();
-                hideLoadingModal();
-
-                if (!result.success) {
-                    throw new Error(result.error || 'Erreur lecture item');
-                }
-
-                const item = result.item;
-
-                // Vérifier si parameter_schema existe (items Session 40)
-                if (!item.parameter_schema || !item.parameter_schema.parameters) {
-                    // Fallback: extraction LIVE avec migration automatique
-                    console.warn('[SESSION40] parameter_schema manquant → migration automatique');
-                    await editParametersLegacy(itemId);
-                    return;
-                }
-
-                // Parser JSON si nécessaire
-                const parameterSchema = typeof item.parameter_schema === 'string' 
-                    ? JSON.parse(item.parameter_schema) 
-                    : item.parameter_schema;
-
-                const parameterValues = typeof item.parameter_values === 'string'
-                    ? JSON.parse(item.parameter_values)
-                    : (item.parameter_values || {});
-
-                console.log('[SESSION40] ✅ Consultation instantanée - Paramètres:', parameterSchema.total_count);
-
-                showParameterEditor(item, parameterSchema, parameterValues);
-
-            } catch (error) {
-                console.error('[SESSION40] Erreur édition paramètres:', error);
-                hideLoadingModal();
-                alert('Erreur lors de l\'édition des paramètres: ' + error.message);
-            }
-        }
-
-        // SESSION 40 - FALLBACK avec MIGRATION AUTOMATIQUE pour items non migrés
-        async function editParametersLegacy(itemId) {
             try {
                 const { data: item, error } = await supabaseClient
                     .from('library_items')
@@ -117,7 +62,7 @@
 
                 if (error) throw error;
 
-                showLoadingModal('🔄 Première consultation - Migration automatique (~30s)\n\nCet élément sera instantané dès la prochaine fois...');
+                showLoadingModal('Analyse des paramètres...');
 
                 const response = await fetch('https://api.dtego.net/api/forge/analyze-granule', {
                     method: 'POST',
@@ -129,56 +74,22 @@
                 });
 
                 const result = await response.json();
+                hideLoadingModal();
 
                 if (!result.success) {
-                    hideLoadingModal();
                     throw new Error(result.error || 'Erreur extraction');
                 }
 
-                const paramCount = result.parameter_schema?.parameters?.length || 0;
-                console.log('[SESSION40] 🔄 Migration automatique:', item.name, '-', paramCount, 'paramètres');
-                
-                // Ajouter total_count si manquant
-                if (result.parameter_schema && !result.parameter_schema.total_count) {
-                    result.parameter_schema.total_count = paramCount;
-                }
-
-                // NOUVEAU: Sauvegarder en DB pour les prochaines fois
-                try {
-                    // Sauvegarde en DB (le modal d'extraction reste affiché)
-                    
-                    const migrateResponse = await fetch(`https://api.dtego.net/api/library/items/${itemId}/parameters`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            parameter_schema: result.parameter_schema,
-                            parameter_values: result.parameter_schema?.parameters?.reduce((acc, p) => {
-                                acc[p.id] = p.default;
-                                return acc;
-                            }, {}) || {}
-                        })
-                    });
-
-                    if (migrateResponse.ok) {
-                        console.log('[SESSION40] ✅ Élément migré - prochaine consultation: <1s');
-                    } else {
-                        console.warn('[SESSION40] ⚠️ Sauvegarde DB échouée, mais édition continue');
-                    }
-                } catch (migrationError) {
-                    console.warn('[SESSION40] ⚠️ Migration DB échouée:', migrationError);
-                }
-
-                hideLoadingModal();
-                showParameterEditor(item, result.parameter_schema, {});
+                showParameterEditor(item, result.parameter_schema);
 
             } catch (error) {
-                console.error('[SESSION40] Erreur édition paramètres:', error);
+                console.error('Erreur édition paramètres:', error);
                 hideLoadingModal();
                 alert('Erreur lors de l\'édition des paramètres: ' + error.message);
             }
         }
 
-        function showParameterEditor(item, schema, initialValues = {}) {
+        function showParameterEditor(item, schema) {
             const modal = document.createElement('div');
             modal.id = 'parameterEditorModal';
             modal.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50';
@@ -186,11 +97,8 @@
             const parameters = schema.parameters || [];
             let currentValues = {};
 
-            // Utiliser initialValues si fourni, sinon defaults du schema
             parameters.forEach(param => {
-                currentValues[param.id] = initialValues[param.id] !== undefined 
-                    ? initialValues[param.id] 
-                    : param.default;
+                currentValues[param.id] = param.default;
             });
 
             modal.innerHTML = `
@@ -201,7 +109,7 @@
                     </div>
 
                     <div class="mb-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
-                        <p class="text-amber-200 text-sm">${item.name} - ${parameters.length} paramètre(s)</p>
+                        <p class="text-amber-200 text-sm">${item.name}</p>
                     </div>
 
                     <div id="parametersContainer" class="space-y-4 mb-6">
@@ -294,35 +202,30 @@
             }).join('\n');
         }
 
-        // ============================================================================
-        // SESSION 40: SAUVEGARDE OPTIMISÉE
-        // ============================================================================
         async function saveParameters(itemId) {
             try {
-                // SESSION 40: UPDATE RAPIDE via endpoint optimisé
-                const response = await fetch(`https://api.dtego.net/api/library/items/${itemId}/parameters`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        parameter_values: window.currentParameterValues
+                const updatedCode = generateCodePreview(
+                    window.currentParameterSchema.parameters,
+                    window.currentParameterValues
+                );
+
+                const { error } = await supabaseClient
+                    .from('library_items')
+                    .update({
+                        pine_code: updatedCode,
+                        updated_at: new Date().toISOString()
                     })
-                });
+                    .eq('id', itemId);
 
-                const result = await response.json();
-
-                if (!result.success) {
-                    throw new Error(result.error || 'Erreur sauvegarde');
-                }
-
-                console.log('[SESSION40] ✅ Paramètres sauvegardés en <1s');
+                if (error) throw error;
 
                 closeParameterEditor();
-                alert('✅ Paramètres sauvegardés avec succès!');
+                alert('Paramètres sauvegardés!');
                 loadLibraryItems();
 
             } catch (error) {
-                console.error('[SESSION40] Erreur sauvegarde:', error);
-                alert('❌ Erreur lors de la sauvegarde: ' + error.message);
+                console.error('Erreur sauvegarde:', error);
+                alert('Erreur: ' + error.message);
             }
         }
 
@@ -340,9 +243,9 @@
             modal.id = 'loadingModal';
             modal.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50';
             modal.innerHTML = `
-                <div class="bg-gray-900 border border-white/10 rounded-2xl p-8 text-center max-w-md">
+                <div class="bg-gray-900 border border-white/10 rounded-2xl p-8 text-center">
                     <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mx-auto mb-4"></div>
-                    <p class="text-white whitespace-pre-line">${message}</p>
+                    <p class="text-white">${message}</p>
                 </div>
             `;
             document.body.appendChild(modal);
