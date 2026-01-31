@@ -51,10 +51,12 @@
         }
 
         // ============================================================================
-        // SESSION 40 - ÉDITION PARAMÈTRES OPTIMISÉE
+        // SESSION 40 - ÉDITION PARAMÈTRES OPTIMISÉE AVEC AUTO-MIGRATION
         // ============================================================================
-        // AVANT: Extraction LIVE (~30s, $0.50)
-        // APRÈS: Lecture DB (<1s, $0)
+        // AVANT: Extraction LIVE (~30s, $0.50) à chaque fois
+        // APRÈS: 
+        //   - 1ère fois: Extraction LIVE + sauvegarde DB (30s)
+        //   - Fois suivantes: Lecture DB (<1s, $0)
         // ============================================================================
 
         async function editParameters(itemId) {
@@ -78,8 +80,8 @@
 
                 // Vérifier si parameter_schema existe (items Session 40)
                 if (!item.parameter_schema || !item.parameter_schema.parameters) {
-                    // Fallback: extraction LIVE pour items non migrés
-                    console.warn('[SESSION40] parameter_schema manquant → fallback extraction live');
+                    // Fallback: extraction LIVE avec migration automatique
+                    console.warn('[SESSION40] parameter_schema manquant → migration automatique');
                     await editParametersLegacy(itemId);
                     return;
                 }
@@ -104,7 +106,7 @@
             }
         }
 
-        // SESSION 39 - FALLBACK pour items non migrés
+        // SESSION 40 - FALLBACK avec MIGRATION AUTOMATIQUE pour items non migrés
         async function editParametersLegacy(itemId) {
             try {
                 const { data: item, error } = await supabaseClient
@@ -115,7 +117,7 @@
 
                 if (error) throw error;
 
-                showLoadingModal('Analyse des paramètres (extraction live ~30s)...');
+                showLoadingModal('🔄 Première consultation - Migration automatique (~30s)\n\nCet élément sera instantané dès la prochaine fois...');
 
                 const response = await fetch('https://api.dtego.net/api/forge/analyze-granule', {
                     method: 'POST',
@@ -127,18 +129,44 @@
                 });
 
                 const result = await response.json();
-                hideLoadingModal();
 
                 if (!result.success) {
+                    hideLoadingModal();
                     throw new Error(result.error || 'Erreur extraction');
                 }
 
-                console.warn('[SESSION39] ⚠️ Extraction LIVE utilisée (lent + coûteux)');
+                console.log('[SESSION40] 🔄 Migration automatique:', item.name, '-', result.parameter_schema?.total_count || 0, 'paramètres');
 
+                // NOUVEAU: Sauvegarder en DB pour les prochaines fois
+                try {
+                    showLoadingModal('💾 Sauvegarde pour consultations futures...');
+                    
+                    const migrateResponse = await fetch(`https://api.dtego.net/api/library/items/${itemId}/parameters`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            parameter_schema: result.parameter_schema,
+                            parameter_values: result.parameter_schema?.parameters?.reduce((acc, p) => {
+                                acc[p.id] = p.default;
+                                return acc;
+                            }, {}) || {}
+                        })
+                    });
+
+                    if (migrateResponse.ok) {
+                        console.log('[SESSION40] ✅ Élément migré - prochaine consultation: <1s');
+                    } else {
+                        console.warn('[SESSION40] ⚠️ Sauvegarde DB échouée, mais édition continue');
+                    }
+                } catch (migrationError) {
+                    console.warn('[SESSION40] ⚠️ Migration DB échouée:', migrationError);
+                }
+
+                hideLoadingModal();
                 showParameterEditor(item, result.parameter_schema, {});
 
             } catch (error) {
-                console.error('[SESSION39] Erreur édition paramètres:', error);
+                console.error('[SESSION40] Erreur édition paramètres:', error);
                 hideLoadingModal();
                 alert('Erreur lors de l\'édition des paramètres: ' + error.message);
             }
@@ -306,9 +334,9 @@
             modal.id = 'loadingModal';
             modal.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50';
             modal.innerHTML = `
-                <div class="bg-gray-900 border border-white/10 rounded-2xl p-8 text-center">
+                <div class="bg-gray-900 border border-white/10 rounded-2xl p-8 text-center max-w-md">
                     <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mx-auto mb-4"></div>
-                    <p class="text-white">${message}</p>
+                    <p class="text-white whitespace-pre-line">${message}</p>
                 </div>
             `;
             document.body.appendChild(modal);
