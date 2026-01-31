@@ -139,7 +139,7 @@
 
                 // NOUVEAU: Sauvegarder en DB pour les prochaines fois
                 try {
-                    showLoadingModal('💾 Sauvegarde pour consultations futures...');
+                    // Sauvegarde en DB (le modal d'extraction reste affiché)
                     
                     const migrateResponse = await fetch(`https://api.dtego.net/api/library/items/${itemId}/parameters`, {
                         method: 'PUT',
