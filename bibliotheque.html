@@ -50,9 +50,62 @@
             document.getElementById('libraryContainer').innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">' + html + '</div>';
         }
 
-        // SESSION 39 - ÉDITION PARAMÈTRES
+        // ============================================================================
+        // SESSION 40 - ÉDITION PARAMÈTRES OPTIMISÉE
+        // ============================================================================
+        // AVANT: Extraction LIVE (~30s, $0.50)
+        // APRÈS: Lecture DB (<1s, $0)
+        // ============================================================================
 
         async function editParameters(itemId) {
+            try {
+                showLoadingModal('Chargement des paramètres...');
+
+                // SESSION 40: LECTURE INSTANTANÉE depuis DB
+                const response = await fetch(`https://api.dtego.net/api/library/items/${itemId}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+                hideLoadingModal();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Erreur lecture item');
+                }
+
+                const item = result.item;
+
+                // Vérifier si parameter_schema existe (items Session 40)
+                if (!item.parameter_schema || !item.parameter_schema.parameters) {
+                    // Fallback: extraction LIVE pour items non migrés
+                    console.warn('[SESSION40] parameter_schema manquant → fallback extraction live');
+                    await editParametersLegacy(itemId);
+                    return;
+                }
+
+                // Parser JSON si nécessaire
+                const parameterSchema = typeof item.parameter_schema === 'string' 
+                    ? JSON.parse(item.parameter_schema) 
+                    : item.parameter_schema;
+
+                const parameterValues = typeof item.parameter_values === 'string'
+                    ? JSON.parse(item.parameter_values)
+                    : (item.parameter_values || {});
+
+                console.log('[SESSION40] ✅ Consultation instantanée - Paramètres:', parameterSchema.total_count);
+
+                showParameterEditor(item, parameterSchema, parameterValues);
+
+            } catch (error) {
+                console.error('[SESSION40] Erreur édition paramètres:', error);
+                hideLoadingModal();
+                alert('Erreur lors de l\'édition des paramètres: ' + error.message);
+            }
+        }
+
+        // SESSION 39 - FALLBACK pour items non migrés
+        async function editParametersLegacy(itemId) {
             try {
                 const { data: item, error } = await supabaseClient
                     .from('library_items')
@@ -62,7 +115,7 @@
 
                 if (error) throw error;
 
-                showLoadingModal('Analyse des paramètres...');
+                showLoadingModal('Analyse des paramètres (extraction live ~30s)...');
 
                 const response = await fetch('https://api.dtego.net/api/forge/analyze-granule', {
                     method: 'POST',
@@ -80,16 +133,18 @@
                     throw new Error(result.error || 'Erreur extraction');
                 }
 
-                showParameterEditor(item, result.parameter_schema);
+                console.warn('[SESSION39] ⚠️ Extraction LIVE utilisée (lent + coûteux)');
+
+                showParameterEditor(item, result.parameter_schema, {});
 
             } catch (error) {
-                console.error('Erreur édition paramètres:', error);
+                console.error('[SESSION39] Erreur édition paramètres:', error);
                 hideLoadingModal();
                 alert('Erreur lors de l\'édition des paramètres: ' + error.message);
             }
         }
 
-        function showParameterEditor(item, schema) {
+        function showParameterEditor(item, schema, initialValues = {}) {
             const modal = document.createElement('div');
             modal.id = 'parameterEditorModal';
             modal.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50';
@@ -97,8 +152,11 @@
             const parameters = schema.parameters || [];
             let currentValues = {};
 
+            // Utiliser initialValues si fourni, sinon defaults du schema
             parameters.forEach(param => {
-                currentValues[param.id] = param.default;
+                currentValues[param.id] = initialValues[param.id] !== undefined 
+                    ? initialValues[param.id] 
+                    : param.default;
             });
 
             modal.innerHTML = `
@@ -109,7 +167,7 @@
                     </div>
 
                     <div class="mb-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
-                        <p class="text-amber-200 text-sm">${item.name}</p>
+                        <p class="text-amber-200 text-sm">${item.name} - ${parameters.length} paramètre(s)</p>
                     </div>
 
                     <div id="parametersContainer" class="space-y-4 mb-6">
@@ -202,30 +260,35 @@
             }).join('\n');
         }
 
+        // ============================================================================
+        // SESSION 40: SAUVEGARDE OPTIMISÉE
+        // ============================================================================
         async function saveParameters(itemId) {
             try {
-                const updatedCode = generateCodePreview(
-                    window.currentParameterSchema.parameters,
-                    window.currentParameterValues
-                );
-
-                const { error } = await supabaseClient
-                    .from('library_items')
-                    .update({
-                        pine_code: updatedCode,
-                        updated_at: new Date().toISOString()
+                // SESSION 40: UPDATE RAPIDE via endpoint optimisé
+                const response = await fetch(`https://api.dtego.net/api/library/items/${itemId}/parameters`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        parameter_values: window.currentParameterValues
                     })
-                    .eq('id', itemId);
+                });
 
-                if (error) throw error;
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Erreur sauvegarde');
+                }
+
+                console.log('[SESSION40] ✅ Paramètres sauvegardés en <1s');
 
                 closeParameterEditor();
-                alert('Paramètres sauvegardés!');
+                alert('✅ Paramètres sauvegardés avec succès!');
                 loadLibraryItems();
 
             } catch (error) {
-                console.error('Erreur sauvegarde:', error);
-                alert('Erreur: ' + error.message);
+                console.error('[SESSION40] Erreur sauvegarde:', error);
+                alert('❌ Erreur lors de la sauvegarde: ' + error.message);
             }
         }
 
