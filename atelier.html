@@ -5,178 +5,383 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atelier - Forge</title>
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        .atelier-container {
-            max-width: 1600px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-        .coming-soon {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 4rem 2rem;
-            text-align: center;
-        }
-        .coming-soon h2 {
-            font-size: 2rem;
-            font-weight: 300;
-            margin-bottom: 1rem;
-        }
-        .coming-soon p {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
-        }
-        .version-badge {
-            display: inline-block;
-            background: var(--bg-dark);
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            margin-bottom: 2rem;
-        }
-        .version-badge span {
-            color: var(--forge);
-            font-weight: 600;
-        }
-        .feature-preview {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
-            margin-top: 3rem;
-            text-align: left;
-        }
-        .feature-preview-item {
-            background: rgba(217, 119, 6, 0.1);
-            border: 1px solid var(--forge);
-            border-radius: 8px;
-            padding: 1.5rem;
-        }
-        .feature-preview-item h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--forge);
-            margin-bottom: 0.75rem;
-        }
-        .feature-preview-item ul {
-            list-style: none;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-        .feature-preview-item li {
-            padding: 0.3rem 0;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .feature-preview-item li::before {
-            content: "→";
-            color: var(--forge);
-        }
-        @media (max-width: 768px) {
-            .feature-preview { grid-template-columns: 1fr; }
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <nav class="nav">
-        <a href="index.html" class="nav-brand">FORGE</a>
-        <ul class="nav-links">
-            <li><a href="index.html" class="nav-link">Accueil</a></li>
-            <li><a href="atelier.html" class="nav-link active">Atelier</a></li>
-            <li><a href="bibliotheque.html" class="nav-link">Bibliothèque</a></li>
-        </ul>
+<body class="bg-gray-900 text-white">
+    <nav class="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-orange-500">FORGE</a>
+            <ul class="flex gap-6">
+                <li><a href="index.html" class="hover:text-orange-500 transition">Accueil</a></li>
+                <li><a href="atelier.html" class="text-orange-500">Atelier</a></li>
+                <li><a href="bibliotheque.html" class="hover:text-orange-500 transition">Bibliothèque</a></li>
+            </ul>
+        </div>
     </nav>
 
-    <div class="atelier-container">
-        <div style="margin-bottom: 2rem;">
-            <h1 style="font-size: 2.5rem; font-weight: 300; color: var(--forge); margin-bottom: 0.5rem;">Atelier</h1>
-            <p style="color: var(--text-secondary);">Créez, convertissez et testez vos stratégies de trading</p>
+    <div class="max-w-7xl mx-auto p-6">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-light text-orange-500 mb-2">Atelier</h1>
+            <p class="text-gray-400">Choisissez votre mode de travail</p>
         </div>
 
-        <div class="coming-soon">
-            <h2>En Construction</h2>
-            <p>
-                L'Atelier est actuellement en développement.<br>
-                Version complète disponible dans la v0.5 (2-3 jours).
-            </p>
+        <!-- Modes Grid -->
+        <div id="modesView" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Mode Convertir -->
+            <button onclick="showConvertirMode()" class="bg-gradient-to-br from-blue-900/20 to-blue-800/20 border border-blue-500/30 rounded-2xl p-8 text-left hover:border-blue-500/50 transition group">
+                <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mb-4 group-hover:bg-blue-500/30 transition">
+                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold mb-2">Convertir</h2>
+                <p class="text-gray-400 mb-4">Transformez votre code existant entre différents formats</p>
+                <ul class="space-y-2 text-sm text-gray-500">
+                    <li class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        Pine Script vers Python
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        Description vers code
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        Détection automatique
+                    </li>
+                </ul>
+            </button>
 
-            <div class="version-badge">
-                <span>Version actuelle : v0.1 Foundation</span>
+            <!-- Mode Créer -->
+            <button onclick="showCreerMode()" class="bg-gradient-to-br from-amber-900/20 to-amber-800/20 border border-amber-500/30 rounded-2xl p-8 text-left hover:border-amber-500/50 transition group">
+                <div class="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center mb-4 group-hover:bg-amber-500/30 transition">
+                    <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold mb-2">Créer</h2>
+                <p class="text-gray-400 mb-4">Construisez votre stratégie par dialogue avec l'IA</p>
+                <ul class="space-y-2 text-sm text-gray-500">
+                    <li class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        Conversation guidée
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        Projets sauvegardés
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        Historique des versions
+                    </li>
+                </ul>
+            </button>
+        </div>
+
+        <!-- Mode Convertir -->
+        <div id="convertirView" class="hidden">
+            <div class="flex items-center justify-between mb-6">
+                <button onclick="showModesView()" class="flex items-center gap-2 text-gray-400 hover:text-white transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    Retour
+                </button>
+                <button onclick="showLibraryModal()" class="flex items-center gap-2 px-4 py-2 bg-purple-500/20 border border-purple-500/50 rounded-lg hover:bg-purple-500/30 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"/>
+                    </svg>
+                    Charger depuis Bibliothèque
+                </button>
             </div>
 
-            <div class="feature-preview">
-                <div class="feature-preview-item">
-                    <h3>v0.5 - Conversion Basic</h3>
-                    <ul>
-                        <li>Éditeur Pine Script</li>
-                        <li>Bouton "Convertir"</li>
-                        <li>Affichage Python</li>
-                        <li>Copy-to-clipboard</li>
-                        <li>Gestion erreurs</li>
-                    </ul>
+            <h2 class="text-3xl font-light mb-2">Convertir</h2>
+            <p class="text-gray-400 mb-6">Transformez vos stratégies et indicateurs</p>
+
+            <!-- Tabs -->
+            <div class="flex gap-2 mb-6 border-b border-gray-800">
+                <button onclick="setTab('strategie')" id="tabStrategie" class="px-6 py-3 text-orange-500 border-b-2 border-orange-500 font-medium">Stratégie</button>
+                <button onclick="setTab('indicateur')" id="tabIndicateur" class="px-6 py-3 text-gray-400 hover:text-white transition">Indicateur</button>
+            </div>
+
+            <!-- Format Tabs -->
+            <div class="flex gap-2 mb-6">
+                <button onclick="setFormat('naturel')" id="formatNaturel" class="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium">Naturel</button>
+                <button onclick="setFormat('pine')" id="formatPine" class="px-4 py-2 bg-gray-800 text-gray-400 rounded-lg hover:bg-gray-700 transition">Pine Script</button>
+                <button onclick="setFormat('python')" id="formatPython" class="px-4 py-2 bg-gray-800 text-gray-400 rounded-lg hover:bg-gray-700 transition">Python</button>
+            </div>
+
+            <!-- Code Area -->
+            <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <label class="text-sm text-gray-400">
+                        <span id="codeLabel">Collez votre code Pine Script ici</span>
+                        <span class="text-orange-500 ml-2" id="charCount">0 caractères</span>
+                    </label>
+                    <button onclick="importFile()" class="text-sm text-orange-500 hover:text-orange-400 transition flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                        Importer fichier
+                    </button>
+                </div>
+                <textarea id="codeInput" 
+                    class="w-full h-64 bg-gray-900 text-white font-mono text-sm p-4 rounded-lg border border-gray-700 focus:border-orange-500 focus:outline-none resize-none" 
+                    placeholder="//@version=5&#10;indicator(&quot;Mon RSI&quot;, overlay=false)&#10;length = input.int(14, &quot;Période RSI&quot;)&#10;rsi = ta.rsi(close, length)&#10;plot(rsi, &quot;RSI&quot;, color=color.blue)"></textarea>
+            </div>
+
+            <!-- Backtest Section -->
+            <div class="bg-gradient-to-r from-orange-900/20 to-orange-800/20 border border-orange-500/30 rounded-xl p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold flex items-center gap-2">
+                        <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        BACKTEST
+                    </h3>
+                    <button onclick="toggleBacktest()" id="backtestToggle" class="text-sm text-gray-400 hover:text-white transition">
+                        Simple
+                    </button>
                 </div>
 
-                <div class="feature-preview-item">
-                    <h3>v1.0 - Atelier Complet</h3>
-                    <ul>
-                        <li>Triple mode (Natural/Pine/Python)</li>
-                        <li>Auto-conversion (debounce 2s)</li>
-                        <li>Sauvegarde projets</li>
-                        <li>Historique versions</li>
-                        <li>Import/Export fichiers</li>
-                    </ul>
+                <div id="backtestSimple">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">Intervalle</label>
+                            <div class="flex gap-2">
+                                <button class="px-3 py-2 bg-gray-800 text-gray-400 rounded hover:bg-orange-500 hover:text-white transition text-sm">1m</button>
+                                <button class="px-3 py-2 bg-gray-800 text-gray-400 rounded hover:bg-orange-500 hover:text-white transition text-sm">5m</button>
+                                <button class="px-3 py-2 bg-orange-500 text-white rounded text-sm">1h</button>
+                                <button class="px-3 py-2 bg-gray-800 text-gray-400 rounded hover:bg-orange-500 hover:text-white transition text-sm">4h</button>
+                                <button class="px-3 py-2 bg-gray-800 text-gray-400 rounded hover:bg-orange-500 hover:text-white transition text-sm">1J</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">Période</label>
+                            <div class="flex gap-2">
+                                <button class="px-3 py-2 bg-gray-800 text-gray-400 rounded hover:bg-orange-500 hover:text-white transition text-sm">1 mois</button>
+                                <button class="px-3 py-2 bg-orange-500 text-white rounded text-sm">3 mois</button>
+                                <button class="px-3 py-2 bg-gray-800 text-gray-400 rounded hover:bg-orange-500 hover:text-white transition text-sm">6 mois</button>
+                                <button class="px-3 py-2 bg-gray-800 text-gray-400 rounded hover:bg-orange-500 hover:text-white transition text-sm">1 an</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm text-gray-400 mb-2">Monnaies (5 sélectionnées)</label>
+                        <div class="text-sm text-gray-500">BTC, ETH, BNB, SOL, ADA</div>
+                    </div>
                 </div>
 
-                <div class="feature-preview-item">
-                    <h3>v1.5 - Intelligence</h3>
-                    <ul>
-                        <li>Scoring qualité</li>
-                        <li>Détection similarité</li>
-                        <li>Suggestions contextuelles</li>
-                        <li>Templates populaires</li>
-                        <li>Feedback utilisateur</li>
-                    </ul>
+                <div class="flex gap-3">
+                    <button onclick="simuler()" class="flex-1 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium transition">
+                        Simuler
+                    </button>
+                    <button onclick="backtester()" class="flex-1 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg font-bold transition flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        Backtester
+                    </button>
                 </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3">
+                <button onclick="saveToLibrary()" class="px-6 py-3 bg-purple-500/20 border border-purple-500/50 rounded-lg hover:bg-purple-500/30 transition font-medium">
+                    Sauvegarder dans Bibliothèque
+                </button>
+                <button class="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition">
+                    Exporter
+                </button>
             </div>
         </div>
 
-        <div style="margin-top: 2rem; text-align: center;">
-            <button id="testApiBtn" class="btn btn-secondary">Tester Connexion API</button>
-            <div id="apiStatus" style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;"></div>
+        <!-- Mode Créer -->
+        <div id="creerView" class="hidden">
+            <div class="flex items-center justify-between mb-6">
+                <button onclick="showModesView()" class="flex items-center gap-2 text-gray-400 hover:text-white transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    Retour
+                </button>
+                <button class="px-4 py-2 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600 transition">
+                    + Nouveau projet
+                </button>
+            </div>
+
+            <h2 class="text-3xl font-light mb-2">Créer</h2>
+            <p class="text-gray-400 mb-6">Construisez votre stratégie par dialogue avec l'IA</p>
+
+            <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-6 text-center">
+                <p class="text-gray-400">Module "Créer" en développement...</p>
+            </div>
         </div>
     </div>
 
-    <footer class="footer">
-        <p style="font-size: 0.875rem; color: var(--text-secondary);">
-            Forge v0.1 Foundation • Partie de l'écosystème Dtego<br>
-            © RA2P Production • Janvier 2026
-        </p>
-    </footer>
-
     <script>
-        document.getElementById('testApiBtn').addEventListener('click', async () => {
-            const statusDiv = document.getElementById('apiStatus');
-            statusDiv.textContent = 'Test en cours...';
-            statusDiv.style.color = '#f59e0b';
+        const API_BASE = 'https://api.dtego.net';
 
-            try {
-                const response = await fetch('https://api.dtego.net/api/forge/parse', {
-                    method: 'OPTIONS'
-                });
+        // Navigation
+        function showModesView() {
+            document.getElementById('modesView').classList.remove('hidden');
+            document.getElementById('convertirView').classList.add('hidden');
+            document.getElementById('creerView').classList.add('hidden');
+        }
 
-                if (response.ok || response.status === 405) {
-                    statusDiv.textContent = '✓ API accessible (api.dtego.net)';
-                    statusDiv.style.color = '#10b981';
-                } else {
-                    statusDiv.textContent = '⚠ API réponse inattendue (status: ' + response.status + ')';
-                    statusDiv.style.color = '#f59e0b';
-                }
-            } catch (error) {
-                statusDiv.textContent = '✗ Erreur connexion API: ' + error.message;
-                statusDiv.style.color = '#f43f5e';
-            }
+        function showConvertirMode() {
+            document.getElementById('modesView').classList.add('hidden');
+            document.getElementById('convertirView').classList.remove('hidden');
+        }
+
+        function showCreerMode() {
+            document.getElementById('modesView').classList.add('hidden');
+            document.getElementById('creerView').classList.remove('hidden');
+        }
+
+        // Tabs
+        function setTab(tab) {
+            ['tabStrategie', 'tabIndicateur'].forEach(id => {
+                const btn = document.getElementById(id);
+                btn.classList.remove('text-orange-500', 'border-orange-500');
+                btn.classList.add('text-gray-400');
+                btn.style.borderBottom = 'none';
+            });
+            
+            const activeTab = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+            activeTab.classList.remove('text-gray-400');
+            activeTab.classList.add('text-orange-500');
+            activeTab.style.borderBottom = '2px solid #f97316';
+        }
+
+        function setFormat(format) {
+            ['formatNaturel', 'formatPine', 'formatPython'].forEach(id => {
+                const btn = document.getElementById(id);
+                btn.classList.remove('bg-orange-500', 'text-white');
+                btn.classList.add('bg-gray-800', 'text-gray-400');
+            });
+            
+            const activeFormat = document.getElementById('format' + format.charAt(0).toUpperCase() + format.slice(1));
+            activeFormat.classList.remove('bg-gray-800', 'text-gray-400');
+            activeFormat.classList.add('bg-orange-500', 'text-white');
+            
+            // Update label
+            const labels = {
+                'naturel': 'Décrivez votre stratégie en français',
+                'pine': 'Collez votre code Pine Script ici',
+                'python': 'Collez votre code Python ici'
+            };
+            document.getElementById('codeLabel').textContent = labels[format];
+        }
+
+        // Character count
+        document.getElementById('codeInput').addEventListener('input', (e) => {
+            document.getElementById('charCount').textContent = e.target.value.length + ' caractères';
         });
+
+        // Backtest toggle
+        function toggleBacktest() {
+            const btn = document.getElementById('backtestToggle');
+            if (btn.textContent === 'Simple') {
+                btn.textContent = 'Comparatif';
+            } else {
+                btn.textContent = 'Simple';
+            }
+        }
+
+        // Import file
+        function importFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.pine,.txt,.py';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    document.getElementById('codeInput').value = event.target.result;
+                    document.getElementById('charCount').textContent = event.target.result.length + ' caractères';
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // Session 41: Backtester avec détection indicateurs
+        async function backtester() {
+            const code = document.getElementById('codeInput').value.trim();
+            
+            if (!code) {
+                alert('❌ Veuillez entrer du code');
+                return;
+            }
+            
+            // Appeler API import-pine avec analyse indicateurs
+            try {
+                const response = await fetch(`${API_BASE}/api/library/import-pine`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        pine_code: code,
+                        name: 'Backtest ' + new Date().toLocaleString(),
+                        auto_approve_threshold: 0.85
+                    })
+                });
+                
+                if (!response.ok) throw new Error('Erreur API');
+                
+                const result = await response.json();
+                
+                // Afficher résultats
+                const indicators = result.indicators_detected || [];
+                const indicatorNames = indicators.map(i => i.indicator).join(', ');
+                
+                alert(`✅ Analyse terminée!\n\nIndicateurs détectés: ${indicatorNames || 'Aucun'}\nConfiance: ${(result.confidence_score * 100).toFixed(0)}%\n\nBacktest en cours...`);
+                
+                // TODO: Lancer backtest réel
+                
+            } catch (error) {
+                alert('❌ Erreur: ' + error.message);
+            }
+        }
+
+        function simuler() {
+            alert('Simulation rapide en cours... (non implémenté)');
+        }
+
+        // Library modal
+        function showLibraryModal() {
+            alert('Modal bibliothèque (à implémenter)');
+        }
+
+        // Save to library
+        async function saveToLibrary() {
+            const code = document.getElementById('codeInput').value.trim();
+            const name = prompt('Nom de la stratégie:');
+            
+            if (!code || !name) {
+                alert('❌ Code et nom requis');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/library/import-pine`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        pine_code: code,
+                        name: name
+                    })
+                });
+                
+                if (!response.ok) throw new Error('Erreur API');
+                
+                alert('✅ Sauvegardé dans la bibliothèque!');
+                
+            } catch (error) {
+                alert('❌ Erreur: ' + error.message);
+            }
+        }
     </script>
 </body>
 </html>
