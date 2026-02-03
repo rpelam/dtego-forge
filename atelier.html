@@ -5,37 +5,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atelier - Dtego Trading</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #ffffff;
+        }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #a78bfa;
+            box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15);
+        }
+        
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+            color: #ffffff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(167, 139, 250, 0.4);
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge-level-1 {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+        
+        .badge-level-2 {
+            background: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+        }
+        
+        .badge-level-3 {
+            background: rgba(167, 139, 250, 0.2);
+            color: #a78bfa;
+        }
+    </style>
 </head>
-<body class="min-h-screen" style="background: linear-gradient(135deg, #0f0f1a, #1a1a2e);">
+<body>
     <div class="p-6">
         <!-- Header -->
         <div class="flex justify-between items-center mb-6">
             <div>
-                <h1 class="text-3xl font-bold text-white">Atelier</h1>
-                <p class="text-gray-400">Convertir et analyser vos stratégies</p>
+                <h1 class="text-3xl font-bold">Atelier</h1>
+                <p class="text-white/60">Convertir et analyser vos stratégies</p>
             </div>
             <div class="flex gap-3">
-                <a href="index.html" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition">Forge</a>
-                <a href="bibliotheque.html" class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition">Bibliothèque</a>
+                <a href="index.html" class="px-4 py-2 glass hover:bg-white/10 rounded-lg transition">Forge</a>
+                <a href="bibliotheque.html" class="px-4 py-2 glass hover:bg-white/10 rounded-lg transition">Bibliothèque</a>
             </div>
         </div>
 
-        <!-- Pine Script Input -->
-        <div class="bg-white/5 border border-white/10 rounded-xl p-6 mb-6">
+        <!-- Code Input -->
+        <div class="glass p-6 mb-6">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-white">Code Pine Script</h2>
-                <button onclick="loadFromLibrary()" class="px-4 py-2 bg-purple-500/20 border border-purple-500/50 hover:bg-purple-500/30 text-purple-300 rounded-lg transition text-sm">
-                    📂 Charger depuis Bibliothèque
+                <h2 class="text-xl font-bold">Code Pine Script</h2>
+                <button onclick="loadFromLibrary()" class="px-4 py-2 glass hover:bg-white/10 rounded-lg transition text-sm">
+                    📂 Charger
                 </button>
             </div>
             <textarea 
                 id="pineCode" 
-                class="w-full h-64 bg-black/30 border border-white/10 rounded-lg text-white font-mono text-sm p-4 focus:border-purple-500 focus:outline-none resize-none"
-                placeholder="//@version=5&#10;indicator(&quot;Mon RSI&quot;, overlay=false)&#10;length = input.int(14, &quot;Période RSI&quot;)&#10;rsi = ta.rsi(close, length)&#10;plot(rsi, &quot;RSI&quot;, color=color.blue)&#10;hline(70, &quot;Surachat&quot;, color=color.red)&#10;hline(30, &quot;Survente&quot;, color=color.green)"></textarea>
+                class="form-input font-mono text-sm resize-none"
+                rows="12"
+                placeholder="//@version=5&#10;indicator(&quot;Mon RSI&quot;, overlay=false)&#10;length = input.int(14, &quot;Période&quot;)&#10;rsi = ta.rsi(close, length)&#10;plot(rsi)"></textarea>
             <div class="flex justify-between items-center mt-3">
-                <span class="text-gray-500 text-sm" id="charCount">0 caractères</span>
-                <button onclick="analyzeCode()" class="px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white rounded-lg font-bold transition">
+                <span class="text-white/40 text-sm" id="charCount">0 caractères</span>
+                <button onclick="analyzeCode()" class="btn-primary">
                     🔍 Analyser
                 </button>
             </div>
@@ -43,41 +124,31 @@
 
         <!-- Results -->
         <div id="resultsSection" class="hidden">
-            <!-- Indicateurs détectés -->
-            <div class="bg-white/5 border border-white/10 rounded-xl p-6 mb-6">
-                <h2 class="text-xl font-bold text-white mb-4">Indicateurs Détectés</h2>
-                <div id="indicatorsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Rempli dynamiquement -->
-                </div>
+            <!-- Indicateurs -->
+            <div class="glass p-6 mb-6">
+                <h2 class="text-xl font-bold mb-4">Indicateurs Détectés</h2>
+                <div id="indicatorsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </div>
 
-            <!-- Décomposition granulaire -->
-            <div class="bg-white/5 border border-white/10 rounded-xl p-6 mb-6">
+            <!-- Décomposition -->
+            <div class="glass p-6 mb-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-bold text-white">Décomposition Granulaire</h2>
+                    <h2 class="text-xl font-bold">Décomposition Granulaire</h2>
                     <div class="flex gap-2">
-                        <button onclick="filterLevel(1)" id="btnLevel1" class="px-3 py-1 bg-green-500 text-white rounded text-sm font-medium">Niveau 1 (Atomes)</button>
-                        <button onclick="filterLevel(2)" id="btnLevel2" class="px-3 py-1 bg-white/10 text-gray-400 rounded text-sm hover:bg-white/20">Niveau 2 (Conditions)</button>
-                        <button onclick="filterLevel(3)" id="btnLevel3" class="px-3 py-1 bg-white/10 text-gray-400 rounded text-sm hover:bg-white/20">Niveau 3 (Indicateurs)</button>
-                        <button onclick="filterLevel(0)" id="btnLevelAll" class="px-3 py-1 bg-white/10 text-gray-400 rounded text-sm hover:bg-white/20">Tous</button>
+                        <button onclick="filterLevel(1)" id="btnLevel1" class="badge badge-level-1 cursor-pointer">Niveau 1</button>
+                        <button onclick="filterLevel(2)" id="btnLevel2" class="badge badge-level-2 cursor-pointer opacity-50">Niveau 2</button>
+                        <button onclick="filterLevel(3)" id="btnLevel3" class="badge badge-level-3 cursor-pointer opacity-50">Niveau 3</button>
+                        <button onclick="filterLevel(0)" id="btnLevelAll" class="badge glass cursor-pointer opacity-50">Tous</button>
                     </div>
                 </div>
-                <div id="atomsList" class="space-y-3">
-                    <!-- Rempli dynamiquement -->
-                </div>
+                <div id="atomsList" class="space-y-3"></div>
             </div>
 
             <!-- Actions -->
             <div class="flex gap-3">
-                <button onclick="saveToLibrary()" class="px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-bold transition">
-                    💾 Sauvegarder dans Bibliothèque
-                </button>
-                <button onclick="exportPython()" class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold transition">
-                    🐍 Exporter Python
-                </button>
-                <button onclick="resetAnalysis()" class="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg transition">
-                    ↺ Nouvelle Analyse
-                </button>
+                <button onclick="saveToLibrary()" class="btn-primary">💾 Sauvegarder</button>
+                <button onclick="exportPython()" class="px-6 py-3 glass hover:bg-white/10 rounded-lg transition font-semibold">🐍 Python</button>
+                <button onclick="resetAnalysis()" class="px-6 py-3 glass hover:bg-white/10 rounded-lg transition">↺ Reset</button>
             </div>
         </div>
     </div>
@@ -87,19 +158,13 @@
         let currentAnalysis = null;
         let currentLevel = 1;
 
-        // Character count
         document.getElementById('pineCode').addEventListener('input', (e) => {
             document.getElementById('charCount').textContent = e.target.value.length + ' caractères';
         });
 
-        // Analyze code
         async function analyzeCode() {
             const pineCode = document.getElementById('pineCode').value.trim();
-            
-            if (!pineCode) {
-                alert('❌ Veuillez entrer du code Pine Script');
-                return;
-            }
+            if (!pineCode) { alert('❌ Code requis'); return; }
 
             try {
                 const response = await fetch(`${API_BASE}/api/library/import-pine`, {
@@ -107,168 +172,111 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         pine_code: pineCode,
-                        name: 'Analyse ' + new Date().toLocaleString()
+                        name: 'Analyse ' + Date.now()
                     })
                 });
 
                 if (!response.ok) throw new Error('Erreur API');
-
                 const result = await response.json();
                 currentAnalysis = result;
-
                 displayResults(result);
             } catch (error) {
-                alert('❌ Erreur: ' + error.message);
+                alert('❌ ' + error.message);
             }
         }
 
-        // Display results
         function displayResults(data) {
             document.getElementById('resultsSection').classList.remove('hidden');
 
-            // Indicateurs
             const indicators = data.indicators_detected || [];
-            const indicatorsHtml = indicators.map(ind => {
-                const confidence = (ind.confidence * 100).toFixed(0);
-                const bgColor = confidence >= 90 ? 'bg-green-500/20 border-green-500/50' : 
-                               confidence >= 70 ? 'bg-amber-500/20 border-amber-500/50' : 
-                               'bg-red-500/20 border-red-500/50';
-                
+            document.getElementById('indicatorsList').innerHTML = indicators.map(ind => {
+                const conf = (ind.confidence * 100).toFixed(0);
                 return `
-                    <div class="${bgColor} border rounded-xl p-4">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="font-bold text-white text-lg">${ind.indicator}</h3>
-                            <span class="text-sm font-medium text-white">${confidence}%</span>
+                    <div class="glass p-4 hover:bg-white/10 transition">
+                        <div class="flex justify-between mb-2">
+                            <h3 class="font-bold text-lg">${ind.indicator}</h3>
+                            <span class="text-sm font-semibold ${conf >= 90 ? 'text-green-400' : conf >= 70 ? 'text-amber-400' : 'text-red-400'}">${conf}%</span>
                         </div>
-                        <div class="text-gray-400 text-sm">
-                            ${Object.keys(ind.parameters || {}).length} paramètre(s)
-                        </div>
-                        ${ind.atoms ? `
-                            <div class="mt-2 text-sm text-purple-300">
-                                ${ind.atoms.length} atome(s) détecté(s)
-                            </div>
-                        ` : ''}
+                        <div class="text-white/60 text-sm">${Object.keys(ind.parameters || {}).length} paramètre(s)</div>
+                        ${ind.atoms ? `<div class="text-purple-400 text-sm mt-2">${ind.atoms.length} atome(s)</div>` : ''}
                     </div>
                 `;
             }).join('');
-            document.getElementById('indicatorsList').innerHTML = indicatorsHtml || '<p class="text-gray-400">Aucun indicateur détecté</p>';
 
-            // Atomes
             let allAtoms = [];
             indicators.forEach(ind => {
                 if (ind.atoms) {
-                    allAtoms = allAtoms.concat(ind.atoms.map(atom => ({
-                        ...atom,
-                        indicator: ind.indicator
-                    })));
+                    allAtoms = allAtoms.concat(ind.atoms.map(atom => ({...atom, indicator: ind.indicator})));
                 }
             });
-
             displayAtoms(allAtoms);
         }
 
-        // Display atoms
         function displayAtoms(atoms) {
             const filtered = currentLevel === 0 ? atoms : atoms.filter(a => (a.level || 1) === currentLevel);
             
-            const atomsHtml = filtered.map(atom => {
-                const levelColor = atom.level === 1 ? 'bg-green-500/10 border-green-500/30 text-green-300' :
-                                  atom.level === 2 ? 'bg-blue-500/10 border-blue-500/30 text-blue-300' :
-                                  'bg-purple-500/10 border-purple-500/30 text-purple-300';
-                
+            document.getElementById('atomsList').innerHTML = filtered.map(atom => {
+                const levelClass = atom.level === 1 ? 'badge-level-1' : atom.level === 2 ? 'badge-level-2' : 'badge-level-3';
                 return `
-                    <div class="bg-white/5 border border-white/10 rounded-lg p-4">
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <span class="px-2 py-1 ${levelColor} border rounded text-xs font-medium">
-                                    Niveau ${atom.level || 1}
-                                </span>
-                                <span class="ml-2 text-gray-500 text-xs">${atom.indicator}</span>
-                            </div>
-                            <code class="text-xs text-purple-400">${atom.atom_type || 'N/A'}</code>
+                    <div class="glass p-4">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="badge ${levelClass}">Niveau ${atom.level || 1}</span>
+                            <span class="text-white/40 text-xs">${atom.indicator}</span>
                         </div>
-                        <p class="text-white font-medium mb-3">${atom.description || 'Sans description'}</p>
+                        <p class="font-medium mb-3">${atom.description || 'N/A'}</p>
                         <div class="space-y-2">
                             <div>
-                                <div class="text-xs text-gray-500 mb-1">Pine Script:</div>
+                                <div class="text-xs text-white/40 mb-1">Pine:</div>
                                 <code class="block bg-black/30 text-green-400 text-xs p-2 rounded overflow-x-auto">${atom.pine_code || 'N/A'}</code>
                             </div>
                             <div>
-                                <div class="text-xs text-gray-500 mb-1">Python:</div>
+                                <div class="text-xs text-white/40 mb-1">Python:</div>
                                 <code class="block bg-black/30 text-blue-400 text-xs p-2 rounded overflow-x-auto">${atom.python_code || 'N/A'}</code>
                             </div>
                         </div>
                     </div>
                 `;
-            }).join('');
-
-            document.getElementById('atomsList').innerHTML = atomsHtml || '<p class="text-gray-400 text-center py-8">Aucun atome pour ce niveau</p>';
+            }).join('') || '<p class="text-white/60 text-center py-8">Aucun atome</p>';
         }
 
-        // Filter by level
         function filterLevel(level) {
             currentLevel = level;
             
             ['btnLevel1', 'btnLevel2', 'btnLevel3', 'btnLevelAll'].forEach(id => {
-                const btn = document.getElementById(id);
-                btn.classList.remove('bg-green-500', 'text-white');
-                btn.classList.add('bg-white/10', 'text-gray-400');
+                document.getElementById(id).classList.add('opacity-50');
             });
-
+            
             const btnId = level === 0 ? 'btnLevelAll' : `btnLevel${level}`;
-            const activeBtn = document.getElementById(btnId);
-            activeBtn.classList.remove('bg-white/10', 'text-gray-400');
-            activeBtn.classList.add('bg-green-500', 'text-white');
+            document.getElementById(btnId).classList.remove('opacity-50');
 
-            if (currentAnalysis && currentAnalysis.indicators_detected) {
+            if (currentAnalysis?.indicators_detected) {
                 let allAtoms = [];
                 currentAnalysis.indicators_detected.forEach(ind => {
-                    if (ind.atoms) {
-                        allAtoms = allAtoms.concat(ind.atoms.map(atom => ({
-                            ...atom,
-                            indicator: ind.indicator
-                        })));
-                    }
+                    if (ind.atoms) allAtoms = allAtoms.concat(ind.atoms.map(atom => ({...atom, indicator: ind.indicator})));
                 });
                 displayAtoms(allAtoms);
             }
         }
 
-        // Save to library
         async function saveToLibrary() {
-            if (!currentAnalysis) {
-                alert('❌ Aucune analyse à sauvegarder');
-                return;
-            }
-
-            const name = prompt('Nom de la stratégie:');
-            if (!name) return;
-
-            alert('✅ Sauvegardé: ' + currentAnalysis.item_id);
+            if (!currentAnalysis) { alert('❌ Aucune analyse'); return; }
+            const name = prompt('Nom:');
+            if (name) alert('✅ Sauvegardé: ' + name);
         }
 
-        // Export Python
         function exportPython() {
-            if (!currentAnalysis) {
-                alert('❌ Aucune analyse disponible');
-                return;
-            }
-
-            let pythonCode = '# Généré par Dtego Forge\n\n';
-            
+            if (!currentAnalysis) { alert('❌ Aucune analyse'); return; }
+            let code = '# Dtego Forge\n\n';
             (currentAnalysis.indicators_detected || []).forEach(ind => {
                 if (ind.atoms) {
-                    pythonCode += `# ${ind.indicator}\n`;
+                    code += `# ${ind.indicator}\n`;
                     ind.atoms.forEach(atom => {
-                        if (atom.python_code) {
-                            pythonCode += atom.python_code + '\n';
-                        }
+                        if (atom.python_code) code += atom.python_code + '\n';
                     });
-                    pythonCode += '\n';
+                    code += '\n';
                 }
             });
-
-            const blob = new Blob([pythonCode], {type: 'text/plain'});
+            const blob = new Blob([code], {type: 'text/plain'});
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -276,7 +284,6 @@
             a.click();
         }
 
-        // Reset
         function resetAnalysis() {
             document.getElementById('pineCode').value = '';
             document.getElementById('charCount').textContent = '0 caractères';
@@ -284,9 +291,8 @@
             currentAnalysis = null;
         }
 
-        // Load from library
         function loadFromLibrary() {
-            alert('Chargement depuis bibliothèque (à implémenter)');
+            alert('Chargement bibliothèque (à implémenter)');
         }
     </script>
 </body>
