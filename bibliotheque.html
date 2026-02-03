@@ -20,20 +20,6 @@
             </div>
         </div>
 
-        <!-- Session 41: Import Pine Script -->
-        <div class="mb-8 bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-purple-500/30 rounded-2xl p-6">
-            <h2 class="text-2xl font-bold text-white mb-2">📥 Importer Stratégie TradingView</h2>
-            <p class="text-gray-400 text-sm mb-4">Détection automatique des indicateurs</p>
-            
-            <textarea id="pineCodeInput" class="w-full h-32 p-3 bg-black/30 border border-white/10 rounded-lg text-white font-mono text-sm mb-3" placeholder="Collez votre code Pine Script ici..."></textarea>
-            
-            <input type="text" id="strategyName" class="w-full p-3 bg-black/30 border border-white/10 rounded-lg text-white mb-3" placeholder="Nom de la stratégie">
-            
-            <button onclick="importPineCode()" class="w-full py-3 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white rounded-lg font-bold">
-                🚀 Analyser & Importer
-            </button>
-        </div>
-
         <div id="libraryContainer" class="mt-8">
             <p class="text-white text-center">Chargement...</p>
         </div>
@@ -442,6 +428,5 @@
 
         document.addEventListener('DOMContentLoaded', loadLibraryItems);
     </script>
-    <script src="js/session41_import.js"></script>
 </body>
 </html>
