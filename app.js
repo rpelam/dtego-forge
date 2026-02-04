@@ -28,7 +28,7 @@ async function grantAccess() {
 
 async function loadLibraryData() {
     try {
-        const response = await fetch(`${API_BASE}/api/library/items/items`);
+        const response = await fetch(`${API_BASE}/api/library/items`);
         if (response.ok) {
             const items = await response.json();
             libraryData = { items: items || [] };
@@ -5556,7 +5556,7 @@ async function loadLibrary() {
         });
         
         // FORCER bypass cache avec headers + timestamp
-        const response = await fetch(`${API_BASE}/api/library/items/items?${params}&_t=${Date.now()}`, {
+        const response = await fetch(`${API_BASE}/api/library/items?${params}&_t=${Date.now()}`, {
             cache: 'no-store',
             headers: { 'Cache-Control': 'no-cache' }
         });
