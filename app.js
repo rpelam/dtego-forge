@@ -236,7 +236,7 @@ function renderAtelierChoice() {
 function renderAtelierConvert() {
     // Construire la liste des items de bibliothèque FILTRÉE selon le type sélectionné
     const typeFilter = forgeState.strategyType === 'strategy' ? 'strategy' : 'indicator';
-    const libraryItems = libraryData.items
+    const libraryItems = (libraryData.items && Array.isArray(libraryData.items)) ? libraryData.items : []
         .filter(item => item.type === typeFilter)
         .slice(0, 10)
         .map(item => ({...item, libType: item.type}));
