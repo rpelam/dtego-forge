@@ -30,8 +30,8 @@ async function loadLibraryData() {
     try {
         const response = await fetch(`${API_BASE}/api/library/items`);
         if (response.ok) {
-            const items = await response.json();
-            libraryData = { items: items || [] };
+            const data = await response.json();
+            libraryData = { items: data.items || [] };
         } else {
             libraryData = { items: [] };
         }
