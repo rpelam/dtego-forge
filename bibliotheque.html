@@ -210,11 +210,10 @@
             let filtered = allItems;
             
             if (currentFilter !== 'all') {
-                if (currentFilter === 'strategie') {
-                    filtered = allItems.filter(i => i.type === 'strategy');
-                } else {
-                    filtered = allItems.filter(i => i.type === currentFilter);
-                }
+                // Mapping français -> anglais
+                const typeMap = {'strategie': 'strategy', 'indicateur': 'indicator', 'filtre': 'filter', 'condition': 'condition'};
+                const apiType = typeMap[currentFilter] || currentFilter;
+                filtered = allItems.filter(i => i.type === apiType);
             }
             
             const grid = document.getElementById('itemsGrid');
