@@ -159,7 +159,26 @@
             if (error) {
                 console.error('Erreur:', error);
                 return;
+        async function loadLibraryItems() {
+            try {
+                const response = await fetch('https://api.dtego.net/api/library/items');
+                const result = await response.json();
+                
+                if (result.success && result.items) {
+                    allItems = result.items;
+                } else {
+                    console.error('Erreur chargement:', result.error);
+                    allItems = [];
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                allItems = [];
             }
+            
+            updateCounts();
+            displayItems();
+        }
+
             
             allItems = data || [];
             updateCounts();
