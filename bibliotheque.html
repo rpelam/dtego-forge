@@ -254,17 +254,12 @@
             const color = typeColors[item.type] || typeColors['indicator'];
             const typeLabel = typeToLabel[item.type] || item.type;
             
-            // Score (jauge de fiabilité)
+            // Score badge (% en haut à droite)
             const score = item.confidence_score || item.score || 0;
             const hasScore = score > 0;
-            const scoreHtml = `
-                <div class="flex items-center gap-2 mt-2">
-                    <div class="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
-                        <div class="h-full rounded-full transition-all" style="width: ${hasScore ? score + '%' : '0%'}; background: ${hasScore ? (score >= 80 ? '#22c55e' : score >= 60 ? '#eab308' : '#ef4444') : 'rgba(255,255,255,0.2)'};"></div>
-                    </div>
-                    <span class="font-medium text-xs" style="min-width: 28px; color: ${hasScore ? 'white' : 'rgba(255,255,255,0.3)'};">${hasScore ? Math.round(score) : '—'}</span>
-                </div>
-            `;
+            const scorePercent = hasScore ? Math.round(score) : '—';
+            const scoreColor = hasScore ? (score >= 80 ? '#22c55e' : score >= 60 ? '#f59e0b' : '#ef4444') : 'rgba(255,255,255,0.25)';
+            const scoreBg = hasScore ? `${scoreColor}20` : 'rgba(255,255,255,0.05)';
 
             // Icône selon type
             const icons = {
@@ -280,16 +275,18 @@
                         <svg class="w-5 h-5 flex-shrink-0" style="color: ${color.icon};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             ${icons[item.type] || icons['indicator']}
                         </svg>
+                        <span class="px-2 py-1 rounded-lg text-xs font-semibold" style="background: ${scoreBg}; color: ${scoreColor}; min-width: 32px; text-align: center;">
+                            ${hasScore ? scorePercent + '%' : scorePercent}
+                        </span>
                     </div>
                     <h3 class="text-white font-semibold text-sm mb-1 line-clamp-2">${item.name || 'Sans nom'}</h3>
                     <p class="text-white/40 text-xs mb-3">${item.version || 'v5'}</p>
                     
-                    <div class="flex flex-wrap gap-1.5 mb-2">
+                    <div class="flex flex-wrap gap-1.5">
                         <span class="px-2 py-0.5 rounded text-xs font-medium" style="background: ${color.bg}; color: ${color.icon}; border: 1px solid ${color.border};">
                             ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)}
                         </span>
                     </div>
-                    ${scoreHtml}
                 </div>
             `;
         }
