@@ -237,15 +237,16 @@
             const typeLabel = typeToLabel[item.type] || item.type;
             
             // Score (jauge de fiabilité)
-            const score = item.confidence_score || item.score || null;
-            const scoreHtml = score !== null ? `
+            const score = item.confidence_score || item.score || 0;
+            const hasScore = score > 0;
+            const scoreHtml = `
                 <div class="flex items-center gap-2 mt-2">
                     <div class="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
-                        <div class="h-full rounded-full transition-all" style="width: ${score}%; background: ${score >= 80 ? '#22c55e' : score >= 60 ? '#eab308' : '#ef4444'};"></div>
+                        <div class="h-full rounded-full transition-all" style="width: ${hasScore ? score + '%' : '0%'}; background: ${hasScore ? (score >= 80 ? '#22c55e' : score >= 60 ? '#eab308' : '#ef4444') : 'rgba(255,255,255,0.2)'};"></div>
                     </div>
-                    <span class="text-white font-medium text-xs" style="min-width: 28px;">${Math.round(score)}</span>
+                    <span class="font-medium text-xs" style="min-width: 28px; color: ${hasScore ? 'white' : 'rgba(255,255,255,0.3)'};">${hasScore ? Math.round(score) : '—'}</span>
                 </div>
-            ` : '';
+            `;
 
             // Icône selon type
             const icons = {
