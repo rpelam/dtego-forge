@@ -153,15 +153,15 @@
                 <!-- Rempli dynamiquement -->
             </div>
             
-            <!-- Actions (3 boutons larges) -->
-            <div class="space-y-3 mb-4">
-                <button onclick="loadInAtelier()" class="w-full px-4 py-3 rounded-xl font-medium transition hover:opacity-90" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white;">
-                    Ouvrir dans Atelier
+            <!-- Actions (3 boutons côte à côte style Trading) -->
+            <div class="grid grid-cols-3 gap-3 mb-4">
+                <button onclick="loadInAtelier()" class="px-3 py-3 rounded-xl font-medium text-sm transition hover:opacity-90" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white;">
+                    Ouvrir
                 </button>
-                <button onclick="editItem()" class="w-full px-4 py-3 rounded-xl font-medium transition" style="background: rgba(180, 83, 9, 0.8); color: white;">
+                <button onclick="editItem()" class="px-3 py-3 rounded-xl font-medium text-sm transition hover:opacity-90" style="background: rgba(180, 83, 9, 0.85); color: white;">
                     Éditer
                 </button>
-                <button onclick="confirmDelete()" class="w-full px-4 py-3 rounded-xl font-medium transition" style="background: rgba(127, 29, 29, 0.8); color: #f87171;">
+                <button onclick="confirmDelete()" class="px-3 py-3 rounded-xl font-medium text-sm transition hover:opacity-90" style="background: rgba(127, 29, 29, 0.85); color: #f87171;">
                     Supprimer
                 </button>
             </div>
