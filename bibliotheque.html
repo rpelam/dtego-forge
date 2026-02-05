@@ -181,9 +181,9 @@
             const counts = {
                 all: allItems.length,
                 strategie: allItems.filter(i => i.type === 'strategy').length,
-                indicateur: allItems.filter(i => i.category === 'indicator').length,
-                filtre: allItems.filter(i => i.category === 'filter').length,
-                condition: allItems.filter(i => i.category === 'condition').length
+                indicateur: allItems.filter(i => i.type === 'indicator').length,
+                filtre: allItems.filter(i => i.type === 'filter').length,
+                condition: allItems.filter(i => i.type === 'condition').length
             };
             
             document.getElementById('btnAll').textContent = `Tout (${counts.all})`;
