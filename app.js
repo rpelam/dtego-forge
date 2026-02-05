@@ -304,7 +304,7 @@ function renderAtelierConvert() {
                             `}
                         </div>
                         <div class="p-2 border-t border-white/10">
-                            <button onclick="currentSection='library'; renderSection(); toggleForgeLibraryDropdown();" 
+                            <button onclick="window.location.href='bibliotheque.html';" 
                                 class="w-full px-3 py-2 rounded-lg text-sm text-amber-400 hover:bg-amber-500/10 transition text-center">
                                 Voir toute la bibliothèque
                             </button>
