@@ -146,12 +146,9 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        const SUPABASE_URL = 'https://romjkgtvgktpysssagsf.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvbWprZ3R2Z2t0cHlzc3NhZ3NmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3MjIyOTEsImV4cCI6MjA4MzI5ODI5MX0.19xzOoEokS9jqBnPRX00DpvfRMHa9VceiCIoVyI-0v8';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    <script>
+        
         let allItems = [];
         let currentFilter = 'all';
         let currentItem = null;
@@ -342,7 +339,7 @@
             if (!currentItem) return;
             if (!confirm(`Supprimer "${currentItem.name}" ?`)) return;
             
-            const { error } = await supabase.from('library_items').delete().eq('id', currentItem.id);
+
             
             if (error) {
                 alert('Erreur: ' + error.message);
