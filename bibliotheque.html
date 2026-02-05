@@ -119,6 +119,24 @@
         </div>
     </div>
 
+
+    <!-- Modal Confirmation Custom -->
+    <div id="confirmModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50" onclick="closeConfirmModal()">
+        <div class="bg-[#1a1a2e]/95 backdrop-blur-xl rounded-2xl p-6 max-w-sm w-full border border-white/10 shadow-2xl mx-4" onclick="event.stopPropagation()">
+            <h3 id="confirmTitle" class="text-lg font-semibold text-white mb-3"></h3>
+            <p id="confirmMessage" class="text-white/60 text-sm mb-6"></p>
+            
+            <div class="flex gap-3">
+                <button id="confirmCancel" onclick="closeConfirmModal()" class="flex-1 px-4 py-3 rounded-xl font-medium text-sm transition hover:bg-white/10" style="background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.1);">
+                    Annuler
+                </button>
+                <button id="confirmOk" class="flex-1 px-4 py-3 rounded-xl font-medium text-sm transition hover:opacity-90" style="color: white;">
+                    Confirmer
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let allItems = [];
         let currentFilter = 'all';
@@ -330,16 +348,69 @@
 
         function editItem() {
             if (!currentItemId) return;
-            alert('Fonction édition à venir');
+            showConfirm(
+                'Fonction en développement',
+                'La fonction d\'édition sera disponible prochainement.',
+                'OK',
+                () => {},
+                '#6366f1',
+                true // single button
+            );
         }
 
         function confirmDelete() {
             if (!currentItemId) return;
-            if (confirm('Êtes-vous sûr de vouloir supprimer cet élément ?')) {
-                // TODO: Appel API DELETE
-                alert('Suppression à implémenter');
-            }
+            const item = allItems.find(i => i.id === currentItemId);
+            showConfirm(
+                'Supprimer cet élément ?',
+                `Êtes-vous sûr de vouloir supprimer "${item?.name || 'cet élément'}" ? Cette action est irréversible.`,
+                'Supprimer',
+                async () => {
+                    // TODO: Appel API DELETE
+                    showConfirm('Suppression', 'Fonction de suppression à implémenter.', 'OK', () => {}, '#6366f1', true);
+                },
+                '#ef4444' // rouge
+            );
         }
+
+        // Système modal confirmation custom
+        let confirmCallback = null;
+
+        function showConfirm(title, message, okText = 'Confirmer', onConfirm = () => {}, okColor = '#6366f1', singleButton = false) {
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmOk').textContent = okText;
+            document.getElementById('confirmOk').style.background = okColor;
+            
+            // Si single button, cacher annuler et agrandir OK
+            const cancelBtn = document.getElementById('confirmCancel');
+            const okBtn = document.getElementById('confirmOk');
+            if (singleButton) {
+                cancelBtn.style.display = 'none';
+                okBtn.classList.remove('flex-1');
+                okBtn.style.width = '100%';
+            } else {
+                cancelBtn.style.display = 'block';
+                okBtn.classList.add('flex-1');
+                okBtn.style.width = 'auto';
+            }
+            
+            confirmCallback = onConfirm;
+            document.getElementById('confirmModal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.add('hidden');
+            confirmCallback = null;
+        }
+
+        // Action OK
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('confirmOk').addEventListener('click', () => {
+                if (confirmCallback) confirmCallback();
+                closeConfirmModal();
+            });
+        });
 
         // Chargement initial
         window.addEventListener('DOMContentLoaded', () => {
