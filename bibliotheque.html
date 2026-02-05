@@ -229,7 +229,9 @@
             emptyState.classList.add('hidden');
             
             grid.innerHTML = filtered.map(item => {
-                const itemType = item.type === 'strategy' ? 'strategie' : item.category || 'strategie';
+                // Mapping type API -> label français
+                const typeToLabel = {'strategy': 'strategie', 'indicator': 'indicateur', 'filter': 'filtre', 'condition': 'condition'};
+                const itemType = typeToLabel[item.type] || 'strategie';
                 const badgeClass = 'badge-' + itemType;
                 const badgeText = itemType === 'strategie' ? 'STRATÉGIE' : 
                                  itemType === 'indicateur' ? 'INDICATEUR' : 
