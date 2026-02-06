@@ -27,6 +27,12 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(0,0,0,0.3);
         }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
     </style>
 </head>
 <body class="text-white p-8">
@@ -39,11 +45,17 @@
                     <p class="text-white/40 text-sm">Gérez vos indicateurs, stratégies et composants</p>
                 </div>
                 <div class="flex gap-3">
-                    <a href="index.html#atelier" class="px-4 py-2 rounded-lg text-white text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-lg" style="background: linear-gradient(135deg, #b45309, #d97706); text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                    <a href="index.html#atelier" class="px-4 py-2 rounded-lg text-white text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-lg" style="background: linear-gradient(135deg, #0891b2, #06b6d4); text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
                         Atelier
                     </a>
-                    <button onclick="loadLibraryItems()" class="px-4 py-2 rounded-lg text-white text-sm font-medium transition hover:-translate-y-0.5" style="background: #8b5cf6;">
-                        Actualiser
+                    <button id="btnRefresh" onclick="refreshLibrary()" class="px-4 py-2 rounded-lg text-white text-sm font-medium transition hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed" style="background: #8b5cf6;">
+                        <span id="refreshText">Actualiser</span>
+                        <span id="refreshSpinner" class="hidden inline-flex items-center">
+                            <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </span>
                     </button>
                 </div>
             </div>
@@ -51,7 +63,7 @@
 
         <!-- Tabs -->
         <div class="flex items-center gap-3 mb-6">
-            <button id="btnAll" onclick="filterType('all')" class="px-4 py-2 rounded-xl text-sm font-medium transition-all" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);">
+            <button id="btnAll" onclick="filterType('all')" class="px-4 py-2 rounded-xl text-sm font-medium transition-all" style="background: #a78bfa30; color: #a78bfa; border: 1px solid #a78bfa50;">
                 Tout <span id="countAll" class="ml-2 text-xs px-2 py-0.5 rounded-full bg-white/20">0</span>
             </button>
             <button id="btnStrategie" onclick="filterType('strategie')" class="px-4 py-2 rounded-xl text-sm font-medium transition-all" style="background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5); border: 1px solid transparent;">
@@ -189,6 +201,27 @@
             console.log("[DEBUG] displayItems appelé, currentFilter:", currentFilter);
         }
 
+        async function refreshLibrary() {
+            const btn = document.getElementById('btnRefresh');
+            const textSpan = document.getElementById('refreshText');
+            const spinnerSpan = document.getElementById('refreshSpinner');
+            
+            // Disable button
+            btn.disabled = true;
+            textSpan.classList.add('hidden');
+            spinnerSpan.classList.remove('hidden');
+            
+            // Reload
+            await loadLibraryItems();
+            
+            // Re-enable after 500ms
+            setTimeout(() => {
+                btn.disabled = false;
+                textSpan.classList.remove('hidden');
+                spinnerSpan.classList.add('hidden');
+            }, 500);
+        }
+
         function updateCounts() {
             const counts = {
                 all: allItems.length,
@@ -215,10 +248,18 @@
                 const isActive = (type === 'all' && t === 'All') || (type === t.toLowerCase());
                 
                 if (isActive) {
-                    const color = type === 'all' ? '#6b7280' : typeColors[labelToType[type]]?.tab || '#3b82f6';
-                    btn.style.background = `${color}20`;
-                    btn.style.color = color;
-                    btn.style.border = `1px solid ${color}50`;
+                    if (type === 'all') {
+                        // Onglet "Tout" actif = Violet
+                        btn.style.background = '#a78bfa30';
+                        btn.style.color = '#a78bfa';
+                        btn.style.border = '1px solid #a78bfa50';
+                    } else {
+                        // Autres onglets = leur couleur spécifique
+                        const color = typeColors[labelToType[type]]?.tab || '#3b82f6';
+                        btn.style.background = `${color}20`;
+                        btn.style.color = color;
+                        btn.style.border = `1px solid ${color}50`;
+                    }
                 } else {
                     btn.style.background = 'rgba(255,255,255,0.05)';
                     btn.style.color = 'rgba(255,255,255,0.5)';
