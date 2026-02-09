@@ -1416,8 +1416,8 @@ function renderForgeChat() {
                                         Restaurer
                                     </button>
                                 ` : `
-                                    <span class="px-3 py-1.5 rounded-lg text-xs font-medium bg-green-500/20 text-green-400">
-                                        Version actuelle
+                                    <span class="px-2 py-1 rounded text-xs bg-green-500/10 text-green-400/70 italic">
+                                        ✓ Version active
                                     </span>
                                 `}
                             </div>
