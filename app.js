@@ -884,10 +884,10 @@ function renderAtelierConvert() {
             ` : ''}
             
             <!-- MODALE HISTORIQUE BACKTESTS -->
-            <div id="forge-history-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);">
+            <div id="forge-history-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);">
                 <div class="w-full max-w-5xl rounded-2xl overflow-hidden" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
                     <div class="flex items-center justify-between p-5 border-b border-white/10">
-                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <h3 class="text-lg font-semibold text-white flex items-center gap-2">
                             <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             Historique des Backtests
                             <span id="history-count" class="text-white/40 text-sm font-normal ml-2"></span>
@@ -1146,9 +1146,9 @@ function renderForgeProjects() {
         </div>
         
         <!-- Modal nouveau projet -->
-        <div id="forge-new-project-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7);">
-            <div class="max-w-md w-full mx-4 p-6 rounded-2xl" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
-                <h3 class="text-xl font-bold text-white mb-4">Nouveau projet</h3>
+        <div id="forge-new-project-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.8);">
+            <div class="max-w-md w-full mx-4 p-5 rounded-2xl" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+                <h3 class="text-lg font-semibold text-white mb-4">Nouveau projet</h3>
                 <div class="space-y-4">
                     <div>
                         <label class="block text-white/60 text-sm mb-2">Nom du projet</label>
@@ -1193,15 +1193,15 @@ function renderForgeProjects() {
         </div>
         
         <!-- Modal suppression projet -->
-        <div id="forge-delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7);">
-            <div class="max-w-sm w-full mx-4 p-6 rounded-2xl" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+        <div id="forge-delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.8);">
+            <div class="max-w-sm w-full mx-4 p-5 rounded-2xl" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
                 <div class="text-center mb-6">
-                    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background: rgba(239, 68, 68, 0.15);">
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background: rgba(239, 68, 68, 0.2);">
                         <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold text-white mb-2">Supprimer le projet</h3>
+                    <h3 class="text-lg font-semibold text-white mb-2">Supprimer le projet</h3>
                     <p class="text-white/60">
                         Voulez-vous supprimer <span id="forge-delete-project-name" class="text-white font-medium"></span> ?
                     </p>
@@ -1348,9 +1348,9 @@ function renderForgeChat() {
         </div>
         
         <!-- Modal renommer -->
-        <div id="forge-rename-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7);">
-            <div class="max-w-md w-full mx-4 p-6 rounded-2xl" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
-                <h3 class="text-xl font-bold text-white mb-4">Renommer le projet</h3>
+        <div id="forge-rename-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.8);">
+            <div class="max-w-md w-full mx-4 p-5 rounded-2xl" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+                <h3 class="text-lg font-semibold text-white mb-4">Renommer le projet</h3>
                 <div class="space-y-4">
                     <div>
                         <label class="block text-white/60 text-sm mb-2">Nom</label>
@@ -1391,23 +1391,23 @@ function renderForgeChat() {
         </div>
         
         <!-- Modal versions -->
-        <div id="forge-versions-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7);">
-            <div class="max-w-lg w-full mx-4 p-6 rounded-2xl max-h-[80vh] overflow-hidden flex flex-col" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+        <div id="forge-versions-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.8);">
+            <div class="max-w-lg w-full mx-4 p-5 rounded-2xl max-h-[80vh] overflow-hidden flex flex-col" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-white">Historique des versions</h3>
+                    <h3 class="text-lg font-semibold text-white">Historique des versions</h3>
                     <button onclick="forgeCloseVersionsModal()" class="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
                 <div class="flex-1 overflow-y-auto space-y-3">
                     ${(forgeState.versions || []).length > 0 ? forgeState.versions.map(ver => `
-                        <div class="p-4 rounded-xl ${ver.version === project.current_version ? 'ring-1 ring-white/20' : ''}" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);">
+                        <div class="p-4 rounded-xl ${ver.version === project.current_version ? 'ring-1 ring-green-500/30' : ''}" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-white font-medium">v${ver.version}</span>
                                 <span class="text-white/40 text-xs">${formatRelativeDate(ver.created_at)}</span>
                             </div>
                             <p class="text-white/60 text-sm mb-3">${ver.summary || 'Aucun résumé'}</p>
-                            <div class="flex gap-2">
+                            <div class="flex gap-3">
                                 <button onclick="forgeViewVersionCode('${ver.id}')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-white/10 text-white/70 hover:bg-white/15 hover:text-white transition">
                                     Voir le code
                                 </button>
@@ -1416,7 +1416,7 @@ function renderForgeChat() {
                                         Restaurer
                                     </button>
                                 ` : `
-                                    <span class="px-2 py-1 rounded text-xs bg-white/5 text-white/50 italic">
+                                    <span class="px-2 py-0.5 rounded text-xs bg-green-500/20 text-green-400 font-medium">
                                         ✓ Active
                                     </span>
                                 `}
@@ -1432,15 +1432,15 @@ function renderForgeChat() {
         </div>
         
         <!-- Modal effacer les messages -->
-        <div id="forge-clear-chat-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7);">
-            <div class="max-w-sm w-full mx-4 p-6 rounded-2xl" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+        <div id="forge-clear-chat-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.8);">
+            <div class="max-w-sm w-full mx-4 p-5 rounded-2xl" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
                 <div class="text-center mb-6">
-                    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background: rgba(239, 68, 68, 0.15);">
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background: rgba(239, 68, 68, 0.2);">
                         <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold text-white mb-2">Effacer les messages</h3>
+                    <h3 class="text-lg font-semibold text-white mb-2">Effacer les messages</h3>
                     <p class="text-white/60">
                         Voulez-vous effacer tous les messages de cette conversation ?
                     </p>
@@ -1990,7 +1990,7 @@ function forgeViewVersionCode(versionId) {
     overlay.id = 'code-viewer-modal';
     overlay.style.cssText = `
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.7); display: flex; align-items: center;
+        background: rgba(0,0,0,0.8); display: flex; align-items: center;
         justify-content: center; z-index: 10000;
     `;
 
@@ -5036,12 +5036,12 @@ function forgeEnsureAssetModal() {
     const modal = document.createElement('div');
     modal.id = 'forge-assets-modal-dynamic';
     modal.className = 'hidden fixed inset-0 z-50 flex items-center justify-center p-4';
-    modal.style.cssText = 'background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);';
+    modal.style.cssText = 'background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);';
     
     modal.innerHTML = `
         <div class="w-full max-w-5xl rounded-2xl overflow-hidden" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
             <div class="flex items-center justify-between p-5 border-b border-white/10">
-                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <h3 class="text-lg font-semibold text-white flex items-center gap-2">
                     <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                     Sélection des Assets
                     <span id="assets-selected-count" class="text-white/40 text-sm font-normal ml-2"></span>
@@ -6010,7 +6010,7 @@ function openScoreDetails(id, type) {
     const modal = document.createElement('div');
     modal.id = 'score-details-modal';
     modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity opacity-0';
-    modal.style.background = 'rgba(0,0,0,0.7)';
+    modal.style.background = 'rgba(0,0,0,0.8)';
     modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
     
     modal.innerHTML = `
@@ -6092,7 +6092,7 @@ async function openLibraryItem(id, type) {
 function showLibraryItemDetail(item) {
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4';
-    modal.style.background = 'rgba(0,0,0,0.7)';
+    modal.style.background = 'rgba(0,0,0,0.8)';
     modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
     
     const typeLabels = { indicator: 'Indicateur', strategy: 'Stratégie', project: 'Projet' };
