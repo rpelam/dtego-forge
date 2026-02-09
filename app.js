@@ -990,14 +990,27 @@ function forgeSetType(type) {
     renderSection();
 }
 
-function forgeSetAtelierMode(mode) {
+async function forgeSetAtelierMode(mode) {
     forgeState.atelierMode = mode;
-    if (mode === 'create' || mode === 'choice') {
+
+    // Pour 'choice', on affiche directement sans charger les projets
+    if (mode === 'choice') {
         forgeState.createView = 'projects';
         forgeState.currentProjectId = null;
         forgeState.currentProject = null;
-        forgeLoadProjects();
+        renderSection();
+        return;
     }
+
+    // Pour 'create', on charge les projets
+    if (mode === 'create') {
+        forgeState.createView = 'projects';
+        forgeState.currentProjectId = null;
+        forgeState.currentProject = null;
+        await forgeLoadProjects();
+        return; // forgeLoadProjects appelle déjà renderSection
+    }
+
     renderSection();
 }
 
