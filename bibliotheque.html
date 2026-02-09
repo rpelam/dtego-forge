@@ -8,16 +8,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #0f0f1a 100%);
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
             min-height: 100vh;
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
         }
         .glass-container {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
         }
         .library-card {
             transition: all 0.2s;
@@ -98,8 +98,8 @@
     </div>
 
     <!-- Modal Détails -->
-    <div id="detailsModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onclick="closeDetailsModal()">
-        <div class="bg-[#1a1a2e]/95 backdrop-blur-xl rounded-2xl p-6 max-w-md w-full border border-white/10 shadow-2xl" onclick="event.stopPropagation()">
+    <div id="detailsModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" onclick="closeDetailsModal()">
+        <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);" class="rounded-2xl p-6 max-w-md w-full shadow-2xl" onclick="event.stopPropagation()">
             <div class="flex justify-between items-start mb-4">
                 <div class="flex-1">
                     <h3 id="modalTitle" class="text-lg font-semibold text-white mb-2"></h3>
@@ -136,8 +136,8 @@
 
 
     <!-- Modal Confirmation Custom -->
-    <div id="confirmModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50" onclick="closeConfirmModal()">
-        <div class="bg-[#1a1a2e]/95 backdrop-blur-xl rounded-2xl p-6 max-w-sm w-full border border-white/10 shadow-2xl mx-4" onclick="event.stopPropagation()">
+    <div id="confirmModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50" onclick="closeConfirmModal()">
+        <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);" class="rounded-2xl p-6 max-w-sm w-full shadow-2xl mx-4" onclick="event.stopPropagation()">
             <h3 id="confirmTitle" class="text-lg font-semibold text-white mb-3"></h3>
             <p id="confirmMessage" class="text-white/60 text-sm mb-6"></p>
             

@@ -339,7 +339,7 @@ function renderAtelierConvert() {
             </div>
             
             <!-- Type selector + Charger depuis Bibliothèque -->
-            <div class="flex items-center justify-between gap-4 p-4 rounded-xl" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+            <div class="flex items-center justify-between gap-4 p-4 rounded-xl" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);">
                 <div class="flex gap-6">
                     <label class="flex items-center gap-2 cursor-pointer">
                         <input type="radio" name="forge-type" value="strategy" ${forgeState.strategyType === 'strategy' ? 'checked' : ''} class="accent-amber-500" onchange="forgeSetType('strategy')">
@@ -360,7 +360,7 @@ function renderAtelierConvert() {
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
                     <div id="forge-library-dropdown" class="hidden absolute right-0 top-full mt-2 w-72 rounded-xl shadow-2xl border border-white/20 z-50 overflow-hidden"
-                        style="background: linear-gradient(135deg, rgba(30, 30, 50, 0.98), rgba(20, 20, 35, 0.99)); backdrop-filter: blur(20px);">
+                        style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
                         <div class="p-2 max-h-64 overflow-y-auto">
                             ${libraryItems.length > 0 ? libraryItems.map(item => `
                                 <button onclick="loadFromLibraryDropdown('${item.id}', '${item.type}')" 
@@ -885,7 +885,7 @@ function renderAtelierConvert() {
             
             <!-- MODALE HISTORIQUE BACKTESTS -->
             <div id="forge-history-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);">
-                <div class="w-full max-w-5xl rounded-2xl overflow-hidden" style="background: linear-gradient(135deg, rgba(30, 30, 50, 0.98), rgba(20, 20, 35, 0.99)); border: 1px solid rgba(255,255,255,0.1);">
+                <div class="w-full max-w-5xl rounded-2xl overflow-hidden" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
                     <div class="flex items-center justify-between p-5 border-b border-white/10">
                         <h3 class="text-lg font-bold text-white flex items-center gap-2">
                             <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -1094,7 +1094,7 @@ function renderForgeProjects() {
                 <div class="space-y-3">
                     ${projects.map(project => `
                         <div class="group p-4 rounded-xl transition hover:scale-[1.01]"
-                            style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                            style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);">
                             <div class="flex items-center justify-between">
                                 <button onclick="forgeOpenProject('${project.id}')" class="flex items-center gap-4 flex-1 text-left">
                                     <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: rgba(217, 119, 6, 0.15);">
@@ -1401,7 +1401,7 @@ function renderForgeChat() {
                 </div>
                 <div class="flex-1 overflow-y-auto space-y-3">
                     ${(forgeState.versions || []).length > 0 ? forgeState.versions.map(ver => `
-                        <div class="p-4 rounded-xl ${ver.version === project.current_version ? 'ring-1 ring-white/20' : ''}" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                        <div class="p-4 rounded-xl ${ver.version === project.current_version ? 'ring-1 ring-white/20' : ''}" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-white font-medium">v${ver.version}</span>
                                 <span class="text-white/40 text-xs">${formatRelativeDate(ver.created_at)}</span>
@@ -1535,7 +1535,7 @@ function renderForgeChatMessage(msg) {
     return `
         <div data-message-role="${msg.role}" class="flex ${isUser ? 'justify-end' : 'justify-start'}">
             <div class="${isUser ? userWidth : assistantWidth} p-4 rounded-2xl ${isUser ? 'rounded-br-md' : 'rounded-bl-md'}"
-                style="background: ${isUser ? 'rgba(217, 119, 6, 0.15)' : 'rgba(255,255,255,0.05)'}; border: 1px solid ${isUser ? 'rgba(217, 119, 6, 0.2)' : 'rgba(255,255,255,0.08)'};">
+                style="background: ${isUser ? 'rgba(217, 119, 6, 0.15)' : 'rgba(255,255,255,0.05)'}; border: 1px solid ${isUser ? 'rgba(217, 119, 6, 0.2)' : 'rgba(255,255,255,0.1)'};">
                 <p class="text-white/90 text-sm whitespace-pre-wrap">${msg.content}</p>
                 <p class="text-white/30 text-xs mt-2">${formatTime(msg.created_at)}</p>
             </div>
@@ -5039,7 +5039,7 @@ function forgeEnsureAssetModal() {
     modal.style.cssText = 'background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);';
     
     modal.innerHTML = `
-        <div class="w-full max-w-5xl rounded-2xl overflow-hidden" style="background: linear-gradient(135deg, rgba(30, 30, 50, 0.98), rgba(20, 20, 35, 0.99)); border: 1px solid rgba(255,255,255,0.1);">
+        <div class="w-full max-w-5xl rounded-2xl overflow-hidden" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
             <div class="flex items-center justify-between p-5 border-b border-white/10">
                 <h3 class="text-lg font-bold text-white flex items-center gap-2">
                     <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
@@ -5690,7 +5690,7 @@ function renderLibraryCard(item, type) {
                     
                     <!-- Info popover -->
                     <div id="info-popover-${item.id}" class="hidden absolute top-8 right-0 w-72 rounded-xl shadow-2xl border border-white/20 z-50 overflow-hidden"
-                        style="background: linear-gradient(135deg, rgba(30, 30, 50, 0.98), rgba(20, 20, 35, 0.99)); backdrop-filter: blur(20px);">
+                        style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
                         
                         <div class="p-4 space-y-2 text-xs">
                             <div class="flex justify-between">
@@ -6015,7 +6015,7 @@ function openScoreDetails(id, type) {
     
     modal.innerHTML = `
         <div class="w-full max-w-lg rounded-2xl shadow-2xl border border-white/20 transform scale-95 transition-all"
-            style="background: linear-gradient(135deg, rgba(30, 30, 50, 0.98), rgba(20, 20, 35, 0.99)); backdrop-filter: blur(20px); max-height: 90vh; overflow-y: auto;">
+            style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); max-height: 90vh; overflow-y: auto;">
             
             <!-- Header -->
             <div class="flex items-center justify-between p-5 border-b border-white/10">
@@ -6099,7 +6099,7 @@ function showLibraryItemDetail(item) {
     
     modal.innerHTML = `
         <div class="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl shadow-2xl border border-white/20"
-            style="background: linear-gradient(135deg, rgba(30, 30, 50, 0.98), rgba(20, 20, 35, 0.99)); backdrop-filter: blur(20px);">
+            style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
             <div class="p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-white font-semibold text-lg">${item.name}</h3>
