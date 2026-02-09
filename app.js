@@ -1177,8 +1177,9 @@ function renderForgeChat() {
                         <button onclick="forgeShowVersionsModal()" class="p-2 rounded-lg bg-white/5 text-white/60 hover:bg-white/10 hover:text-white transition" title="Historique des versions">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </button>
-                        <button onclick="forgeSaveToLibrary()" class="px-3 py-2 rounded-lg text-sm font-medium transition" style="background: linear-gradient(135deg, #10b981, #14b8a6); color: white;" title="Sauvegarder dans bibliothèque">
+                        <button onclick="forgeSaveToLibrary()" class="px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2" style="background: linear-gradient(135deg, #10b981, #14b8a6); color: white;">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                            Sauvegarder
                         </button>
                     </div>
                 </div>
