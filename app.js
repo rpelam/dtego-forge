@@ -4648,48 +4648,6 @@ async function forgeRunBacktest() {
     }
 }
 
-async function forgeSaveToLibrary() {
-    const name = document.getElementById('forge-strategy-name')?.value?.trim();
-    if (!name) {
-        showToast('Nom de stratégie requis', 'error');
-        return;
-    }
-    
-    try {
-        const response = await fetch(`${API_BASE}/api/library/items`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                name: name,
-                type: forgeState.strategyType,
-                category: 'forge',
-                pine_code: forgeState.pineCode,
-                python_code: forgeState.pythonCode,
-                description: forgeState.description,
-                status: 'draft',
-                score_backtest: forgeState.backtestResults ? Math.round(
-                    ((forgeState.backtestResults.win_rate || 50) * 0.3) +
-                    ((forgeState.backtestResults.profit_factor || 1) * 20) +
-                    ((forgeState.backtestResults.sharpe_ratio || 0) * 10) +
-                    (Math.max(0, 20 - (forgeState.backtestResults.max_drawdown || 20)))
-                ) : null,
-                conversation_history: forgeState.conversationHistory
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            showToast('Sauvegardé en bibliothèque', 'success');
-        } else {
-            showToast(data.error || 'Erreur de sauvegarde', 'error');
-        }
-    } catch (e) {
-        console.error('Forge save error:', e);
-        showToast('Erreur de connexion', 'error');
-    }
-}
-
 async function forgeDeployTest() {
     const name = document.getElementById('forge-strategy-name')?.value?.trim();
     if (!name) {
