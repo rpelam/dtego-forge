@@ -62,7 +62,7 @@ function showCenteredModal(message, type = 'info') {
     overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
 
     overlay.innerHTML = `
-        <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(25px);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:2rem;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5);text-align:center;">
+        <div style="background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:2rem;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5);text-align:center;">
             <div style="width:48px;height:48px;border-radius:12px;background:${color}20;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
                 <svg width="24" height="24" fill="none" stroke="${color}" viewBox="0 0 24 24">${icons[type] || icons.info}</svg>
             </div>
@@ -82,7 +82,7 @@ function showConfirmModal(message, onConfirm, onCancel = () => {}) {
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000;';
 
     overlay.innerHTML = `
-        <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(25px);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:2rem;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5);text-align:center;">
+        <div style="background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:2rem;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5);text-align:center;">
             <div style="width:48px;height:48px;border-radius:12px;background:rgba(251,191,36,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
                 <svg width="24" height="24" fill="none" stroke="#fbbf24" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
@@ -108,7 +108,7 @@ function showPromptModal(message, defaultValue, onConfirm, onCancel = () => {}) 
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000;';
 
     overlay.innerHTML = `
-        <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(25px);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:2rem;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+        <div style="background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:2rem;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
             <p style="color:white;font-size:15px;line-height:1.6;margin:0 0 1rem;">${message}</p>
             <input id="prompt-modal-input" type="text" value="${defaultValue || ''}" style="width:100%;padding:0.75rem 1rem;border-radius:12px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:white;font-size:14px;margin-bottom:1rem;box-sizing:border-box;" autofocus />
             <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
@@ -1147,7 +1147,7 @@ function renderForgeProjects() {
         
         <!-- Modal nouveau projet -->
         <div id="forge-new-project-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7);">
-            <div class="max-w-md w-full mx-4 p-6 rounded-2xl" style="background: rgba(255,255,255,0.08); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.15);">
+            <div class="max-w-md w-full mx-4 p-6 rounded-2xl" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
                 <h3 class="text-xl font-bold text-white mb-4">Nouveau projet</h3>
                 <div class="space-y-4">
                     <div>
@@ -1194,7 +1194,7 @@ function renderForgeProjects() {
         
         <!-- Modal suppression projet -->
         <div id="forge-delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7);">
-            <div class="max-w-sm w-full mx-4 p-6 rounded-2xl" style="background: rgba(255,255,255,0.08); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.15);">
+            <div class="max-w-sm w-full mx-4 p-6 rounded-2xl" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
                 <div class="text-center mb-6">
                     <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background: rgba(239, 68, 68, 0.15);">
                         <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1349,7 +1349,7 @@ function renderForgeChat() {
         
         <!-- Modal renommer -->
         <div id="forge-rename-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7);">
-            <div class="max-w-md w-full mx-4 p-6 rounded-2xl" style="background: rgba(255,255,255,0.08); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.15);">
+            <div class="max-w-md w-full mx-4 p-6 rounded-2xl" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
                 <h3 class="text-xl font-bold text-white mb-4">Renommer le projet</h3>
                 <div class="space-y-4">
                     <div>
@@ -1392,7 +1392,7 @@ function renderForgeChat() {
         
         <!-- Modal versions -->
         <div id="forge-versions-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7);">
-            <div class="max-w-lg w-full mx-4 p-6 rounded-2xl max-h-[80vh] overflow-hidden flex flex-col" style="background: rgba(255,255,255,0.08); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.15);">
+            <div class="max-w-lg w-full mx-4 p-6 rounded-2xl max-h-[80vh] overflow-hidden flex flex-col" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-xl font-bold text-white">Historique des versions</h3>
                     <button onclick="forgeCloseVersionsModal()" class="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition">
@@ -1433,7 +1433,7 @@ function renderForgeChat() {
         
         <!-- Modal effacer les messages -->
         <div id="forge-clear-chat-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7);">
-            <div class="max-w-sm w-full mx-4 p-6 rounded-2xl" style="background: rgba(255,255,255,0.08); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.15);">
+            <div class="max-w-sm w-full mx-4 p-6 rounded-2xl" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
                 <div class="text-center mb-6">
                     <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background: rgba(239, 68, 68, 0.15);">
                         <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1999,9 +1999,9 @@ function forgeViewVersionCode(versionId) {
 
     overlay.innerHTML = `
         <div style="
-            background: rgba(255,255,255,0.08);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 20px;
             padding: 24px;
             max-width: 900px;
@@ -4427,7 +4427,7 @@ function showErrorModal(message, title = 'Erreur') {
     overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
 
     overlay.innerHTML = `
-        <div style="background: rgba(255,255,255,0.08); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 2rem; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.5); text-align: center;">
+        <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 2rem; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.5); text-align: center;">
             <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(248,113,113,0.2); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
                 <svg width="24" height="24" fill="none" stroke="#f87171" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
             </div>

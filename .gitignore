@@ -1,0 +1,5 @@
+.DS_Store
+*.backup.*
+backups_session40/
+node_modules/
+.env

@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mockup Filtre Éditable - Dtego</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+        }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+        
+        .glass-input {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: white;
+            padding: 10px 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+        
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #d97706;
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #d97706 0%, #ea580c 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 10px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(217, 119, 6, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: white;
+            padding: 10px 20px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-filter {
+            background: rgba(217, 119, 6, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(217, 119, 6, 0.3);
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #d97706;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 12px rgba(217, 119, 6, 0.5);
+        }
+        
+        .code-preview {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #a3a3a3;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+        
+        .code-preview .keyword { color: #c678dd; }
+        .code-preview .function { color: #61afef; }
+        .code-preview .string { color: #98c379; }
+        .code-preview .number { color: #d19a66; }
+        .code-preview .variable { color: #e06c75; }
+    </style>
+</head>
+<body class="p-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-white mb-2">Éditer Filtre</h1>
+                    <p class="text-gray-400">Modifiez les paramètres de votre filtre</p>
+                </div>
+                <span class="badge badge-filter">PRÉ-SCAN</span>
+            </div>
+        </div>
+
+        <!-- Main Card -->
+        <div class="glass p-8 mb-6">
+            <!-- Filter Info -->
+            <div class="mb-6 pb-6 border-b border-white/10">
+                <h2 class="text-xl font-semibold text-white mb-2">Volume Cumul Check</h2>
+                <p class="text-gray-400 text-sm">Vérifie que le volume cumulé depuis 0h UTC dépasse un seuil vs la moyenne daily</p>
+            </div>
+
+            <!-- Parameters -->
+            <div class="space-y-6">
+                <!-- Param 1 -->
+                <div>
+                    <label class="block text-white font-medium mb-3">
+                        Jours Moyenne Volume Daily
+                        <span class="text-gray-400 text-sm font-normal ml-2">(volMaDays)</span>
+                    </label>
+                    <div class="flex items-center gap-4">
+                        <input 
+                            type="range" 
+                            class="slider flex-1" 
+                            min="1" 
+                            max="100" 
+                            value="20"
+                            id="volMaDays"
+                            oninput="updateValue('volMaDays')"
+                        >
+                        <input 
+                            type="number" 
+                            class="glass-input w-20 text-center" 
+                            value="20"
+                            id="volMaDaysValue"
+                            min="1"
+                            max="100"
+                            oninput="updateSlider('volMaDays')"
+                        >
+                    </div>
+                    <p class="text-gray-500 text-xs mt-2">Longueur de la moyenne mobile du volume daily (1-100 jours)</p>
+                </div>
+
+                <!-- Param 2 -->
+                <div>
+                    <label class="block text-white font-medium mb-3">
+                        Seuil Volume (% de la moyenne)
+                        <span class="text-gray-400 text-sm font-normal ml-2">(volPctOfAvg)</span>
+                    </label>
+                    <div class="flex items-center gap-4">
+                        <input 
+                            type="range" 
+                            class="slider flex-1" 
+                            min="0" 
+                            max="1" 
+                            step="0.01"
+                            value="0.15"
+                            id="volPctOfAvg"
+                            oninput="updateValue('volPctOfAvg')"
+                        >
+                        <input 
+                            type="number" 
+                            class="glass-input w-20 text-center" 
+                            value="0.15"
+                            id="volPctOfAvgValue"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            oninput="updateSlider('volPctOfAvg')"
+                        >
+                    </div>
+                    <p class="text-gray-500 text-xs mt-2">Volume cumulé doit être >= ce pourcentage de la moyenne (0.0 - 1.0)</p>
+                </div>
+            </div>
+
+            <!-- Preview Toggle -->
+            <div class="mt-8 pt-6 border-t border-white/10">
+                <button 
+                    class="text-amber-400 text-sm font-medium hover:text-amber-300 transition"
+                    onclick="togglePreview()"
+                >
+                    <span id="previewToggleText">▶ Voir le code généré</span>
+                </button>
+                
+                <div id="codePreview" class="hidden mt-4 code-preview">
+<span class="keyword">bool</span> <span class="variable">passVolCum</span> = 
+    <span class="keyword">not</span> <span class="variable">useVolCumFilter</span> <span class="keyword">or</span> (
+        <span class="keyword">not</span> <span class="function">na</span>(<span class="variable">dailyVolMA</span>) <span class="keyword">and</span> 
+        <span class="variable">dailyVolMA</span> > <span class="number">0</span> <span class="keyword">and</span> 
+        <span class="variable">dayVolCum</span> >= <span class="number" id="codeVolPct">0.15</span> * <span class="variable">dailyVolMA</span>
+    )
+
+<span class="keyword">float</span> <span class="variable">dailyVolMA</span> = <span class="function">request.security</span>(
+    <span class="variable">syminfo.tickerid</span>, <span class="string">"D"</span>,
+    <span class="function">ta.sma</span>(<span class="variable">volume</span>, <span class="number" id="codeVolMaDays">20</span>)[<span class="number">1</span>],
+    <span class="variable">barmerge.gaps_off</span>, <span class="variable">barmerge.lookahead_off</span>
+)
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-4 justify-between items-center">
+            <button class="btn-secondary px-6" onclick="toggleGranules()">
+                Dtegopedia - Voir les Granules
+            </button>
+            <div class="flex gap-4">
+                <button class="btn-secondary px-6">Annuler</button>
+                <button class="btn-primary px-6">Sauvegarder</button>
+            </div>
+        </div>
+
+        <!-- Dtegopedia Modal -->
+        <div id="dtegopediaOverlay" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 p-8 overflow-y-auto">
+            <div class="max-w-4xl mx-auto">
+                <div class="glass p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-white font-bold text-xl mb-2">Dtegopedia - Granules Utilisées</h3>
+                            <p class="text-gray-400 text-sm">
+                                Ce filtre utilise <strong class="text-amber-400">7 granules</strong> atomiques
+                            </p>
+                        </div>
+                        <button onclick="toggleGranules()" class="text-white hover:text-amber-400 text-2xl font-bold">
+                            ×
+                        </button>
+                    </div>
+
+            <div class="space-y-4">
+                <!-- Granule 1 -->
+                <div class="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/8 transition">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center flex-shrink-0">
+                            <span class="text-amber-400 font-bold">T</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h4 class="text-white font-semibold">Détection Nouveau Jour UTC</h4>
+                                <span class="text-xs px-2 py-1 rounded bg-green-500/20 text-green-400 border border-green-500/30">
+                                    Utilisée 6× dans RapTwo
+                                </span>
+                            </div>
+                            <p class="text-gray-300 text-sm mb-2">
+                                <strong class="text-amber-400">Langage naturel:</strong> Détecte quand on passe à un nouveau jour en timezone UTC (minuit).
+                            </p>
+                            <p class="text-gray-400 text-xs">
+                                <strong>Dans ce filtre:</strong> Sert à déclencher le reset du volume cumulé à 0h00 UTC chaque jour.
+                            </p>
+                            <code class="text-xs text-gray-500 block mt-2">ta.change(time("D", "0000-2400", "UTC")) != 0</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Granule 2 -->
+                <div class="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/8 transition">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center flex-shrink-0">
+                            <span class="text-amber-400 font-bold">V</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h4 class="text-white font-semibold">Variable avec Reset Conditionnel</h4>
+                                <span class="text-xs px-2 py-1 rounded bg-green-500/20 text-green-400 border border-green-500/30">
+                                    Pattern 6× dans RapTwo
+                                </span>
+                            </div>
+                            <p class="text-gray-300 text-sm mb-2">
+                                <strong class="text-amber-400">Langage naturel:</strong> Une variable qui garde sa valeur entre les barres, mais qui se réinitialise quand une condition est vraie.
+                            </p>
+                            <p class="text-gray-400 text-xs">
+                                <strong>Dans ce filtre:</strong> Permet de garder le volume cumulé en mémoire et de le remettre à zéro à minuit UTC.
+                            </p>
+                            <code class="text-xs text-gray-500 block mt-2">var float dayVolCum = 0.0</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Granule 3 -->
+                <div class="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/8 transition">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center flex-shrink-0">
+                            <span class="text-amber-400 font-bold">+</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h4 class="text-white font-semibold">Accumulation Volume</h4>
+                                <span class="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                                    Utilisée 3× dans RapTwo
+                                </span>
+                            </div>
+                            <p class="text-gray-300 text-sm mb-2">
+                                <strong class="text-amber-400">Langage naturel:</strong> Additionne le volume de chaque nouvelle barre confirmée à un total qui grandit au fil de la journée.
+                            </p>
+                            <p class="text-gray-400 text-xs">
+                                <strong>Dans ce filtre:</strong> Calcule le volume total échangé depuis le début de la journée (0h UTC).
+                            </p>
+                            <code class="text-xs text-gray-500 block mt-2">dayVolCum += volume</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Granule 4 -->
+                <div class="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/8 transition">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center flex-shrink-0">
+                            <span class="text-amber-400 font-bold">D</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h4 class="text-white font-semibold">Request Security Daily [1]</h4>
+                                <span class="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                                    Utilisée 3× dans RapTwo
+                                </span>
+                            </div>
+                            <p class="text-gray-300 text-sm mb-2">
+                                <strong class="text-amber-400">Langage naturel:</strong> Va chercher une donnée sur un timeframe différent (ici Daily) en utilisant la dernière bougie FERMÉE pour éviter le repaint.
+                            </p>
+                            <p class="text-gray-400 text-xs">
+                                <strong>Dans ce filtre:</strong> Récupère la moyenne mobile du volume calculée sur timeframe daily (pas intraday).
+                            </p>
+                            <code class="text-xs text-gray-500 block mt-2">request.security(..., "D", ...[1], ...)</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Granule 5 -->
+                <div class="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/8 transition">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center flex-shrink-0">
+                            <span class="text-amber-400 font-bold">MA</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h4 class="text-white font-semibold">SMA (Simple Moving Average)</h4>
+                                <span class="text-xs px-2 py-1 rounded bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                                    Indicateur standard
+                                </span>
+                            </div>
+                            <p class="text-gray-300 text-sm mb-2">
+                                <strong class="text-amber-400">Langage naturel:</strong> Calcule la moyenne des N dernières valeurs (ici volume) pour lisser les variations et voir la tendance.
+                            </p>
+                            <p class="text-gray-400 text-xs">
+                                <strong>Dans ce filtre:</strong> Moyenne du volume des 20 derniers jours pour avoir une référence "normale".
+                            </p>
+                            <code class="text-xs text-gray-500 block mt-2">ta.sma(volume, 20)</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Granule 6 -->
+                <div class="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/8 transition">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center flex-shrink-0">
+                            <span class="text-amber-400 font-bold">×</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h4 class="text-white font-semibold">Multiplication Seuil</h4>
+                                <span class="text-xs px-2 py-1 rounded bg-green-500/20 text-green-400 border border-green-500/30">
+                                    Utilisée 5× dans RapTwo
+                                </span>
+                            </div>
+                            <p class="text-gray-300 text-sm mb-2">
+                                <strong class="text-amber-400">Langage naturel:</strong> Multiplie une valeur de référence par un facteur pour créer un seuil personnalisé.
+                            </p>
+                            <p class="text-gray-400 text-xs">
+                                <strong>Dans ce filtre:</strong> Calcule le volume minimum requis (15% de la moyenne = 0.15 × moyenneVolume).
+                            </p>
+                            <code class="text-xs text-gray-500 block mt-2">volPctOfAvg * dailyVolMA</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Granule 7 -->
+                <div class="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/8 transition">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center flex-shrink-0">
+                            <span class="text-amber-400 font-bold">≥</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h4 class="text-white font-semibold">Comparaison >= avec Validation</h4>
+                                <span class="text-xs px-2 py-1 rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                                    Utilisée 4× dans RapTwo
+                                </span>
+                            </div>
+                            <p class="text-gray-300 text-sm mb-2">
+                                <strong class="text-amber-400">Langage naturel:</strong> Vérifie qu'une valeur A est supérieure ou égale à une valeur B, avec des contrôles de sécurité (pas de valeurs nulles ou négatives).
+                            </p>
+                            <p class="text-gray-400 text-xs">
+                                <strong>Dans ce filtre:</strong> Compare le volume cumulé au seuil calculé pour décider si le filtre PASS ou FAIL.
+                            </p>
+                            <code class="text-xs text-gray-500 block mt-2">dayVolCum >= threshold</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="pt-4 border-t border-white/10">
+                    <p class="text-gray-500 text-xs">
+                        <strong class="text-white">Réutilisabilité:</strong>
+                        <span class="inline-block w-3 h-3 rounded bg-green-500/40 border border-green-500"></span> Très haute (5-6 usages) •
+                        <span class="inline-block w-3 h-3 rounded bg-blue-500/40 border border-blue-500"></span> Moyenne (3-4 usages) •
+                        <span class="inline-block w-3 h-3 rounded bg-yellow-500/40 border border-yellow-500"></span> Bonne (2-4 usages) •
+                        <span class="inline-block w-3 h-3 rounded bg-purple-500/40 border border-purple-500"></span> Standard
+                    </p>
+                </div>
+            </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateValue(param) {
+            const slider = document.getElementById(param);
+            const input = document.getElementById(param + 'Value');
+            input.value = slider.value;
+            
+            // Update code preview
+            if (param === 'volMaDays') {
+                document.getElementById('codeVolMaDays').textContent = slider.value;
+            } else if (param === 'volPctOfAvg') {
+                document.getElementById('codeVolPct').textContent = slider.value;
+            }
+        }
+        
+        function updateSlider(param) {
+            const input = document.getElementById(param + 'Value');
+            const slider = document.getElementById(param);
+            slider.value = input.value;
+            
+            // Update code preview
+            if (param === 'volMaDays') {
+                document.getElementById('codeVolMaDays').textContent = input.value;
+            } else if (param === 'volPctOfAvg') {
+                document.getElementById('codeVolPct').textContent = input.value;
+            }
+        }
+        
+        function togglePreview() {
+            const preview = document.getElementById('codePreview');
+            const toggleText = document.getElementById('previewToggleText');
+            
+            if (preview.classList.contains('hidden')) {
+                preview.classList.remove('hidden');
+                toggleText.textContent = '▼ Masquer le code généré';
+            } else {
+                preview.classList.add('hidden');
+                toggleText.textContent = '▶ Voir le code généré';
+            }
+        }
+        
+        function toggleGranules() {
+            const overlay = document.getElementById('dtegopediaOverlay');
+            overlay.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
