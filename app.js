@@ -28,7 +28,7 @@ async function grantAccess() {
 
 async function loadLibraryData() {
     try {
-        const response = await fetch(`${API_BASE}/api/library/items`);
+        const response = await fetch(`${API_BASE}/api/library`);
         if (response.ok) {
             const data = await response.json();
             libraryData = { items: data.items || [] };
@@ -4459,7 +4459,7 @@ async function forgeSaveToLibrary() {
     }
 
     try {
-        const response = await fetch(`${API_BASE}/api/library/items`, {
+        const response = await fetch(`${API_BASE}/api/library`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -5796,7 +5796,7 @@ async function loadLibrary() {
         });
         
         // FORCER bypass cache avec headers + timestamp
-        const response = await fetch(`${API_BASE}/api/library/items?${params}&_t=${Date.now()}`, {
+        const response = await fetch(`${API_BASE}/api/library?${params}&_t=${Date.now()}`, {
             cache: 'no-store',
             headers: { 'Cache-Control': 'no-cache' }
         });
@@ -5875,7 +5875,7 @@ function setLibraryFormat(format) {
 
 async function toggleLibraryFavorite(id, type) {
     try {
-        const response = await fetch(`${API_BASE}/api/library/items/${id}/favorite`, {
+        const response = await fetch(`${API_BASE}/api/library/${id}/favorite`, {
             method: 'POST'
         });
         const data = await response.json();
@@ -6074,7 +6074,7 @@ document.addEventListener('click', (e) => {
 
 async function openLibraryItem(id, type) {
     try {
-        const response = await fetch(`${API_BASE}/api/library/items/${id}?_t=${Date.now()}`);
+        const response = await fetch(`${API_BASE}/api/library/${id}?_t=${Date.now()}`);
         const data = await response.json();
         
         if (data.success && data.item) {
@@ -6167,7 +6167,7 @@ async function openLibraryItemInForge(id, type) {
 
 async function loadLibraryItemInForge(id) {
     try {
-        const response = await fetch(`${API_BASE}/api/library/items/${id}?_t=${Date.now()}`);
+        const response = await fetch(`${API_BASE}/api/library/${id}?_t=${Date.now()}`);
         const data = await response.json();
         
         if (!data.success || !data.item) {
