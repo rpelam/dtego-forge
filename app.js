@@ -128,17 +128,6 @@ function showPromptModal(message, defaultValue, onConfirm, onCancel = () => {}) 
     document.getElementById('prompt-modal-ok').onclick = () => { const val = input.value.trim(); overlay.remove(); if (val) onConfirm(val); else onCancel(); };
 }
 
-// Toast rapide pour notifications non-bloquantes (garder pour certains cas)
-function showToast(msg, type = 'success') {
-    const colors = { success: '#10b981', error: '#ef4444', info: '#3b82f6' };
-    const t = document.createElement('div');
-    t.className = 'fixed bottom-8 right-8 px-6 py-3 rounded-lg text-white text-sm font-medium shadow-lg';
-    t.style.cssText = `background:${colors[type] || colors.info};z-index:999;`;
-    t.textContent = msg;
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), 2500);
-}
-
 let libraryData = { items: [] };
 let currentSection = 'atelier';
 
@@ -1709,7 +1698,7 @@ async function forgeCreateProject() {
             // Ajouter le projet Ã  la liste IMMÉDIATEMENT
             forgeState.projects.unshift(data.project);
             renderSection();
-            showToast('Projet créé', 'success');
+            showCenteredModal('Projet créé', 'success');
         } else {
             showCenteredModal(data.error || 'Erreur de création', 'error');
         }
@@ -1822,7 +1811,7 @@ async function forgeSendMessage() {
                 if (projectIndex !== -1) {
                     forgeState.projects[projectIndex].current_version = data.version;
                 }
-                showToast(`Code généré (v${data.version})`, 'success');
+                showCenteredModal(`Code généré (v${data.version})`, 'success');
                 forgeState.lastGeneratedCode = {
                     pine: data.pine_code,
                     python: data.python_code
@@ -1914,7 +1903,7 @@ async function forgeClearChatConfirmed() {
     // Optimistic UI: vider immédiatement
     forgeState.messages = [];
     renderSection();
-    showToast('Conversation effacée', 'success');
+    showCenteredModal('Conversation effacée', 'success');
     
     // Appel API en arrière-plan
     try {
@@ -1956,7 +1945,7 @@ function forgeCopyResultCode(type, msgId) {
     const code = type === 'pine' ? metadata.pine_code : metadata.python_code;
     if (code) {
         navigator.clipboard.writeText(code);
-        showToast('Code copié', 'success');
+        showCenteredModal('Code copié', 'success');
     }
 }
 
@@ -1968,7 +1957,7 @@ async function forgeRestoreVersion(versionId) {
         const data = await response.json();
         
         if (data.success) {
-            showToast(data.message, 'success');
+            showCenteredModal(data.message, 'success');
             forgeCloseVersionsModal();
             // Recharger le projet
             await forgeOpenProject(forgeState.currentProjectId);
@@ -1988,7 +1977,7 @@ function forgeViewVersionCode(versionId) {
     // Afficher dans un alert ou modal simplifié
     const code = version.pine_code || 'Aucun code Pine';
     console.log('[Forge] Version code:', code);
-    showToast('Code affiché dans la console (F12)', 'info');
+    showCenteredModal('Code affiché dans la console (F12)', 'info');
 }
 
 // Fonctions Rename
@@ -2098,7 +2087,7 @@ async function forgeRenameProject() {
     
     forgeCloseRenameModal();
     renderSection();
-    showToast('Projet modifié', 'success');
+    showCenteredModal('Projet modifié', 'success');
     
     // Appel API en arrière-plan
     try {
@@ -2145,7 +2134,7 @@ async function forgeDeleteProject() {
     
     // Fermer la modal
     forgeCloseDeleteModal();
-    showToast('Suppression en cours...', 'info');
+    showCenteredModal('Suppression en cours...', 'info');
     
     // Appeler l'API et ATTENDRE la confirmation
     try {
@@ -2155,7 +2144,7 @@ async function forgeDeleteProject() {
         const data = await response.json();
         
         if (data.success) {
-            showToast('Projet supprimé', 'success');
+            showCenteredModal('Projet supprimé', 'success');
             // FORCER rechargement complet depuis l'API
             await forgeLoadProjects();
             // Aussi vider le cache library pour éviter données stale
@@ -2231,7 +2220,7 @@ async function forgeRunChatBacktest() {
         
         if (data.success) {
             forgeState.chatBacktestResults = data.results;
-            showToast('Backtest terminé', 'success');
+            showCenteredModal('Backtest terminé', 'success');
         } else {
             showCenteredModal(data.error || 'Erreur de backtest', 'error');
         }
@@ -3381,7 +3370,7 @@ function forgeHandleDrop(event) {
         }
         
         renderSection();
-        showToast(`Fichier "${file.name}" importé`, 'success');
+        showCenteredModal(`Fichier "${file.name}" importé`, 'success');
     };
     
     reader.onerror = () => {
@@ -3428,7 +3417,7 @@ function forgeImportFile(event) {
         }
         
         renderSection();
-        showToast(`"${file.name}" importé`, 'success');
+        showCenteredModal(`"${file.name}" importé`, 'success');
     };
     
     reader.onerror = () => {
@@ -3504,7 +3493,7 @@ function forgeExport() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
-    showToast(`Fichier ${fileName}${extension} exporté`, 'success');
+    showCenteredModal(`Fichier ${fileName}${extension} exporté`, 'success');
 }
 
 // Afficher la modale de confirmation d'effacement
@@ -3610,7 +3599,7 @@ function forgeClearCurrent() {
     renderSection();
     
     const modeLabels = { natural: 'Naturel', pine: 'Pine Script', python: 'Python' };
-    showToast(`${modeLabels[currentMode]} effacé`, 'success');
+    showCenteredModal(`${modeLabels[currentMode]} effacé`, 'success');
 }
 
 // Tout réinitialiser
@@ -3623,7 +3612,7 @@ function forgeClearAll() {
     
     forgeCloseClearModal();
     renderSection();
-    showToast('Atelier réinitialisé', 'success');
+    showCenteredModal('Atelier réinitialisé', 'success');
 }
 
 function toggleForgeLibraryDropdown() {
@@ -3715,7 +3704,7 @@ if ta.crossunder(rsi, 70)
                 forgeState.bestTimeframe = best.timeframe;
                 
                 console.log('[Forge] Comparative results:', forgeState.comparativeResults.length, 'Best:', best.timeframe);
-                showToast('Simulation comparative terminée', 'success');
+                showCenteredModal('Simulation comparative terminée', 'success');
             } else {
                 // Mode simple
                 forgeState.backtestResults = generateRandomResults(forgeState.selectedTimeframe || '1h');
@@ -3723,7 +3712,7 @@ if ta.crossunder(rsi, 70)
                 forgeState.bestTimeframe = null;
                 
                 console.log('[Forge] Simple result:', forgeState.backtestResults);
-                showToast('Simulation terminée', 'success');
+                showCenteredModal('Simulation terminée', 'success');
             }
             
             // Sauvegarder dans l'historique
@@ -4135,7 +4124,7 @@ function forgeDownloadPine() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast('Fichier .pine téléchargé', 'success');
+    showCenteredModal('Fichier .pine téléchargé', 'success');
 }
 
 function forgeDownloadPython() {
@@ -4155,7 +4144,7 @@ function forgeDownloadPython() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast('Fichier .py téléchargé', 'success');
+    showCenteredModal('Fichier .py téléchargé', 'success');
 }
 
 // Générer du code Pine depuis la description naturelle (placeholder - nécessite AI)
@@ -4167,7 +4156,7 @@ function forgeGeneratePine() {
     
     // Pour l'instant: template basique basé sur la description
     // TODO: Intégrer Claude API pour génération intelligente
-    showToast('Génération Pine Script... (fonctionnalité AI Ã  venir)', 'info');
+    showCenteredModal('Génération Pine Script... (fonctionnalité AI Ã  venir)', 'info');
     
     // Template basique en attendant l'intégration AI
     const template = `//@version=6
@@ -4203,7 +4192,7 @@ hline(overbought, "Surachat", color.red)
     forgeState.pineCode = template;
     forgeState.inputMode = 'pine';
     renderSection();
-    showToast('Template Pine généré - Personnalisez-le!', 'success');
+    showCenteredModal('Template Pine généré - Personnalisez-le!', 'success');
 }
 
 // Convertir Pine Script en Python via API avec Claude AI
@@ -4213,7 +4202,7 @@ async function forgeConvertToPython() {
         return;
     }
 
-    showToast('Conversion IA en cours...', 'info');
+    showCenteredModal('Conversion IA en cours...', 'info');
     forgeState.isConverting = true;
     renderSection();
 
@@ -4233,7 +4222,7 @@ async function forgeConvertToPython() {
             forgeState.pythonCode = data.python_code;
             forgeState.inputMode = 'python';
             renderSection();
-            showToast(`Conversion IA réussie (${data.conversion_method})`, 'success');
+            showCenteredModal(`Conversion IA réussie (${data.conversion_method})`, 'success');
         } else {
             throw new Error(data.error || 'Erreur de conversion');
         }
@@ -4314,7 +4303,7 @@ async function forgeSaveToLibrary() {
         const data = await response.json();
 
         if (data.success) {
-            showToast(`"${name}" sauvegardé dans la bibliothèque`, 'success');
+            showCenteredModal(`"${name}" sauvegardé dans la bibliothèque`, 'success');
             await loadLibrary();
         } else {
             showErrorModal(data.error || 'Une erreur est survenue lors de la sauvegarde.', 'Erreur de sauvegarde');
@@ -4326,11 +4315,11 @@ async function forgeSaveToLibrary() {
 }
 
 function forgeDeployTest() {
-    showToast('Déploiement TEST - Fonctionnalité Ã  venir', 'info');
+    showCenteredModal('Déploiement TEST - Fonctionnalité Ã  venir', 'info');
 }
 
 function forgeDeployActive() {
-    showToast('Déploiement ACTIF - Fonctionnalité Ã  venir', 'info');
+    showCenteredModal('Déploiement ACTIF - Fonctionnalité Ã  venir', 'info');
 }
 
 // Fonction unifiée de conversion
@@ -4349,7 +4338,7 @@ function forgeConvertTo(target) {
         if (forgeState.description && forgeState.description.length >= 20) {
             forgeGeneratePine();
         } else if (forgeState.pythonCode) {
-            showToast('Conversion Python â†’ Pine Ã  venir', 'info');
+            showCenteredModal('Conversion Python â†’ Pine Ã  venir', 'info');
         } else {
             showCenteredModal('Aucune source disponible', 'error');
         }
@@ -4358,7 +4347,7 @@ function forgeConvertTo(target) {
         if (forgeState.pineCode) {
             forgeConvertToPython();
         } else if (forgeState.description && forgeState.description.length >= 20) {
-            showToast('Conversion Description â†’ Python Ã  venir', 'info');
+            showCenteredModal('Conversion Description â†’ Python Ã  venir', 'info');
         } else {
             showCenteredModal('Aucune source disponible', 'error');
         }
@@ -4373,7 +4362,7 @@ function forgeAnalyzeCode(source) {
         return;
     }
     
-    showToast('Analyse en cours...', 'info');
+    showCenteredModal('Analyse en cours...', 'info');
     
     // Extraction basique des informations
     let description = '';
@@ -4412,7 +4401,7 @@ function forgeAnalyzeCode(source) {
     forgeState.description = description || 'Description générée automatiquement.';
     forgeState.inputMode = 'natural';
     renderSection();
-    showToast('Description générée', 'success');
+    showCenteredModal('Description générée', 'success');
 }
 
 async function forgeGenerate() {
@@ -4440,7 +4429,7 @@ async function forgeGenerate() {
         if (data.success && data.pine_code) {
             forgeState.pineCode = data.pine_code;
             forgeState.pythonCode = data.python_code || '';
-            showToast('Code généré avec succès', 'success');
+            showCenteredModal('Code généré avec succès', 'success');
         } else {
             showCenteredModal(data.error || 'Erreur de génération', 'error');
         }
@@ -4482,7 +4471,7 @@ async function forgeRefine() {
             forgeState.conversationHistory.push(refinement);
             forgeState.refinement = '';
             forgeState.backtestResults = null; // Reset backtest après modification
-            showToast('Code modifié', 'success');
+            showCenteredModal('Code modifié', 'success');
         } else {
             showCenteredModal(data.error || 'Erreur de modification', 'error');
         }
@@ -4499,7 +4488,7 @@ function forgeCopyCode(type = 'pine') {
     const code = type === 'python' ? forgeState.pythonCode : forgeState.pineCode;
     if (code) {
         navigator.clipboard.writeText(code)
-            .then(() => showToast(`Code ${type === 'python' ? 'Python' : 'Pine'} copié`, 'success'))
+            .then(() => showCenteredModal(`Code ${type === 'python' ? 'Python' : 'Pine'} copié`, 'success'))
             .catch(() => showCenteredModal('Erreur de copie', 'error'));
     }
 }
@@ -4558,7 +4547,7 @@ async function forgeRunBacktest() {
         
         if (btData.success) {
             forgeState.backtestResults = btData;
-            showToast('Backtest terminé', 'success');
+            showCenteredModal('Backtest terminé', 'success');
         } else {
             showCenteredModal(btData.error || 'Erreur backtest', 'error');
         }
@@ -4639,7 +4628,7 @@ async function forgeGenerateAndTest() {
         
         if (btData.success) {
             forgeState.backtestResults = btData;
-            showToast('Stratégie générée et testée', 'success');
+            showCenteredModal('Stratégie générée et testée', 'success');
         } else {
             showCenteredModal(btData.error || 'Erreur backtest', 'error');
         }
@@ -4679,7 +4668,7 @@ async function forgeRequestAnalysis() {
                 summary: data.summary,
                 suggestions: data.suggestions || []
             };
-            showToast('Analyse terminée', 'success');
+            showCenteredModal('Analyse terminée', 'success');
         } else {
             showCenteredModal(data.error || 'Erreur d\'analyse', 'error');
         }
@@ -4751,7 +4740,7 @@ async function forgeRunBacktest() {
         
         if (data.success) {
             forgeState.backtestResults = data;
-            showToast('Backtest terminé', 'success');
+            showCenteredModal('Backtest terminé', 'success');
         } else {
             showCenteredModal(data.error || 'Erreur backtest', 'error');
         }
@@ -4772,7 +4761,7 @@ async function forgeDeployTest() {
     }
     
     // TODO: Implémenter le déploiement en mode TEST
-    showToast('Déploiement TEST - À implémenter', 'info');
+    showCenteredModal('Déploiement TEST - À implémenter', 'info');
 }
 
 async function forgeDeployActive() {
@@ -4785,7 +4774,7 @@ async function forgeDeployActive() {
     // Confirmation avant déploiement actif
     showConfirmModal(`Activer "${name}" sur le Scanner?\n\nCette stratégie sera utilisée pour les signaux de trading.`, () => {
         // TODO: Implémenter le déploiement ACTIF
-        showToast('Déploiement ACTIF - À implémenter', 'info');
+        showCenteredModal('Déploiement ACTIF - À implémenter', 'info');
     });
 }
 
@@ -5077,7 +5066,7 @@ function forgeSaveAssetList() {
         lists[name] = Array.from(tempSelectedAssets);
         forgeSaveAssetLists(lists);
         forgeUpdateAssetListsDropdown();
-        showToast(`Liste "${name}" sauvegardée (${tempSelectedAssets.size} assets)`, 'success');
+        showCenteredModal(`Liste "${name}" sauvegardée (${tempSelectedAssets.size} assets)`, 'success');
     });
 }
 
@@ -5094,7 +5083,7 @@ function forgeLoadAssetList() {
     forgeRenderAssetCategories();
     forgeUpdateAssetCounts();
     
-    showToast(`Liste "${listName}" chargée`, 'success');
+    showCenteredModal(`Liste "${listName}" chargée`, 'success');
 }
 
 // Supprimer une liste
@@ -5111,7 +5100,7 @@ function forgeDeleteAssetList() {
         delete lists[listName];
         forgeSaveAssetLists(lists);
         forgeUpdateAssetListsDropdown();
-        showToast(`Liste "${listName}" supprimée`, 'success');
+        showCenteredModal(`Liste "${listName}" supprimée`, 'success');
     });
 }
 
@@ -5153,7 +5142,7 @@ function forgeApplyAssetSelection() {
     }
     
     forgeCloseAssetSelector();
-    showToast(`${count} asset${count > 1 ? 's' : ''} sélectionné${count > 1 ? 's' : ''}`, 'success');
+    showCenteredModal(`${count} asset${count > 1 ? 's' : ''} sélectionné${count > 1 ? 's' : ''}`, 'success');
 }
 
 
@@ -5314,7 +5303,7 @@ function forgeLoadFromHistory(id) {
     
     forgeCloseHistory();
     renderSection();
-    showToast(`Historique "${item.strategyName}" chargé`, 'success');
+    showCenteredModal(`Historique "${item.strategyName}" chargé`, 'success');
 }
 
 // Charger la meilleure version d'une stratégie sélectionnée
@@ -5344,7 +5333,7 @@ function forgeLoadBestVersion() {
     forgeLoadHistoryItem(best.id);
     
     const date = best.timestamp ? new Date(best.timestamp).toLocaleDateString('fr-FR') : '';
-    showToast(`Meilleure version chargée: Score ${best.globalScore || 0} (${date})`, 'success');
+    showCenteredModal(`Meilleure version chargée: Score ${best.globalScore || 0} (${date})`, 'success');
 }
 
 function forgeExportHistory() {
@@ -5368,7 +5357,7 @@ function forgeExportHistory() {
     a.click();
     URL.revokeObjectURL(url);
     
-    showToast(`${backtestHistory.length} backtests exportés`, 'success');
+    showCenteredModal(`${backtestHistory.length} backtests exportés`, 'success');
 }
 
 function forgeClearHistory() {
@@ -5376,7 +5365,7 @@ function forgeClearHistory() {
         backtestHistory = [];
         saveBacktestHistory();
         forgeRenderHistoryList();
-        showToast('Historique vidé', 'success');
+        showCenteredModal('Historique vidé', 'success');
     });
 }
 
@@ -5404,7 +5393,7 @@ function forgeLoadHistoryItem(id) {
     
     forgeCloseHistory();
     renderSection();
-    showToast(`Historique "${item.strategyName}" chargé`, 'success');
+    showCenteredModal(`Historique "${item.strategyName}" chargé`, 'success');
 }
 
 async function forgeLoadHistory() {
@@ -6038,7 +6027,7 @@ async function loadLibraryItemInForge(id) {
         forgeState.atelierMode = 'convert';
         currentSection = 'atelier';
         renderSection();
-        showToast(`"${item.name}" chargé dans l'Atelier`, 'success');
+        showCenteredModal(`"${item.name}" chargé dans l'Atelier`, 'success');
         
     } catch (error) {
         console.error('[Library] Load in forge error:', error);
