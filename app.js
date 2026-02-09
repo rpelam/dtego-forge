@@ -133,9 +133,10 @@ let currentSection = 'atelier';
 
 function renderSection() {
     const container = document.getElementById('forge-content');
-    // Force clear puis replace - solution radicale
-    container.innerHTML = '';
-    container.innerHTML = renderForge();
+    const html = renderForge();
+    console.log('[RENDER] Mode:', forgeState.atelierMode, 'HTML length:', html.length);
+    container.innerHTML = html;
+    console.log('[RENDER] Container innerHTML length:', container.innerHTML.length);
 }
 
 let forgeState = {
@@ -235,12 +236,16 @@ function getBacktestWarning(timeframe, period) {
 
 function renderForge() {
     // Router selon le mode Atelier
+    console.log('[FORGE] Routing for mode:', forgeState.atelierMode);
     if (forgeState.atelierMode === 'choice') {
+        console.log('[FORGE] → renderAtelierChoice');
         return renderAtelierChoice();
     } else if (forgeState.atelierMode === 'create') {
+        console.log('[FORGE] → renderAtelierCreate');
         return renderAtelierCreate();
     }
     // Mode 'convert' = système existant
+    console.log('[FORGE] → renderAtelierConvert');
     return renderAtelierConvert();
 }
 
@@ -994,6 +999,7 @@ function forgeSetType(type) {
 }
 
 function forgeSetAtelierMode(mode) {
+    console.log('[MODE] Changing from', forgeState.atelierMode, 'to', mode);
     forgeState.atelierMode = mode;
     if (mode === 'create' || mode === 'choice') {
         forgeState.createView = 'projects';
@@ -1001,6 +1007,7 @@ function forgeSetAtelierMode(mode) {
         forgeState.currentProject = null;
         forgeLoadProjects();
     }
+    console.log('[MODE] State after change:', forgeState.atelierMode);
     renderSection();
 }
 
