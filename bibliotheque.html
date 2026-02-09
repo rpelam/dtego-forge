@@ -180,7 +180,7 @@
         async function loadLibraryItems() {
             console.log("[DEBUG] Chargement items...");
             try {
-                const response = await fetch('https://api.dtego.net/api/library/items');
+                const response = await fetch('https://api.dtego.net/api/library');
                 const result = await response.json();
                 
                 if (result.success && result.items) {
