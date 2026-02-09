@@ -2013,7 +2013,7 @@ function forgeViewVersionCode(versionId) {
         ">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <h3 style="color: #f1f5f9; margin: 0; font-size: 18px;">
-                    Code - Version ${version.version_number || '?'}
+                    Code - Version v${version.version_number || '?'}
                 </h3>
                 <button id="code-viewer-close" style="
                     background: transparent; border: none; color: #94a3b8;
