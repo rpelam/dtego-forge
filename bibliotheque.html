@@ -66,6 +66,9 @@
             <button id="btnAll" onclick="filterType('all')" class="px-4 py-2 rounded-xl text-sm font-medium transition-all" style="background: #a78bfa30; color: #a78bfa; border: 1px solid #a78bfa50;">
                 Tout <span id="countAll" class="ml-2 text-xs px-2 py-0.5 rounded-full bg-white/20">0</span>
             </button>
+            <button id="btnProjet" onclick="filterType('projet')" class="px-4 py-2 rounded-xl text-sm font-medium transition-all" style="background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5); border: 1px solid transparent;">
+                Projets <span id="countProjet" class="ml-2 text-xs px-2 py-0.5 rounded-full" style="background: rgba(255,255,255,0.1);">0</span>
+            </button>
             <button id="btnStrategie" onclick="filterType('strategie')" class="px-4 py-2 rounded-xl text-sm font-medium transition-all" style="background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5); border: 1px solid transparent;">
                 Stratégies <span id="countStrategie" class="ml-2 text-xs px-2 py-0.5 rounded-full" style="background: rgba(255,255,255,0.1);">0</span>
             </button>
@@ -77,9 +80,6 @@
             </button>
             <button id="btnCondition" onclick="filterType('condition')" class="px-4 py-2 rounded-xl text-sm font-medium transition-all" style="background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5); border: 1px solid transparent;">
                 Conditions <span id="countCondition" class="ml-2 text-xs px-2 py-0.5 rounded-full" style="background: rgba(255,255,255,0.1);">0</span>
-            </button>
-            <button id="btnProjet" onclick="filterType('projet')" class="px-4 py-2 rounded-xl text-sm font-medium transition-all" style="background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5); border: 1px solid transparent;">
-                Projets <span id="countProjet" class="ml-2 text-xs px-2 py-0.5 rounded-full" style="background: rgba(255,255,255,0.1);">0</span>
             </button>
         </div>
 
@@ -180,7 +180,7 @@
             'strategy': { bg: 'rgba(16, 185, 129, 0.1)', border: 'rgba(16, 185, 129, 0.3)', icon: '#10b981', tab: '#10b981' },
             'filter': { bg: 'rgba(245, 158, 11, 0.1)', border: 'rgba(245, 158, 11, 0.3)', icon: '#f59e0b', tab: '#f59e0b' },
             'condition': { bg: 'rgba(59, 130, 246, 0.1)', border: 'rgba(59, 130, 246, 0.3)', icon: '#3b82f6', tab: '#3b82f6' },
-            'project': { bg: 'rgba(139, 92, 246, 0.1)', border: 'rgba(139, 92, 246, 0.3)', icon: '#8b5cf6', tab: '#8b5cf6' }
+            'project': { bg: 'rgba(217, 119, 6, 0.1)', border: 'rgba(217, 119, 6, 0.3)', icon: '#d97706', tab: '#d97706' }
         };
 
         async function loadLibraryItems() {
@@ -250,7 +250,7 @@
             currentFilter = type;
             
             // Update tab styles
-            const tabs = ['All', 'Strategie', 'Indicateur', 'Filtre', 'Condition', 'Projet'];
+            const tabs = ['All', 'Projet', 'Strategie', 'Indicateur', 'Filtre', 'Condition'];
             tabs.forEach(t => {
                 const btn = document.getElementById('btn' + t);
                 const isActive = (type === 'all' && t === 'All') || (type === t.toLowerCase());
