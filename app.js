@@ -132,7 +132,10 @@ let libraryData = { items: [] };
 let currentSection = 'atelier';
 
 function renderSection() {
-    document.getElementById('forge-content').innerHTML = renderForge();
+    const container = document.getElementById('forge-content');
+    // Force clear puis replace - solution radicale
+    container.innerHTML = '';
+    container.innerHTML = renderForge();
 }
 
 let forgeState = {
@@ -991,6 +994,7 @@ function forgeSetType(type) {
 }
 
 function forgeSetAtelierMode(mode) {
+    console.log('[Forge] Mode change:', forgeState.atelierMode, '->', mode);
     forgeState.atelierMode = mode;
 
     // Reset état pour tous les modes
@@ -1000,7 +1004,8 @@ function forgeSetAtelierMode(mode) {
         forgeState.currentProject = null;
     }
 
-    // Rendu IMMÉDIAT pour TOUS les modes (comme convert)
+    // Rendu IMMÉDIAT pour TOUS les modes
+    console.log('[Forge] Calling renderSection, mode:', forgeState.atelierMode);
     renderSection();
 
     // Charger projets en background APRÈS le rendu (seulement pour create)
