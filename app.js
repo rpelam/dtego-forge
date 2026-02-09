@@ -1999,17 +1999,17 @@ function forgeViewVersionCode(versionId) {
 
     overlay.innerHTML = `
         <div style="
-            background: rgba(30, 41, 59, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 16px;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 20px;
             padding: 24px;
             max-width: 900px;
             width: 90%;
             max-height: 80vh;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         ">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <h3 style="color: #f1f5f9; margin: 0; font-size: 18px;">
@@ -4427,15 +4427,13 @@ function showErrorModal(message, title = 'Erreur') {
     overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
 
     overlay.innerHTML = `
-        <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 1px solid rgba(239,68,68,0.3); border-radius: 16px; padding: 24px; max-width: 400px; width: 90%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(239,68,68,0.15); display: flex; align-items: center; justify-content: center;">
-                    <svg width="20" height="20" fill="none" stroke="#ef4444" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                </div>
-                <h3 style="color: white; font-size: 18px; font-weight: 600; margin: 0;">${title}</h3>
+        <div style="background: rgba(255,255,255,0.08); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 2rem; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.5); text-align: center;">
+            <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(248,113,113,0.2); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                <svg width="24" height="24" fill="none" stroke="#f87171" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
             </div>
-            <p style="color: rgba(255,255,255,0.7); font-size: 14px; line-height: 1.5; margin: 0 0 20px 0;">${message}</p>
-            <button onclick="this.closest('#error-modal-overlay').remove()" style="width: 100%; padding: 12px; border-radius: 10px; border: none; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; font-weight: 500; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+            <h3 style="color: white; font-size: 16px; font-weight: 600; margin: 0 0 0.5rem;">${title}</h3>
+            <p style="color: rgba(255,255,255,0.7); font-size: 14px; line-height: 1.5; margin: 0 0 1.5rem;">${message}</p>
+            <button onclick="this.closest('#error-modal-overlay').remove()" style="padding: 0.5rem 1.5rem; border-radius: 12px; border: none; background: #f87171; color: white; font-weight: 500; cursor: pointer;">
                 Compris
             </button>
         </div>
