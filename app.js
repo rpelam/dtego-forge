@@ -4278,7 +4278,11 @@ async function forgeSaveToLibrary() {
         || forgeState.sourceMeta?.name
         || 'Ma stratégie';
 
-    if (!forgeState.pineCode && !forgeState.pythonCode) {
+    // Récupérer le code depuis le projet ou forgeState
+    const pineCode = forgeState.currentProject?.currentVersion?.pine_code || forgeState.pineCode;
+    const pythonCode = forgeState.currentProject?.currentVersion?.python_code || forgeState.pythonCode;
+
+    if (!pineCode && !pythonCode) {
         showErrorModal('Aucun code à sauvegarder. Générez d\'abord du code Pine ou Python.', 'Code manquant');
         return;
     }
@@ -4293,8 +4297,8 @@ async function forgeSaveToLibrary() {
                 category: 'other',
                 version: 'v6',
                 description: forgeState.description,
-                pine_code: forgeState.pineCode,
-                python_code: forgeState.pythonCode,
+                pine_code: pineCode,
+                python_code: pythonCode,
                 parameters: [],
                 status: 'draft'
             })
