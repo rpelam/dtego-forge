@@ -78,6 +78,9 @@
             <button id="btnCondition" onclick="filterType('condition')" class="px-4 py-2 rounded-xl text-sm font-medium transition-all" style="background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5); border: 1px solid transparent;">
                 Conditions <span id="countCondition" class="ml-2 text-xs px-2 py-0.5 rounded-full" style="background: rgba(255,255,255,0.1);">0</span>
             </button>
+            <button id="btnProjet" onclick="filterType('projet')" class="px-4 py-2 rounded-xl text-sm font-medium transition-all" style="background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5); border: 1px solid transparent;">
+                Projets <span id="countProjet" class="ml-2 text-xs px-2 py-0.5 rounded-full" style="background: rgba(255,255,255,0.1);">0</span>
+            </button>
         </div>
 
         <!-- Grid -->
@@ -159,14 +162,16 @@
             'strategy': 'strategie',
             'indicator': 'indicateur',
             'filter': 'filtre',
-            'condition': 'condition'
+            'condition': 'condition',
+            'project': 'projet'
         };
 
         const labelToType = {
             'strategie': 'strategy',
             'indicateur': 'indicator',
             'filtre': 'filter',
-            'condition': 'condition'
+            'condition': 'condition',
+            'projet': 'project'
         };
 
         // Couleurs par type
@@ -174,7 +179,8 @@
             'indicator': { bg: 'rgba(59, 130, 246, 0.1)', border: 'rgba(59, 130, 246, 0.3)', icon: '#3b82f6', tab: '#3b82f6' },
             'strategy': { bg: 'rgba(16, 185, 129, 0.1)', border: 'rgba(16, 185, 129, 0.3)', icon: '#10b981', tab: '#10b981' },
             'filter': { bg: 'rgba(245, 158, 11, 0.1)', border: 'rgba(245, 158, 11, 0.3)', icon: '#f59e0b', tab: '#f59e0b' },
-            'condition': { bg: 'rgba(59, 130, 246, 0.1)', border: 'rgba(59, 130, 246, 0.3)', icon: '#3b82f6', tab: '#3b82f6' }
+            'condition': { bg: 'rgba(59, 130, 246, 0.1)', border: 'rgba(59, 130, 246, 0.3)', icon: '#3b82f6', tab: '#3b82f6' },
+            'project': { bg: 'rgba(139, 92, 246, 0.1)', border: 'rgba(139, 92, 246, 0.3)', icon: '#8b5cf6', tab: '#8b5cf6' }
         };
 
         async function loadLibraryItems() {
@@ -228,7 +234,8 @@
                 strategie: allItems.filter(i => i.type === 'strategy').length,
                 indicateur: allItems.filter(i => i.type === 'indicator').length,
                 filtre: allItems.filter(i => i.type === 'filter').length,
-                condition: allItems.filter(i => i.type === 'condition').length
+                condition: allItems.filter(i => i.type === 'condition').length,
+                projet: allItems.filter(i => i.type === 'project').length
             };
 
             document.getElementById('countAll').textContent = counts.all;
@@ -236,13 +243,14 @@
             document.getElementById('countIndicateur').textContent = counts.indicateur;
             document.getElementById('countFiltre').textContent = counts.filtre;
             document.getElementById('countCondition').textContent = counts.condition;
+            document.getElementById('countProjet').textContent = counts.projet;
         }
 
         function filterType(type) {
             currentFilter = type;
             
             // Update tab styles
-            const tabs = ['All', 'Strategie', 'Indicateur', 'Filtre', 'Condition'];
+            const tabs = ['All', 'Strategie', 'Indicateur', 'Filtre', 'Condition', 'Projet'];
             tabs.forEach(t => {
                 const btn = document.getElementById('btn' + t);
                 const isActive = (type === 'all' && t === 'All') || (type === t.toLowerCase());
