@@ -40,10 +40,100 @@ async function loadLibraryData() {
     }
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// SYSTÈME DE MODALS CENTRÉS (Design System Dtego)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function showCenteredModal(message, type = 'info') {
+    const existing = document.getElementById('centered-modal-overlay');
+    if (existing) existing.remove();
+
+    const colors = { error: '#f87171', success: '#4ade80', info: '#38bdf8' };
+    const icons = {
+        error: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>',
+        success: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>',
+        info: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+    };
+    const color = colors[type] || colors.info;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'centered-modal-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000;';
+    overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+    overlay.innerHTML = `
+        <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(25px);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:2rem;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5);text-align:center;">
+            <div style="width:48px;height:48px;border-radius:12px;background:${color}20;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+                <svg width="24" height="24" fill="none" stroke="${color}" viewBox="0 0 24 24">${icons[type] || icons.info}</svg>
+            </div>
+            <p style="color:white;font-size:15px;line-height:1.6;margin:0 0 1.5rem;">${message}</p>
+            <button onclick="this.closest('#centered-modal-overlay').remove()" style="px:6;py:2;padding:0.5rem 1.5rem;border-radius:12px;border:none;background:${color};color:${type === 'success' ? '#000' : '#fff'};font-weight:500;cursor:pointer;">OK</button>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+}
+
+function showConfirmModal(message, onConfirm, onCancel = () => {}) {
+    const existing = document.getElementById('confirm-modal-overlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'confirm-modal-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000;';
+
+    overlay.innerHTML = `
+        <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(25px);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:2rem;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5);text-align:center;">
+            <div style="width:48px;height:48px;border-radius:12px;background:rgba(251,191,36,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+                <svg width="24" height="24" fill="none" stroke="#fbbf24" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <p style="color:white;font-size:15px;line-height:1.6;margin:0 0 1.5rem;">${message}</p>
+            <div style="display:flex;gap:0.75rem;justify-content:center;">
+                <button id="confirm-modal-cancel" style="padding:0.5rem 1.5rem;border-radius:12px;border:1px solid rgba(255,255,255,0.2);background:transparent;color:rgba(255,255,255,0.7);font-weight:500;cursor:pointer;">Annuler</button>
+                <button id="confirm-modal-ok" style="padding:0.5rem 1.5rem;border-radius:12px;border:none;background:#f87171;color:white;font-weight:500;cursor:pointer;">Confirmer</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    document.getElementById('confirm-modal-cancel').onclick = () => { overlay.remove(); onCancel(); };
+    document.getElementById('confirm-modal-ok').onclick = () => { overlay.remove(); onConfirm(); };
+}
+
+function showPromptModal(message, defaultValue, onConfirm, onCancel = () => {}) {
+    const existing = document.getElementById('prompt-modal-overlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'prompt-modal-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000;';
+
+    overlay.innerHTML = `
+        <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(25px);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:2rem;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+            <p style="color:white;font-size:15px;line-height:1.6;margin:0 0 1rem;">${message}</p>
+            <input id="prompt-modal-input" type="text" value="${defaultValue || ''}" style="width:100%;padding:0.75rem 1rem;border-radius:12px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:white;font-size:14px;margin-bottom:1rem;box-sizing:border-box;" autofocus />
+            <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+                <button id="prompt-modal-cancel" style="padding:0.5rem 1.5rem;border-radius:12px;border:1px solid rgba(255,255,255,0.2);background:transparent;color:rgba(255,255,255,0.7);font-weight:500;cursor:pointer;">Annuler</button>
+                <button id="prompt-modal-ok" style="padding:0.5rem 1.5rem;border-radius:12px;border:none;background:#4ade80;color:#000;font-weight:500;cursor:pointer;">OK</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    const input = document.getElementById('prompt-modal-input');
+    input.focus();
+    input.select();
+    input.onkeydown = (e) => { if (e.key === 'Enter') document.getElementById('prompt-modal-ok').click(); };
+
+    document.getElementById('prompt-modal-cancel').onclick = () => { overlay.remove(); onCancel(); };
+    document.getElementById('prompt-modal-ok').onclick = () => { const val = input.value.trim(); overlay.remove(); if (val) onConfirm(val); else onCancel(); };
+}
+
+// Toast rapide pour notifications non-bloquantes (garder pour certains cas)
 function showToast(msg, type = 'success') {
+    const colors = { success: '#10b981', error: '#ef4444', info: '#3b82f6' };
     const t = document.createElement('div');
-    t.className = 'fixed bottom-8 right-8 px-6 py-3 rounded-lg text-white';
-    t.style.background = type === 'success' ? '#10b981' : '#ef4444';
+    t.className = 'fixed bottom-8 right-8 px-6 py-3 rounded-lg text-white text-sm font-medium shadow-lg';
+    t.style.cssText = `background:${colors[type] || colors.info};z-index:999;`;
     t.textContent = msg;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 2500);
@@ -1513,7 +1603,7 @@ async function forgeLoadProjects() {
         }
     } catch (error) {
         console.error('[Forge] Error loading projects:', error);
-        showToast('Erreur de chargement des projets', 'error');
+        showCenteredModal('Erreur de chargement des projets', 'error');
     }
     
     forgeState.isLoadingProjects = false;
@@ -1621,11 +1711,11 @@ async function forgeCreateProject() {
             renderSection();
             showToast('Projet créé', 'success');
         } else {
-            showToast(data.error || 'Erreur de création', 'error');
+            showCenteredModal(data.error || 'Erreur de création', 'error');
         }
     } catch (error) {
         console.error('[Forge] Error creating project:', error);
-        showToast('Erreur de création', 'error');
+        showCenteredModal('Erreur de création', 'error');
     }
 }
 
@@ -1651,7 +1741,7 @@ async function forgeOpenProject(projectId) {
         }
     } catch (error) {
         console.error('[Forge] Error opening project:', error);
-        showToast('Erreur de chargement', 'error');
+        showCenteredModal('Erreur de chargement', 'error');
     }
     
     renderSection();
@@ -1744,12 +1834,12 @@ async function forgeSendMessage() {
         } else {
             // Retirer le message thinking en cas d'erreur
             forgeState.messages = forgeState.messages.filter(m => m.id !== 'thinking');
-            showToast(data.error || 'Erreur d\'envoi', 'error');
+            showCenteredModal(data.error || 'Erreur d\'envoi', 'error');
         }
     } catch (error) {
         console.error('[Forge] Error sending message:', error);
         forgeState.messages = forgeState.messages.filter(m => m.id !== 'thinking');
-        showToast('Erreur d\'envoi', 'error');
+        showCenteredModal('Erreur d\'envoi', 'error');
     }
     
     forgeState.isSendingMessage = false;
@@ -1883,11 +1973,11 @@ async function forgeRestoreVersion(versionId) {
             // Recharger le projet
             await forgeOpenProject(forgeState.currentProjectId);
         } else {
-            showToast(data.error || 'Erreur de restauration', 'error');
+            showCenteredModal(data.error || 'Erreur de restauration', 'error');
         }
     } catch (error) {
         console.error('[Forge] Error restoring version:', error);
-        showToast('Erreur de restauration', 'error');
+        showCenteredModal('Erreur de restauration', 'error');
     }
 }
 
@@ -1983,7 +2073,7 @@ async function forgeRenameProject() {
     const description = document.getElementById('forge-rename-desc').value.trim();
     
     if (!name) {
-        showToast('Le nom est requis', 'error');
+        showCenteredModal('Le nom est requis', 'error');
         return;
     }
     
@@ -2026,11 +2116,11 @@ async function forgeRenameProject() {
                 forgeState.projects[projectIndex] = oldProject;
             }
             renderSection();
-            showToast(data.error || 'Erreur', 'error');
+            showCenteredModal(data.error || 'Erreur', 'error');
         }
     } catch (error) {
         console.error('[Forge] Error renaming project:', error);
-        showToast('Erreur de modification', 'error');
+        showCenteredModal('Erreur de modification', 'error');
     }
 }
 
@@ -2073,11 +2163,11 @@ async function forgeDeleteProject() {
             libraryData.total = 0;
         } else {
             console.error('[Forge] Delete failed:', data.error);
-            showToast('Erreur de suppression', 'error');
+            showCenteredModal('Erreur de suppression', 'error');
         }
     } catch (error) {
         console.error('[Forge] Error deleting project:', error);
-        showToast('Erreur de suppression', 'error');
+        showCenteredModal('Erreur de suppression', 'error');
     }
 }
 
@@ -2092,7 +2182,7 @@ function forgeStartBacktestFromChat(msgId) {
     } catch(e) {}
     
     if (!metadata.python_code) {
-        showToast('Code Python non disponible', 'error');
+        showCenteredModal('Code Python non disponible', 'error');
         return;
     }
     
@@ -2115,7 +2205,7 @@ function forgeStartBacktestFromChat(msgId) {
 
 async function forgeRunChatBacktest() {
     if (!forgeState.pythonCode) {
-        showToast('Code Python requis', 'error');
+        showCenteredModal('Code Python requis', 'error');
         return;
     }
     
@@ -2143,11 +2233,11 @@ async function forgeRunChatBacktest() {
             forgeState.chatBacktestResults = data.results;
             showToast('Backtest terminé', 'success');
         } else {
-            showToast(data.error || 'Erreur de backtest', 'error');
+            showCenteredModal(data.error || 'Erreur de backtest', 'error');
         }
     } catch (error) {
         console.error('[Forge] Backtest error:', error);
-        showToast('Erreur de backtest', 'error');
+        showCenteredModal('Erreur de backtest', 'error');
     }
     
     forgeState.isSimulating = false;
@@ -3264,7 +3354,7 @@ function forgeHandleDrop(event) {
     const fileName = file.name.toLowerCase();
     
     if (!validExtensions.some(ext => fileName.endsWith(ext))) {
-        showToast('Format non supporté. Utilisez .pine, .txt ou .py', 'error');
+        showCenteredModal('Format non supporté. Utilisez .pine, .txt ou .py', 'error');
         return;
     }
     
@@ -3295,7 +3385,7 @@ function forgeHandleDrop(event) {
     };
     
     reader.onerror = () => {
-        showToast('Erreur de lecture du fichier', 'error');
+        showCenteredModal('Erreur de lecture du fichier', 'error');
     };
     
     reader.readAsText(file);
@@ -3310,7 +3400,7 @@ function forgeImportFile(event) {
     const fileName = file.name.toLowerCase();
     
     if (!validExtensions.some(ext => fileName.endsWith(ext))) {
-        showToast('Format non supporté. Utilisez .pine, .txt ou .py', 'error');
+        showCenteredModal('Format non supporté. Utilisez .pine, .txt ou .py', 'error');
         event.target.value = ''; // Reset input
         return;
     }
@@ -3342,7 +3432,7 @@ function forgeImportFile(event) {
     };
     
     reader.onerror = () => {
-        showToast('Erreur de lecture du fichier', 'error');
+        showCenteredModal('Erreur de lecture du fichier', 'error');
     };
     
     reader.readAsText(file);
@@ -3356,7 +3446,7 @@ function forgeQuickSave() {
                   : forgeState.pythonCode;
     
     if (!content) {
-        showToast('Rien Ã  sauvegarder', 'error');
+        showCenteredModal('Rien Ã  sauvegarder', 'error');
         return;
     }
     
@@ -3370,16 +3460,13 @@ function forgeQuickSave() {
         defaultName = 'Ma ' + (forgeState.strategyType === 'strategy' ? 'Stratégie' : 'Indicateur');
     }
     
-    const name = prompt('Nom pour la sauvegarde:', defaultName);
-    if (!name) return;
-    
-    forgeState.sourceMeta = { ...forgeState.sourceMeta, name };
-    
-    // Appeler la fonction de sauvegarde existante
-    const nameInput = document.getElementById('forge-strategy-name');
-    if (nameInput) nameInput.value = name;
-    
-    forgeSaveToLibrary();
+
+    showPromptModal('Nom pour la sauvegarde:', defaultName, (name) => {
+        forgeState.sourceMeta = { ...forgeState.sourceMeta, name };
+        const nameInput = document.getElementById('forge-strategy-name');
+        if (nameInput) nameInput.value = name;
+        forgeSaveToLibrary();
+    });
 }
 
 // Exporter le fichier selon le mode actuel
@@ -3399,7 +3486,7 @@ function forgeExport() {
         extension = '.txt';
         mimeType = 'text/plain';
     } else {
-        showToast('Rien Ã  exporter', 'error');
+        showCenteredModal('Rien Ã  exporter', 'error');
         return;
     }
     
@@ -3669,7 +3756,7 @@ if ta.crossunder(rsi, 70)
         } catch (error) {
             console.error('[Forge] Simulation error:', error);
             forgeState.isSimulating = false;
-            showToast('Erreur de simulation: ' + error.message, 'error');
+            showCenteredModal('Erreur de simulation: ' + error.message, 'error');
             renderSection();
         }
     }, 150);
@@ -4033,7 +4120,7 @@ function forgeNewTest() {
 
 function forgeDownloadPine() {
     if (!forgeState.pineCode) {
-        showToast('Aucun code Ã  télécharger', 'error');
+        showCenteredModal('Aucun code Ã  télécharger', 'error');
         return;
     }
     
@@ -4053,7 +4140,7 @@ function forgeDownloadPine() {
 
 function forgeDownloadPython() {
     if (!forgeState.pythonCode) {
-        showToast('Aucun code Python Ã  télécharger', 'error');
+        showCenteredModal('Aucun code Python Ã  télécharger', 'error');
         return;
     }
     
@@ -4074,7 +4161,7 @@ function forgeDownloadPython() {
 // Générer du code Pine depuis la description naturelle (placeholder - nécessite AI)
 function forgeGeneratePine() {
     if (!forgeState.description || forgeState.description.length < 20) {
-        showToast('Description trop courte (min 20 caractères)', 'error');
+        showCenteredModal('Description trop courte (min 20 caractères)', 'error');
         return;
     }
     
@@ -4122,7 +4209,7 @@ hline(overbought, "Surachat", color.red)
 // Convertir Pine Script en Python via API avec Claude AI
 async function forgeConvertToPython() {
     if (!forgeState.pineCode) {
-        showToast('Aucun code Pine à convertir', 'error');
+        showCenteredModal('Aucun code Pine à convertir', 'error');
         return;
     }
 
@@ -4152,7 +4239,7 @@ async function forgeConvertToPython() {
         }
     } catch (error) {
         console.error('Conversion error:', error);
-        showToast(`Erreur: ${error.message}`, 'error');
+        showCenteredModal(`Erreur: ${error.message}`, 'error');
     } finally {
         forgeState.isConverting = false;
         renderSection();
@@ -4255,7 +4342,7 @@ function forgeConvertTo(target) {
         } else if (forgeState.pythonCode) {
             forgeAnalyzeCode('python');
         } else {
-            showToast('Aucune source disponible', 'error');
+            showCenteredModal('Aucune source disponible', 'error');
         }
     } else if (target === 'pine') {
         // Générer Pine depuis description ou Python
@@ -4264,7 +4351,7 @@ function forgeConvertTo(target) {
         } else if (forgeState.pythonCode) {
             showToast('Conversion Python â†’ Pine Ã  venir', 'info');
         } else {
-            showToast('Aucune source disponible', 'error');
+            showCenteredModal('Aucune source disponible', 'error');
         }
     } else if (target === 'python') {
         // Générer Python depuis Pine ou description
@@ -4273,7 +4360,7 @@ function forgeConvertTo(target) {
         } else if (forgeState.description && forgeState.description.length >= 20) {
             showToast('Conversion Description â†’ Python Ã  venir', 'info');
         } else {
-            showToast('Aucune source disponible', 'error');
+            showCenteredModal('Aucune source disponible', 'error');
         }
     }
 }
@@ -4282,7 +4369,7 @@ function forgeConvertTo(target) {
 function forgeAnalyzeCode(source) {
     let code = source === 'pine' ? forgeState.pineCode : forgeState.pythonCode;
     if (!code) {
-        showToast('Aucun code Ã  analyser', 'error');
+        showCenteredModal('Aucun code Ã  analyser', 'error');
         return;
     }
     
@@ -4331,7 +4418,7 @@ function forgeAnalyzeCode(source) {
 async function forgeGenerate() {
     const description = forgeState.description.trim();
     if (!description) {
-        showToast('Décrivez votre stratégie', 'error');
+        showCenteredModal('Décrivez votre stratégie', 'error');
         return;
     }
     
@@ -4355,11 +4442,11 @@ async function forgeGenerate() {
             forgeState.pythonCode = data.python_code || '';
             showToast('Code généré avec succès', 'success');
         } else {
-            showToast(data.error || 'Erreur de génération', 'error');
+            showCenteredModal(data.error || 'Erreur de génération', 'error');
         }
     } catch (e) {
         console.error('Forge generate error:', e);
-        showToast('Erreur de connexion', 'error');
+        showCenteredModal('Erreur de connexion', 'error');
     } finally {
         forgeState.isGenerating = false;
         renderSection();
@@ -4369,7 +4456,7 @@ async function forgeGenerate() {
 async function forgeRefine() {
     const refinement = forgeState.refinement.trim();
     if (!refinement) {
-        showToast('Indiquez une modification', 'error');
+        showCenteredModal('Indiquez une modification', 'error');
         return;
     }
     
@@ -4397,11 +4484,11 @@ async function forgeRefine() {
             forgeState.backtestResults = null; // Reset backtest après modification
             showToast('Code modifié', 'success');
         } else {
-            showToast(data.error || 'Erreur de modification', 'error');
+            showCenteredModal(data.error || 'Erreur de modification', 'error');
         }
     } catch (e) {
         console.error('Forge refine error:', e);
-        showToast('Erreur de connexion', 'error');
+        showCenteredModal('Erreur de connexion', 'error');
     } finally {
         forgeState.isGenerating = false;
         renderSection();
@@ -4413,7 +4500,7 @@ function forgeCopyCode(type = 'pine') {
     if (code) {
         navigator.clipboard.writeText(code)
             .then(() => showToast(`Code ${type === 'python' ? 'Python' : 'Pine'} copié`, 'success'))
-            .catch(() => showToast('Erreur de copie', 'error'));
+            .catch(() => showCenteredModal('Erreur de copie', 'error'));
     }
 }
 
@@ -4429,7 +4516,7 @@ function forgeViewSource() {
 
 async function forgeRunBacktest() {
     if (!forgeState.pineCode) {
-        showToast('Aucun code Ã  tester', 'error');
+        showCenteredModal('Aucun code Ã  tester', 'error');
         return;
     }
     
@@ -4473,11 +4560,11 @@ async function forgeRunBacktest() {
             forgeState.backtestResults = btData;
             showToast('Backtest terminé', 'success');
         } else {
-            showToast(btData.error || 'Erreur backtest', 'error');
+            showCenteredModal(btData.error || 'Erreur backtest', 'error');
         }
     } catch (e) {
         console.error('Backtest error:', e);
-        showToast(e.message || 'Erreur de test', 'error');
+        showCenteredModal(e.message || 'Erreur de test', 'error');
     } finally {
         forgeState.isGenerating = false;
         renderSection();
@@ -4487,7 +4574,7 @@ async function forgeRunBacktest() {
 async function forgeGenerateAndTest() {
     const description = forgeState.description.trim();
     if (!description) {
-        showToast('Décrivez votre stratégie', 'error');
+        showCenteredModal('Décrivez votre stratégie', 'error');
         return;
     }
     
@@ -4554,11 +4641,11 @@ async function forgeGenerateAndTest() {
             forgeState.backtestResults = btData;
             showToast('Stratégie générée et testée', 'success');
         } else {
-            showToast(btData.error || 'Erreur backtest', 'error');
+            showCenteredModal(btData.error || 'Erreur backtest', 'error');
         }
     } catch (e) {
         console.error('Forge generate and test error:', e);
-        showToast(e.message || 'Erreur de génération', 'error');
+        showCenteredModal(e.message || 'Erreur de génération', 'error');
     } finally {
         forgeState.isGenerating = false;
         renderSection();
@@ -4567,7 +4654,7 @@ async function forgeGenerateAndTest() {
 
 async function forgeRequestAnalysis() {
     if (!forgeState.backtestResults) {
-        showToast('Lancez d\'abord un backtest', 'error');
+        showCenteredModal('Lancez d\'abord un backtest', 'error');
         return;
     }
     
@@ -4594,11 +4681,11 @@ async function forgeRequestAnalysis() {
             };
             showToast('Analyse terminée', 'success');
         } else {
-            showToast(data.error || 'Erreur d\'analyse', 'error');
+            showCenteredModal(data.error || 'Erreur d\'analyse', 'error');
         }
     } catch (e) {
         console.error('Forge analysis error:', e);
-        showToast('Erreur de connexion', 'error');
+        showCenteredModal('Erreur de connexion', 'error');
     } finally {
         forgeState.isAnalyzing = false;
         renderSection();
@@ -4619,7 +4706,7 @@ async function forgeApplySuggestion(index) {
 
 async function forgeRunBacktest() {
     if (!forgeState.pineCode) {
-        showToast('Génère d\'abord le code', 'error');
+        showCenteredModal('Génère d\'abord le code', 'error');
         return;
     }
     
@@ -4666,11 +4753,11 @@ async function forgeRunBacktest() {
             forgeState.backtestResults = data;
             showToast('Backtest terminé', 'success');
         } else {
-            showToast(data.error || 'Erreur backtest', 'error');
+            showCenteredModal(data.error || 'Erreur backtest', 'error');
         }
     } catch (e) {
         console.error('Forge backtest error:', e);
-        showToast(e.message || 'Erreur de backtest', 'error');
+        showCenteredModal(e.message || 'Erreur de backtest', 'error');
     } finally {
         forgeState.isBacktesting = false;
         renderSection();
@@ -4680,7 +4767,7 @@ async function forgeRunBacktest() {
 async function forgeDeployTest() {
     const name = document.getElementById('forge-strategy-name')?.value?.trim();
     if (!name) {
-        showToast('Nom de stratégie requis', 'error');
+        showCenteredModal('Nom de stratégie requis', 'error');
         return;
     }
     
@@ -4691,17 +4778,15 @@ async function forgeDeployTest() {
 async function forgeDeployActive() {
     const name = document.getElementById('forge-strategy-name')?.value?.trim();
     if (!name) {
-        showToast('Nom de stratégie requis', 'error');
+        showCenteredModal('Nom de stratégie requis', 'error');
         return;
     }
-    
+
     // Confirmation avant déploiement actif
-    if (!confirm(`Activer "${name}" sur le Scanner?\n\nCette stratégie sera utilisée pour les signaux de trading.`)) {
-        return;
-    }
-    
-    // TODO: Implémenter le déploiement ACTIF
-    showToast('Déploiement ACTIF - À implémenter', 'info');
+    showConfirmModal(`Activer "${name}" sur le Scanner?\n\nCette stratégie sera utilisée pour les signaux de trading.`, () => {
+        // TODO: Implémenter le déploiement ACTIF
+        showToast('Déploiement ACTIF - À implémenter', 'info');
+    });
 }
 
 function forgeShowHistory() {
@@ -4983,19 +5068,17 @@ function forgeUpdateAssetCounts() {
 // Sauvegarder une liste
 function forgeSaveAssetList() {
     if (tempSelectedAssets.size === 0) {
-        showToast('Sélectionnez au moins un asset', 'error');
+        showCenteredModal('Sélectionnez au moins un asset', 'error');
         return;
     }
-    
-    const name = prompt('Nom de la liste:');
-    if (!name || !name.trim()) return;
-    
-    const lists = forgeGetSavedAssetLists();
-    lists[name.trim()] = Array.from(tempSelectedAssets);
-    forgeSaveAssetLists(lists);
-    
-    forgeUpdateAssetListsDropdown();
-    showToast(`Liste "${name}" sauvegardée (${tempSelectedAssets.size} assets)`, 'success');
+
+    showPromptModal('Nom de la liste:', '', (name) => {
+        const lists = forgeGetSavedAssetLists();
+        lists[name] = Array.from(tempSelectedAssets);
+        forgeSaveAssetLists(lists);
+        forgeUpdateAssetListsDropdown();
+        showToast(`Liste "${name}" sauvegardée (${tempSelectedAssets.size} assets)`, 'success');
+    });
 }
 
 // Charger une liste
@@ -5019,24 +5102,23 @@ function forgeDeleteAssetList() {
     const select = document.getElementById('asset-lists-select');
     const listName = select?.value;
     if (!listName) {
-        showToast('Sélectionnez une liste Ã  supprimer', 'error');
+        showCenteredModal('Sélectionnez une liste Ã  supprimer', 'error');
         return;
     }
     
-    if (!confirm(`Supprimer la liste "${listName}"?`)) return;
-    
-    const lists = forgeGetSavedAssetLists();
-    delete lists[listName];
-    forgeSaveAssetLists(lists);
-    
-    forgeUpdateAssetListsDropdown();
-    showToast(`Liste "${listName}" supprimée`, 'success');
+    showConfirmModal(`Supprimer la liste "${listName}"?`, () => {
+        const lists = forgeGetSavedAssetLists();
+        delete lists[listName];
+        forgeSaveAssetLists(lists);
+        forgeUpdateAssetListsDropdown();
+        showToast(`Liste "${listName}" supprimée`, 'success');
+    });
 }
 
 // Appliquer la sélection
 function forgeApplyAssetSelection() {
     if (tempSelectedAssets.size === 0) {
-        showToast('Sélectionnez au moins un asset', 'error');
+        showCenteredModal('Sélectionnez au moins un asset', 'error');
         return;
     }
     
@@ -5239,14 +5321,14 @@ function forgeLoadFromHistory(id) {
 function forgeLoadBestVersion() {
     const filterStrategy = document.getElementById('history-filter-strategy')?.value;
     if (!filterStrategy || filterStrategy === 'all') {
-        showToast('Sélectionnez d\'abord une stratégie', 'error');
+        showCenteredModal('Sélectionnez d\'abord une stratégie', 'error');
         return;
     }
     
     // Filtrer les backtests de cette stratégie
     const strategyTests = backtestHistory.filter(bt => bt.strategyName === filterStrategy);
     if (strategyTests.length === 0) {
-        showToast('Aucun test trouvé pour cette stratégie', 'error');
+        showCenteredModal('Aucun test trouvé pour cette stratégie', 'error');
         return;
     }
     
@@ -5267,7 +5349,7 @@ function forgeLoadBestVersion() {
 
 function forgeExportHistory() {
     if (backtestHistory.length === 0) {
-        showToast('Aucun historique Ã  exporter', 'error');
+        showCenteredModal('Aucun historique Ã  exporter', 'error');
         return;
     }
     
@@ -5290,18 +5372,19 @@ function forgeExportHistory() {
 }
 
 function forgeClearHistory() {
-    if (!confirm('Vider tout l\'historique des backtests?\\n\\nVous pouvez d\'abord exporter l\'historique en JSON.')) return;
-    backtestHistory = [];
-    saveBacktestHistory();
-    forgeRenderHistoryList();
-    showToast('Historique vidé', 'success');
+    showConfirmModal('Vider tout l\'historique des backtests?\n\nVous pouvez d\'abord exporter l\'historique en JSON.', () => {
+        backtestHistory = [];
+        saveBacktestHistory();
+        forgeRenderHistoryList();
+        showToast('Historique vidé', 'success');
+    });
 }
 
 // Charger un item de l'historique dans la Forge
 function forgeLoadHistoryItem(id) {
     const item = backtestHistory.find(bt => bt.id === id);
     if (!item) {
-        showToast('Backtest non trouvé', 'error');
+        showCenteredModal('Backtest non trouvé', 'error');
         return;
     }
     
@@ -5834,11 +5917,11 @@ async function openLibraryItem(id, type) {
             // Afficher le détail dans une modale
             showLibraryItemDetail(data.item);
         } else {
-            showToast('Élément non trouvé', 'error');
+            showCenteredModal('Élément non trouvé', 'error');
         }
     } catch (error) {
         console.error('[Library] Open item error:', error);
-        showToast('Erreur de chargement', 'error');
+        showCenteredModal('Erreur de chargement', 'error');
     }
 }
 
@@ -5924,7 +6007,7 @@ async function loadLibraryItemInForge(id) {
         const data = await response.json();
         
         if (!data.success || !data.item) {
-            showToast('Élément non trouvé', 'error');
+            showCenteredModal('Élément non trouvé', 'error');
             return;
         }
         
@@ -5959,7 +6042,7 @@ async function loadLibraryItemInForge(id) {
         
     } catch (error) {
         console.error('[Library] Load in forge error:', error);
-        showToast('Erreur de chargement', 'error');
+        showCenteredModal('Erreur de chargement', 'error');
     }
 }
 
