@@ -1973,11 +1973,184 @@ async function forgeRestoreVersion(versionId) {
 function forgeViewVersionCode(versionId) {
     const version = forgeState.versions.find(v => v.id === versionId);
     if (!version) return;
-    
-    // Afficher dans un alert ou modal simplifié
-    const code = version.pine_code || 'Aucun code Pine';
-    console.log('[Forge] Version code:', code);
-    showCenteredModal('Code affiché dans la console (F12)', 'info');
+
+    const pineCode = version.pine_code || '';
+    const pythonCode = version.python_code || '';
+
+    if (!pineCode && !pythonCode) {
+        showCenteredModal('Aucun code disponible pour cette version', 'info');
+        return;
+    }
+
+    // Créer modal avec tabs
+    const existing = document.getElementById('code-viewer-modal');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'code-viewer-modal';
+    overlay.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.7); display: flex; align-items: center;
+        justify-content: center; z-index: 10000;
+    `;
+
+    const hasBothCodes = pineCode && pythonCode;
+    const defaultTab = pineCode ? 'pine' : 'python';
+
+    overlay.innerHTML = `
+        <div style="
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 900px;
+            width: 90%;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        ">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="color: #f1f5f9; margin: 0; font-size: 18px;">
+                    Code - Version ${version.version_number || '?'}
+                </h3>
+                <button id="code-viewer-close" style="
+                    background: transparent; border: none; color: #94a3b8;
+                    font-size: 24px; cursor: pointer; padding: 4px 8px;
+                ">&times;</button>
+            </div>
+
+            ${hasBothCodes ? `
+            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                <button id="tab-pine" class="code-tab active" style="
+                    padding: 8px 16px; border-radius: 8px; border: none;
+                    background: #0ea5e9; color: white; cursor: pointer;
+                    font-weight: 500; transition: all 0.2s;
+                ">Pine Script</button>
+                <button id="tab-python" class="code-tab" style="
+                    padding: 8px 16px; border-radius: 8px; border: none;
+                    background: rgba(255,255,255,0.1); color: #94a3b8; cursor: pointer;
+                    font-weight: 500; transition: all 0.2s;
+                ">Python</button>
+            </div>
+            ` : ''}
+
+            <div style="flex: 1; overflow: auto; margin-bottom: 16px;">
+                <pre id="code-display" style="
+                    background: rgba(15, 23, 42, 0.8);
+                    border: 1px solid rgba(255,255,255,0.05);
+                    border-radius: 8px;
+                    padding: 16px;
+                    margin: 0;
+                    overflow: auto;
+                    font-family: 'Fira Code', 'Monaco', monospace;
+                    font-size: 13px;
+                    line-height: 1.5;
+                    color: #e2e8f0;
+                    white-space: pre-wrap;
+                    word-break: break-word;
+                "><code id="code-content"></code></pre>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <button id="code-copy-btn" style="
+                    padding: 10px 20px; border-radius: 8px; border: none;
+                    background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+                    color: white; cursor: pointer; font-weight: 500;
+                    display: flex; align-items: center; gap: 8px;
+                    transition: transform 0.2s;
+                ">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    Copier
+                </button>
+                <button id="code-close-btn" style="
+                    padding: 10px 20px; border-radius: 8px; border: none;
+                    background: rgba(255,255,255,0.1); color: #e2e8f0;
+                    cursor: pointer; font-weight: 500; transition: all 0.2s;
+                ">Fermer</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    let currentTab = defaultTab;
+    const codeContent = document.getElementById('code-content');
+    const tabPine = document.getElementById('tab-pine');
+    const tabPython = document.getElementById('tab-python');
+
+    function updateCodeDisplay() {
+        const code = currentTab === 'pine' ? pineCode : pythonCode;
+        codeContent.textContent = code || 'Aucun code disponible';
+    }
+
+    function updateTabStyles() {
+        if (!hasBothCodes) return;
+        if (currentTab === 'pine') {
+            tabPine.style.background = '#0ea5e9';
+            tabPine.style.color = 'white';
+            tabPython.style.background = 'rgba(255,255,255,0.1)';
+            tabPython.style.color = '#94a3b8';
+        } else {
+            tabPython.style.background = '#10b981';
+            tabPython.style.color = 'white';
+            tabPine.style.background = 'rgba(255,255,255,0.1)';
+            tabPine.style.color = '#94a3b8';
+        }
+    }
+
+    updateCodeDisplay();
+
+    if (hasBothCodes) {
+        tabPine.addEventListener('click', () => {
+            currentTab = 'pine';
+            updateTabStyles();
+            updateCodeDisplay();
+        });
+        tabPython.addEventListener('click', () => {
+            currentTab = 'python';
+            updateTabStyles();
+            updateCodeDisplay();
+        });
+    }
+
+    document.getElementById('code-copy-btn').addEventListener('click', async () => {
+        const code = currentTab === 'pine' ? pineCode : pythonCode;
+        try {
+            await navigator.clipboard.writeText(code);
+            const btn = document.getElementById('code-copy-btn');
+            btn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Copié !
+            `;
+            btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            setTimeout(() => {
+                btn.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    Copier
+                `;
+                btn.style.background = 'linear-gradient(135deg, #0ea5e9, #06b6d4)';
+            }, 2000);
+        } catch (err) {
+            showCenteredModal('Erreur lors de la copie', 'error');
+        }
+    });
+
+    const closeModal = () => overlay.remove();
+    document.getElementById('code-viewer-close').addEventListener('click', closeModal);
+    document.getElementById('code-close-btn').addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeModal();
+    });
 }
 
 // Fonctions Rename
