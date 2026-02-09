@@ -993,28 +993,20 @@ function forgeSetType(type) {
 function forgeSetAtelierMode(mode) {
     forgeState.atelierMode = mode;
 
-    // Pour 'choice', affichage immédiat
-    if (mode === 'choice') {
+    // Reset état pour tous les modes
+    if (mode === 'choice' || mode === 'create') {
         forgeState.createView = 'projects';
         forgeState.currentProjectId = null;
         forgeState.currentProject = null;
-        renderSection();
-        return;
     }
 
-    // Pour 'create', affichage IMMÉDIAT puis chargement en background
-    if (mode === 'create') {
-        forgeState.createView = 'projects';
-        forgeState.currentProjectId = null;
-        forgeState.currentProject = null;
-        forgeState.isLoadingProjects = true; // Affiche spinner immédiatement
-        renderSection();
-        forgeLoadProjects(); // Charge en background
-        return;
-    }
-
-    // Pour 'convert'
+    // Rendu IMMÉDIAT pour TOUS les modes (comme convert)
     renderSection();
+
+    // Charger projets en background APRÈS le rendu (seulement pour create)
+    if (mode === 'create') {
+        forgeLoadProjects();
+    }
 }
 
 function forgeReset() {
