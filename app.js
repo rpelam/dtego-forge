@@ -4167,11 +4167,14 @@ function forgeIgnoreSuggestion(index) {
 }
 
 async function forgeSaveToLibrary() {
-    const nameInput = document.getElementById('forge-strategy-name');
-    const name = nameInput?.value?.trim() || forgeState.sourceMeta?.name || 'Ma stratégie';
-    
-    if (!forgeState.pineCode) {
-        showToast('Aucun code Ã  sauvegarder', 'error');
+    // Si projet ouvert, utiliser son nom directement
+    const name = forgeState.currentProject?.name
+        || document.getElementById('forge-strategy-name')?.value?.trim()
+        || forgeState.sourceMeta?.name
+        || 'Ma stratégie';
+
+    if (!forgeState.pineCode && !forgeState.pythonCode) {
+        showToast('Aucun code à sauvegarder', 'error');
         return;
     }
     
