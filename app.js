@@ -990,10 +990,10 @@ function forgeSetType(type) {
     renderSection();
 }
 
-async function forgeSetAtelierMode(mode) {
+function forgeSetAtelierMode(mode) {
     forgeState.atelierMode = mode;
 
-    // Pour 'choice', on affiche directement sans charger les projets
+    // Pour 'choice', affichage immédiat
     if (mode === 'choice') {
         forgeState.createView = 'projects';
         forgeState.currentProjectId = null;
@@ -1002,15 +1002,18 @@ async function forgeSetAtelierMode(mode) {
         return;
     }
 
-    // Pour 'create', on charge les projets
+    // Pour 'create', affichage IMMÉDIAT puis chargement en background
     if (mode === 'create') {
         forgeState.createView = 'projects';
         forgeState.currentProjectId = null;
         forgeState.currentProject = null;
-        await forgeLoadProjects();
-        return; // forgeLoadProjects appelle déjà renderSection
+        forgeState.isLoadingProjects = true; // Affiche spinner immédiatement
+        renderSection();
+        forgeLoadProjects(); // Charge en background
+        return;
     }
 
+    // Pour 'convert'
     renderSection();
 }
 
