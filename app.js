@@ -4166,6 +4166,35 @@ function forgeIgnoreSuggestion(index) {
     }
 }
 
+// Modal d'erreur centré (design system)
+function showErrorModal(message, title = 'Erreur') {
+    // Supprimer modal existant si présent
+    const existing = document.getElementById('error-modal-overlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'error-modal-overlay';
+    overlay.style.cssText = 'position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 1000; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);';
+    overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+    overlay.innerHTML = `
+        <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 1px solid rgba(239,68,68,0.3); border-radius: 16px; padding: 24px; max-width: 400px; width: 90%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(239,68,68,0.15); display: flex; align-items: center; justify-content: center;">
+                    <svg width="20" height="20" fill="none" stroke="#ef4444" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
+                <h3 style="color: white; font-size: 18px; font-weight: 600; margin: 0;">${title}</h3>
+            </div>
+            <p style="color: rgba(255,255,255,0.7); font-size: 14px; line-height: 1.5; margin: 0 0 20px 0;">${message}</p>
+            <button onclick="this.closest('#error-modal-overlay').remove()" style="width: 100%; padding: 12px; border-radius: 10px; border: none; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; font-weight: 500; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                Compris
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+}
+
 async function forgeSaveToLibrary() {
     // Si projet ouvert, utiliser son nom directement
     const name = forgeState.currentProject?.name
@@ -4174,10 +4203,10 @@ async function forgeSaveToLibrary() {
         || 'Ma stratégie';
 
     if (!forgeState.pineCode && !forgeState.pythonCode) {
-        showToast('Aucun code à sauvegarder', 'error');
+        showErrorModal('Aucun code à sauvegarder. Générez d\'abord du code Pine ou Python.', 'Code manquant');
         return;
     }
-    
+
     try {
         const response = await fetch(`${API_BASE}/api/library/items`, {
             method: 'POST',
@@ -4194,18 +4223,18 @@ async function forgeSaveToLibrary() {
                 status: 'draft'
             })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showToast(`"${name}" sauvegardé dans la bibliothèque`, 'success');
             await loadLibrary();
         } else {
-            showToast(data.error || 'Erreur de sauvegarde', 'error');
+            showErrorModal(data.error || 'Une erreur est survenue lors de la sauvegarde.', 'Erreur de sauvegarde');
         }
     } catch (e) {
         console.error('Save error:', e);
-        showToast('Erreur de connexion', 'error');
+        showErrorModal('Impossible de contacter le serveur. Vérifiez votre connexion internet.', 'Erreur de connexion');
     }
 }
 
