@@ -1401,9 +1401,9 @@ function renderForgeChat() {
                 </div>
                 <div class="flex-1 overflow-y-auto space-y-3">
                     ${(forgeState.versions || []).length > 0 ? forgeState.versions.map(ver => `
-                        <div class="p-4 rounded-xl ${ver.version === project.current_version ? 'ring-2 ring-amber-500' : ''}" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                        <div class="p-4 rounded-xl ${ver.version === project.current_version ? 'ring-1 ring-white/20' : ''}" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
                             <div class="flex items-center justify-between mb-2">
-                                <span class="text-amber-400 font-medium">v${ver.version}</span>
+                                <span class="text-white font-medium">v${ver.version}</span>
                                 <span class="text-white/40 text-xs">${formatRelativeDate(ver.created_at)}</span>
                             </div>
                             <p class="text-white/60 text-sm mb-3">${ver.summary || 'Aucun résumé'}</p>
@@ -1412,12 +1412,12 @@ function renderForgeChat() {
                                     Voir le code
                                 </button>
                                 ${ver.version !== project.current_version ? `
-                                    <button onclick="forgeRestoreVersion('${ver.id}')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 transition">
+                                    <button onclick="forgeRestoreVersion('${ver.id}')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-white/10 text-white/70 hover:bg-white/15 hover:text-white transition">
                                         Restaurer
                                     </button>
                                 ` : `
-                                    <span class="px-2 py-1 rounded text-xs bg-green-500/10 text-green-400/70 italic">
-                                        ✓ Version active
+                                    <span class="px-2 py-1 rounded text-xs bg-white/5 text-white/50 italic">
+                                        ✓ Active
                                     </span>
                                 `}
                             </div>
