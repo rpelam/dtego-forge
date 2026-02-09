@@ -994,24 +994,14 @@ function forgeSetType(type) {
 }
 
 function forgeSetAtelierMode(mode) {
-    console.log('[Forge] Mode change:', forgeState.atelierMode, '->', mode);
     forgeState.atelierMode = mode;
-
-    // Reset état pour tous les modes
-    if (mode === 'choice' || mode === 'create') {
+    if (mode === 'create' || mode === 'choice') {
         forgeState.createView = 'projects';
         forgeState.currentProjectId = null;
         forgeState.currentProject = null;
-    }
-
-    // Rendu IMMÉDIAT pour TOUS les modes
-    console.log('[Forge] Calling renderSection, mode:', forgeState.atelierMode);
-    renderSection();
-
-    // Charger projets en background APRÈS le rendu (seulement pour create)
-    if (mode === 'create') {
         forgeLoadProjects();
     }
+    renderSection();
 }
 
 function forgeReset() {
