@@ -1147,7 +1147,7 @@ function renderForgeProjects() {
         
         <!-- Modal nouveau projet -->
         <div id="forge-new-project-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7);">
-            <div class="max-w-md w-full mx-4 p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(30,27,75,0.98), rgba(15,23,42,0.98)); border: 1px solid rgba(255,255,255,0.1);">
+            <div class="max-w-md w-full mx-4 p-6 rounded-2xl" style="background: rgba(255,255,255,0.08); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.15);">
                 <h3 class="text-xl font-bold text-white mb-4">Nouveau projet</h3>
                 <div class="space-y-4">
                     <div>
@@ -1194,7 +1194,7 @@ function renderForgeProjects() {
         
         <!-- Modal suppression projet -->
         <div id="forge-delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7);">
-            <div class="max-w-sm w-full mx-4 p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(30,27,75,0.98), rgba(15,23,42,0.98)); border: 1px solid rgba(255,255,255,0.1);">
+            <div class="max-w-sm w-full mx-4 p-6 rounded-2xl" style="background: rgba(255,255,255,0.08); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.15);">
                 <div class="text-center mb-6">
                     <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background: rgba(239, 68, 68, 0.15);">
                         <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1349,7 +1349,7 @@ function renderForgeChat() {
         
         <!-- Modal renommer -->
         <div id="forge-rename-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7);">
-            <div class="max-w-md w-full mx-4 p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(30,27,75,0.98), rgba(15,23,42,0.98)); border: 1px solid rgba(255,255,255,0.1);">
+            <div class="max-w-md w-full mx-4 p-6 rounded-2xl" style="background: rgba(255,255,255,0.08); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.15);">
                 <h3 class="text-xl font-bold text-white mb-4">Renommer le projet</h3>
                 <div class="space-y-4">
                     <div>
@@ -1392,7 +1392,7 @@ function renderForgeChat() {
         
         <!-- Modal versions -->
         <div id="forge-versions-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7);">
-            <div class="max-w-lg w-full mx-4 p-6 rounded-2xl max-h-[80vh] overflow-hidden flex flex-col" style="background: linear-gradient(135deg, rgba(30,27,75,0.98), rgba(15,23,42,0.98)); border: 1px solid rgba(255,255,255,0.1);">
+            <div class="max-w-lg w-full mx-4 p-6 rounded-2xl max-h-[80vh] overflow-hidden flex flex-col" style="background: rgba(255,255,255,0.08); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.15);">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-xl font-bold text-white">Historique des versions</h3>
                     <button onclick="forgeCloseVersionsModal()" class="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition">
@@ -1433,7 +1433,7 @@ function renderForgeChat() {
         
         <!-- Modal effacer les messages -->
         <div id="forge-clear-chat-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7);">
-            <div class="max-w-sm w-full mx-4 p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(30,27,75,0.98), rgba(15,23,42,0.98)); border: 1px solid rgba(255,255,255,0.1);">
+            <div class="max-w-sm w-full mx-4 p-6 rounded-2xl" style="background: rgba(255,255,255,0.08); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.15);">
                 <div class="text-center mb-6">
                     <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background: rgba(239, 68, 68, 0.15);">
                         <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
