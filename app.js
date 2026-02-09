@@ -3684,10 +3684,10 @@ function forgeShowClearModal() {
     // Construire le HTML de la modale
     const modalHTML = `
         <div id="forge-clear-modal" class="fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);">
-            <div class="relative w-full max-w-md mx-4 rounded-2xl overflow-hidden" style="background: linear-gradient(to bottom, rgba(30,30,35,0.98), rgba(20,20,25,0.98)); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
-                <div class="p-6">
-                    <h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(239, 68, 68, 0.15);">
+            <div class="relative w-full max-w-md mx-4 rounded-2xl overflow-hidden" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+                <div class="p-5">
+                    <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(239, 68, 68, 0.2);">
                             <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                         </div>
                         Effacer le contenu ?
@@ -4423,7 +4423,7 @@ function showErrorModal(message, title = 'Erreur') {
 
     const overlay = document.createElement('div');
     overlay.id = 'error-modal-overlay';
-    overlay.style.cssText = 'position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 1000; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);';
+    overlay.style.cssText = 'position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);';
     overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
 
     overlay.innerHTML = `
@@ -6100,7 +6100,7 @@ function showLibraryItemDetail(item) {
     modal.innerHTML = `
         <div class="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl shadow-2xl border border-white/20"
             style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
-            <div class="p-6">
+            <div class="p-5">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-white font-semibold text-lg">${item.name}</h3>
                     <button onclick="this.closest('.fixed').remove()" class="text-white/50 hover:text-white">
