@@ -1162,7 +1162,7 @@ function renderForgeProjects() {
                             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            <span id="forge-name-error-text">Ce nom est déjÃ  utilisé</span>
+                            <span id="forge-name-error-text">Ce nom est déjà utilisé</span>
                         </div>
                     </div>
                     <div>
@@ -1302,7 +1302,7 @@ function renderForgeChat() {
                         id="forge-chat-input"
                         class="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none focus:ring-2 resize-none"
                         style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); --tw-ring-color: rgba(217, 119, 6, 0.5); height: ${forgeState.chatFullscreen ? '150px' : (hasMessages ? '150px' : '280px')};"
-                        placeholder="Décrivez votre stratégie de trading...${hasMessages ? '' : '\n\nTapez FORGE quand vous êtes prêt Ã  générer le code.'}"
+                        placeholder="Décrivez votre stratégie de trading...${hasMessages ? '' : '\n\nTapez FORGE quand vous êtes prêt à générer le code.'}"
                         oninput="forgeState.chatInput = this.value"
                         onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); forgeSendMessage(); }"
                     >${forgeState.chatInput || ''}</textarea>
@@ -1586,7 +1586,7 @@ async function forgeLoadProjects() {
         const data = await response.json();
         
         if (data.success) {
-            // Le backend filtre déjÃ  par status='active'
+            // Le backend filtre déjà par status='active'
             forgeState.projects = data.projects;
             console.log(`[Forge] Loaded ${forgeState.projects.length} projects`);
         }
@@ -1600,7 +1600,7 @@ async function forgeLoadProjects() {
 }
 
 async function forgeShowNewProjectModal() {
-    // NE PAS recharger depuis la DB - la liste locale forgeState.projects est Ã  jour
+    // NE PAS recharger depuis la DB - la liste locale forgeState.projects est à jour
     
     forgeState.newProjectModalOpen = true;
     document.getElementById('forge-new-project-modal').classList.remove('hidden');
@@ -1642,9 +1642,9 @@ function forgeValidateProjectName(name) {
     const existingProject = forgeState.projects.find(p => p.name.toLowerCase() === trimmedName.toLowerCase());
     
     if (existingProject) {
-        // Nom déjÃ  pris
+        // Nom déjà pris
         errorDiv.classList.remove('hidden');
-        errorText.textContent = 'Ce nom est déjÃ  utilisé par un autre projet';
+        errorText.textContent = 'Ce nom est déjà utilisé par un autre projet';
         inputField.style.borderColor = '#ef4444';
         createBtn.disabled = true;
         createBtn.style.opacity = '0.5';
@@ -1695,7 +1695,7 @@ async function forgeCreateProject() {
         const data = await response.json();
         
         if (data.success) {
-            // Ajouter le projet Ã  la liste IMMÉDIATEMENT
+            // Ajouter le projet à la liste IMMÉDIATEMENT
             forgeState.projects.unshift(data.project);
             renderSection();
             showCenteredModal('Projet créé', 'success');
@@ -1722,7 +1722,7 @@ async function forgeOpenProject(projectId) {
             forgeState.messages = data.messages;
             forgeState.versions = data.versions;
             
-            // Mettre Ã  jour aussi dans la liste des projets
+            // Mettre à jour aussi dans la liste des projets
             const projectIndex = forgeState.projects.findIndex(p => p.id === projectId);
             if (projectIndex !== -1) {
                 forgeState.projects[projectIndex] = { ...forgeState.projects[projectIndex], ...data.project };
@@ -1749,8 +1749,8 @@ function forgeBackToProjects() {
     forgeState.messages = [];
     forgeState.versions = [];
     forgeState.chatInput = '';
-    // NE PAS recharger les projets - utiliser la liste locale déjÃ  mise Ã  jour
-    // forgeState.projects contient déjÃ  les modifications locales
+    // NE PAS recharger les projets - utiliser la liste locale déjà mise à jour
+    // forgeState.projects contient déjà les modifications locales
     renderSection();
 }
 
@@ -1803,10 +1803,10 @@ async function forgeSendMessage() {
         const data = await response.json();
         
         if (data.success) {
-            // Si c'est une commande FORGE, mettre Ã  jour la version IMMÉDIATEMENT
+            // Si c'est une commande FORGE, mettre à jour la version IMMÉDIATEMENT
             if (data.is_forge_command && data.version) {
                 forgeState.currentProject.current_version = data.version;
-                // Mettre Ã  jour aussi dans la liste des projets
+                // Mettre à jour aussi dans la liste des projets
                 const projectIndex = forgeState.projects.findIndex(p => p.id === forgeState.currentProjectId);
                 if (projectIndex !== -1) {
                     forgeState.projects[projectIndex].current_version = data.version;
@@ -2155,7 +2155,7 @@ function forgeViewVersionCode(versionId) {
 
 // Fonctions Rename
 function forgeShowRenameModal() {
-    // NE PAS recharger depuis la DB - la liste locale est Ã  jour
+    // NE PAS recharger depuis la DB - la liste locale est à jour
     
     document.getElementById('forge-rename-modal').classList.remove('hidden');
     document.getElementById('forge-rename-name').value = forgeState.currentProject?.name || '';
@@ -2205,16 +2205,16 @@ function forgeValidateRenameName(name) {
         return;
     }
     
-    // Vérifier si le nom existe déjÃ  dans un autre projet
+    // Vérifier si le nom existe déjà dans un autre projet
     const existingProject = forgeState.projects.find(p => 
         p.name.toLowerCase() === trimmedName.toLowerCase() && 
         p.id !== forgeState.currentProjectId
     );
     
     if (existingProject) {
-        // Nom déjÃ  pris
+        // Nom déjà pris
         errorDiv.classList.remove('hidden');
-        errorText.textContent = 'Ce nom est déjÃ  utilisé par un autre projet';
+        errorText.textContent = 'Ce nom est déjà utilisé par un autre projet';
         inputField.style.borderColor = '#ef4444';
         renameBtn.disabled = true;
         renameBtn.style.opacity = '0.5';
@@ -2244,13 +2244,13 @@ async function forgeRenameProject() {
         return;
     }
     
-    // IMMÉDIATEMENT: Mettre Ã  jour le state et fermer la modale
+    // IMMÉDIATEMENT: Mettre à jour le state et fermer la modale
     const oldProject = { ...forgeState.currentProject };
     forgeState.currentProject.name = name;
     forgeState.currentProject.author = author || null;
     forgeState.currentProject.description = description;
     
-    // Mettre Ã  jour aussi dans la liste des projets
+    // Mettre à jour aussi dans la liste des projets
     const projectIndex = forgeState.projects.findIndex(p => p.id === forgeState.currentProjectId);
     if (projectIndex !== -1) {
         forgeState.projects[projectIndex].name = name;
@@ -2666,9 +2666,9 @@ function generateNaturalFromStructure(structure) {
             } else if (cond.type === 'comparison') {
                 const src1 = translateSource(cond.source1, structure);
                 const src2 = translateSource(cond.source2, structure);
-                const op = cond.operator === '>' ? 'supérieur Ã ' : 
-                           cond.operator === '<' ? 'inférieur Ã ' :
-                           cond.operator === '>=' ? 'supérieur ou égal Ã ' : 'inférieur ou égal Ã ';
+                const op = cond.operator === '>' ? 'supérieur à' : 
+                           cond.operator === '<' ? 'inférieur à' :
+                           cond.operator === '>=' ? 'supérieur ou égal à' : 'inférieur ou égal à';
                 desc += `â€¢ Quand ${src1} est ${op} ${src2}\n`;
             }
         }
@@ -2686,9 +2686,9 @@ function generateNaturalFromStructure(structure) {
             } else if (cond.type === 'comparison') {
                 const src1 = translateSource(cond.source1, structure);
                 const src2 = translateSource(cond.source2, structure);
-                const op = cond.operator === '>' ? 'supérieur Ã ' : 
-                           cond.operator === '<' ? 'inférieur Ã ' :
-                           cond.operator === '>=' ? 'supérieur ou égal Ã ' : 'inférieur ou égal Ã ';
+                const op = cond.operator === '>' ? 'supérieur à' : 
+                           cond.operator === '<' ? 'inférieur à' :
+                           cond.operator === '>=' ? 'supérieur ou égal à' : 'inférieur ou égal à';
                 desc += `â€¢ Quand ${src1} est ${op} ${src2}\n`;
             }
         }
@@ -2804,7 +2804,7 @@ function parseNaturalLanguage(text) {
         structure.params.push({ variable: 'rsiLength', type: 'int', default: period, label: 'Période RSI' });
         
         // Détecter seuil survente
-        const oversoldMatch = text.match(/(?:survente|oversold|sous|inférieur\s+Ã |<)\s*(?:Ã \s+)?(\d+)/i);
+        const oversoldMatch = text.match(/(?:survente|oversold|sous|inférieur\s+à|<)\s*(?:à\s+)?(\d+)/i);
         if (oversoldMatch) {
             const oversold = oversoldMatch[1];
             structure.params.push({ variable: 'oversold', type: 'int', default: oversold, label: 'Survente', minval: '0', maxval: '50' });
@@ -2812,7 +2812,7 @@ function parseNaturalLanguage(text) {
         }
         
         // Détecter seuil surachat
-        const overboughtMatch = text.match(/(?:surachat|overbought|dessus|supérieur\s+Ã |>)\s*(?:Ã \s+)?(\d+)/i);
+        const overboughtMatch = text.match(/(?:surachat|overbought|dessus|supérieur\s+à|>)\s*(?:à\s+)?(\d+)/i);
         if (overboughtMatch) {
             const overbought = overboughtMatch[1];
             structure.params.push({ variable: 'overbought', type: 'int', default: overbought, label: 'Surachat', minval: '50', maxval: '100' });
@@ -2906,13 +2906,13 @@ function parseNaturalLanguage(text) {
     }
     
     // Détecter Stop Loss
-    const slMatch = text.match(/stop\s*loss\s*(?:Ã \s*)?(\d+(?:\.\d+)?)\s*%?/i);
+    const slMatch = text.match(/stop\s*loss\s*(?:à\s*)?(\d+(?:\.\d+)?)\s*%?/i);
     if (slMatch) {
         structure.riskManagement.stopLoss = parseFloat(slMatch[1]);
     }
     
     // Détecter Take Profit
-    const tpMatch = text.match(/take\s*profit\s*(?:Ã \s*)?(\d+(?:\.\d+)?)\s*%?|objectif\s*(?:Ã \s*)?(\d+(?:\.\d+)?)\s*%?/i);
+    const tpMatch = text.match(/take\s*profit\s*(?:à\s*)?(\d+(?:\.\d+)?)\s*%?|objectif\s*(?:à\s*)?(\d+(?:\.\d+)?)\s*%?/i);
     if (tpMatch) {
         structure.riskManagement.takeProfit = parseFloat(tpMatch[1] || tpMatch[2]);
     }
@@ -3159,7 +3159,7 @@ function forgeHandleInput(value) {
     }
 }
 
-// Mettre Ã  jour l'indicateur de génération
+// Mettre à jour l'indicateur de génération
 function forgeUpdateGenerationStatus(status) {
     const indicator = document.getElementById('forge-generation-status');
     if (!indicator) return;
@@ -3238,7 +3238,7 @@ function forgeAutoGenerateFromPine() {
         // Générer la vraie description
         forgeState.description = generateNaturalFromStructure(structure);
         
-        // Générer aussi le Python si pas déjÃ  présent
+        // Générer aussi le Python si pas déjà présent
         if (!forgeState.pythonCode) {
             forgeConvertToPythonAuto();
         }
@@ -3608,7 +3608,7 @@ function forgeQuickSave() {
                   : forgeState.pythonCode;
     
     if (!content) {
-        showCenteredModal('Rien Ã  sauvegarder', 'error');
+        showCenteredModal('Rien à sauvegarder', 'error');
         return;
     }
     
@@ -3648,7 +3648,7 @@ function forgeExport() {
         extension = '.txt';
         mimeType = 'text/plain';
     } else {
-        showCenteredModal('Rien Ã  exporter', 'error');
+        showCenteredModal('Rien à exporter', 'error');
         return;
     }
     
@@ -3952,7 +3952,7 @@ function calculateRanking(currentScore) {
         position = i + 2;
     }
     
-    // Limiter Ã  la taille de l'historique
+    // Limiter à la taille de l'historique
     position = Math.min(position, allScores.length + 1);
     const total = allScores.length + 1; // +1 pour inclure le test actuel
     const percentile = Math.round((position / total) * 100);
@@ -4282,7 +4282,7 @@ function forgeNewTest() {
 
 function forgeDownloadPine() {
     if (!forgeState.pineCode) {
-        showCenteredModal('Aucun code Ã  télécharger', 'error');
+        showCenteredModal('Aucun code à télécharger', 'error');
         return;
     }
     
@@ -4302,7 +4302,7 @@ function forgeDownloadPine() {
 
 function forgeDownloadPython() {
     if (!forgeState.pythonCode) {
-        showCenteredModal('Aucun code Python Ã  télécharger', 'error');
+        showCenteredModal('Aucun code Python à télécharger', 'error');
         return;
     }
     
@@ -4329,7 +4329,7 @@ function forgeGeneratePine() {
     
     // Pour l'instant: template basique basé sur la description
     // TODO: Intégrer Claude API pour génération intelligente
-    showCenteredModal('Génération Pine Script... (fonctionnalité AI Ã  venir)', 'info');
+    showCenteredModal('Génération Pine Script... (fonctionnalité AI à venir)', 'info');
     
     // Template basique en attendant l'intégration AI
     const template = `//@version=6
@@ -4492,11 +4492,11 @@ async function forgeSaveToLibrary() {
 }
 
 function forgeDeployTest() {
-    showCenteredModal('Déploiement TEST - Fonctionnalité Ã  venir', 'info');
+    showCenteredModal('Déploiement TEST - Fonctionnalité à venir', 'info');
 }
 
 function forgeDeployActive() {
-    showCenteredModal('Déploiement ACTIF - Fonctionnalité Ã  venir', 'info');
+    showCenteredModal('Déploiement ACTIF - Fonctionnalité à venir', 'info');
 }
 
 // Fonction unifiée de conversion
@@ -4515,7 +4515,7 @@ function forgeConvertTo(target) {
         if (forgeState.description && forgeState.description.length >= 20) {
             forgeGeneratePine();
         } else if (forgeState.pythonCode) {
-            showCenteredModal('Conversion Python â†’ Pine Ã  venir', 'info');
+            showCenteredModal('Conversion Python â†’ Pine à venir', 'info');
         } else {
             showCenteredModal('Aucune source disponible', 'error');
         }
@@ -4524,7 +4524,7 @@ function forgeConvertTo(target) {
         if (forgeState.pineCode) {
             forgeConvertToPython();
         } else if (forgeState.description && forgeState.description.length >= 20) {
-            showCenteredModal('Conversion Description â†’ Python Ã  venir', 'info');
+            showCenteredModal('Conversion Description â†’ Python à venir', 'info');
         } else {
             showCenteredModal('Aucune source disponible', 'error');
         }
@@ -4535,7 +4535,7 @@ function forgeConvertTo(target) {
 function forgeAnalyzeCode(source) {
     let code = source === 'pine' ? forgeState.pineCode : forgeState.pythonCode;
     if (!code) {
-        showCenteredModal('Aucun code Ã  analyser', 'error');
+        showCenteredModal('Aucun code à analyser', 'error');
         return;
     }
     
@@ -4682,7 +4682,7 @@ function forgeViewSource() {
 
 async function forgeRunBacktest() {
     if (!forgeState.pineCode) {
-        showCenteredModal('Aucun code Ã  tester', 'error');
+        showCenteredModal('Aucun code à tester', 'error');
         return;
     }
     
@@ -4883,7 +4883,7 @@ async function forgeRunBacktest() {
     const period = document.getElementById('forge-period')?.value || '3M';
     
     try {
-        // D'abord convertir Pine â†’ Python si pas déjÃ  fait
+        // D'abord convertir Pine â†’ Python si pas déjà fait
         if (!forgeState.pythonCode) {
             const convertRes = await fetch(`${API_BASE}/api/forge/convert`, {
                 method: 'POST',
@@ -5114,7 +5114,7 @@ function forgeCloseAssetSelector() {
     }
 }
 
-// Mettre Ã  jour le dropdown des listes
+// Mettre à jour le dropdown des listes
 function forgeUpdateAssetListsDropdown() {
     const select = document.getElementById('asset-lists-select');
     if (!select) return;
@@ -5219,7 +5219,7 @@ function forgeDeselectAllAssets() {
     forgeUpdateAssetCounts();
 }
 
-// Mettre Ã  jour les compteurs
+// Mettre à jour les compteurs
 function forgeUpdateAssetCounts() {
     const count = tempSelectedAssets.size;
     const countEl = document.getElementById('assets-selected-count');
@@ -5268,7 +5268,7 @@ function forgeDeleteAssetList() {
     const select = document.getElementById('asset-lists-select');
     const listName = select?.value;
     if (!listName) {
-        showCenteredModal('Sélectionnez une liste Ã  supprimer', 'error');
+        showCenteredModal('Sélectionnez une liste à supprimer', 'error');
         return;
     }
     
@@ -5298,7 +5298,7 @@ function forgeApplyAssetSelection() {
     });
     forgeState.selectedAssets = assetsArray.join(',');
     
-    // Mettre Ã  jour le bouton avec affichage intelligent
+    // Mettre à jour le bouton avec affichage intelligent
     const count = tempSelectedAssets.size;
     const countBtn = document.getElementById('forge-assets-count');
     const btn = document.getElementById('forge-assets-btn');
@@ -5378,7 +5378,7 @@ function forgeRenderHistoryList() {
         }
     });
     
-    // Mettre Ã  jour le compteur
+    // Mettre à jour le compteur
     if (countEl) {
         countEl.textContent = `(${filtered.length}/${backtestHistory.length})`;
     }
@@ -5515,7 +5515,7 @@ function forgeLoadBestVersion() {
 
 function forgeExportHistory() {
     if (backtestHistory.length === 0) {
-        showCenteredModal('Aucun historique Ã  exporter', 'error');
+        showCenteredModal('Aucun historique à exporter', 'error');
         return;
     }
     
@@ -5883,7 +5883,7 @@ async function toggleLibraryFavorite(id, type) {
         const data = await response.json();
         
         if (data.success) {
-            // Mettre Ã  jour localement
+            // Mettre à jour localement
             const item = libraryData.items.find(i => i.id === id);
             if (item) {
                 item.is_favorite = data.is_favorite;
