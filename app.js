@@ -1077,6 +1077,7 @@ function renderForgeProjects() {
     const projects = forgeState.projects || [];
     
     return `
+        <div class="rounded-2xl p-6" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.08);">
         <div class="space-y-6">
             <!-- Header avec retour -->
             <div class="flex items-center justify-between">
@@ -1104,7 +1105,7 @@ function renderForgeProjects() {
                 <div class="space-y-3">
                     ${projects.map(project => `
                         <div class="group p-4 rounded-xl transition hover:scale-[1.01]"
-                            style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);">
+                            style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
                             <div class="flex items-center justify-between">
                                 <button onclick="forgeOpenProject('${project.id}')" class="flex items-center gap-4 flex-1 text-left">
                                     <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: rgba(217, 119, 6, 0.15);">
@@ -1154,11 +1155,12 @@ function renderForgeProjects() {
                 </div>
             `}
         </div>
+        </div>
         
         <!-- Modal nouveau projet -->
-        <div id="forge-new-project-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.8);">
-            <div class="max-w-md w-full mx-4 p-5 rounded-2xl" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
-                <h3 class="text-lg font-semibold text-white mb-4">Nouveau projet</h3>
+        <div id="forge-new-project-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7);">
+            <div class="max-w-md w-full mx-4 p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(30,27,75,0.98), rgba(15,23,42,0.98)); border: 1px solid rgba(255,255,255,0.08);">
+                <h3 class="text-xl font-bold text-white mb-4">Nouveau projet</h3>
                 <div class="space-y-4">
                     <div>
                         <label class="block text-white/60 text-sm mb-2">Nom du projet</label>
@@ -1203,15 +1205,15 @@ function renderForgeProjects() {
         </div>
         
         <!-- Modal suppression projet -->
-        <div id="forge-delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.8);">
-            <div class="max-w-sm w-full mx-4 p-5 rounded-2xl" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+        <div id="forge-delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.7);">
+            <div class="max-w-sm w-full mx-4 p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(30,27,75,0.98), rgba(15,23,42,0.98)); border: 1px solid rgba(255,255,255,0.08);">
                 <div class="text-center mb-6">
-                    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background: rgba(239, 68, 68, 0.2);">
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background: rgba(239, 68, 68, 0.15);">
                         <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                         </svg>
                     </div>
-                    <h3 class="text-lg font-semibold text-white mb-2">Supprimer le projet</h3>
+                    <h3 class="text-xl font-bold text-white mb-2">Supprimer le projet</h3>
                     <p class="text-white/60">
                         Voulez-vous supprimer <span id="forge-delete-project-name" class="text-white font-medium"></span> ?
                     </p>
