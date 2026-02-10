@@ -22,7 +22,14 @@ function checkPassword() {
 async function grantAccess() {
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app-container').classList.remove('hidden');
-    await loadLibraryData();
+    await Promise.all([
+        loadLibraryData(),
+        fetch(API_BASE + '/api/forge/projects?_t=' + Date.now(), {
+            cache: 'no-store', headers: { 'Cache-Control': 'no-cache' }
+        }).then(function(r) { return r.json(); })
+          .then(function(data) { if (data.success) forgeState.projects = data.projects; })
+          .catch(function() {})
+    ]);
     renderSection();
 }
 
@@ -1004,10 +1011,15 @@ function forgeSetAtelierMode(mode) {
         forgeState.createView = 'projects';
         forgeState.currentProjectId = null;
         forgeState.currentProject = null;
-        forgeLoadProjects();
-        return;
     }
     renderSection();
+    if (mode === 'create') {
+        fetch(API_BASE + '/api/forge/projects?_t=' + Date.now(), {
+            cache: 'no-store', headers: { 'Cache-Control': 'no-cache' }
+        }).then(function(r) { return r.json(); })
+          .then(function(data) { if (data.success) { forgeState.projects = data.projects; renderSection(); } })
+          .catch(function() {});
+    }
 }
 
 function forgeReset() {
