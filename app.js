@@ -999,15 +999,14 @@ function forgeSetType(type) {
 }
 
 function forgeSetAtelierMode(mode) {
-    console.log('[MODE] Changing from', forgeState.atelierMode, 'to', mode);
     forgeState.atelierMode = mode;
     if (mode === 'create' || mode === 'choice') {
         forgeState.createView = 'projects';
         forgeState.currentProjectId = null;
         forgeState.currentProject = null;
         forgeLoadProjects();
+        return;
     }
-    console.log('[MODE] State after change:', forgeState.atelierMode);
     renderSection();
 }
 
