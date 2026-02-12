@@ -214,97 +214,170 @@ function showGranulesModal(granules, strategyName) {
         'ÉTAT/MÉMOIRE': '#6366f1'
     };
 
-    const statusLabels = {
-        'nouvelle': { emoji: '✨', label: 'Nouvelle', color: '#10b981' },
-        'existante': { emoji: '♻️', label: 'Existante', color: '#6b7280' },
-        'amelioree': { emoji: '⬆️', label: 'Améliorée', color: '#f59e0b' },
-        'similaire': { emoji: '🔄', label: 'Similaire', color: '#3b82f6' }
+    const categoryDescriptions = {
+        'CALCUL': 'Opération mathématique de base : moyenne mobile, somme, delta, ratio. Brique fondamentale réutilisable dans de nombreux contextes.',
+        'COMPARAISON': 'Évalue une condition entre deux valeurs (supérieur, inférieur, croisement). Retourne vrai ou faux.',
+        'TEMPORELLES': 'Gère le temps : détection de nouveau jour, plage horaire, reset périodique, barres depuis un événement.',
+        'SEUIL': 'Définit une limite fixe ou dynamique (absolue, pourcentage, multiple) au-delà de laquelle une condition est activée.',
+        'LOGIQUES': 'Combine plusieurs conditions avec des opérateurs (AND, OR, NOT). Permet de construire des règles complexes.',
+        'DONNÉES': 'Accède aux données brutes du marché : prix OHLCV, volume, données multi-timeframe.',
+        'TRANSFORMATION': 'Convertit une valeur d\'un format à un autre : pourcentage en décimal, normalisation, arrondi.',
+        'AGRÉGATION': 'Regroupe plusieurs valeurs en une seule : somme cumulative, comptage, moyenne pondérée.',
+        'ÉTAT/MÉMOIRE': 'Conserve un état entre les barres : compteur, flag, valeur précédente, historique.'
     };
 
-    let html = `
-        <div class="fixed inset-0 bg-black/80 flex items-center justify-center z-50" id="granulesModal">
-            <div class="bg-gray-900 rounded-2xl p-6 max-w-4xl max-h-[90vh] overflow-y-auto" style="width: 90%; max-width: 1000px;">
-                <!-- Header -->
-                <div class="mb-6">
-                    <h3 class="text-2xl font-bold text-white mb-2">Granules Détectées</h3>
-                    <p class="text-white/70">${granules.length} granule(s) dans « ${strategyName} »</p>
-                </div>
+    const categoryIcons = {
+        'CALCUL': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>',
+        'COMPARAISON': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>',
+        'TEMPORELLES': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+        'SEUIL': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>',
+        'LOGIQUES': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>',
+        'DONNÉES': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>',
+        'TRANSFORMATION': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>',
+        'AGRÉGATION': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>',
+        'ÉTAT/MÉMOIRE': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z"/>'
+    };
 
-                <!-- Actions -->
-                <div class="flex justify-between items-center mb-4">
-                    <div class="flex gap-2">
-                        <button onclick="selectAllGranules()" class="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-lg text-sm hover:bg-purple-500/30 transition">
-                            Tout sélectionner
-                        </button>
-                        <button onclick="selectOnlyNew()" class="px-3 py-1 bg-green-500/20 text-green-400 rounded-lg text-sm hover:bg-green-500/30 transition">
-                            Nouvelles uniquement
+    const statusLabels = {
+        'nouvelle': { label: 'Nouvelle', color: '#10b981' },
+        'existante': { label: 'Existante', color: '#6b7280' },
+        'amelioree': { label: 'Améliorée', color: '#f59e0b' },
+        'similaire': { label: 'Similaire', color: '#3b82f6' }
+    };
+
+    // Compteur par catégorie
+    const categoryCounts = {};
+    granules.forEach(g => {
+        categoryCounts[g.category] = (categoryCounts[g.category] || 0) + 1;
+    });
+
+    let html = `
+        <div class="fixed inset-0 bg-black/80 flex items-center justify-center z-50" id="granulesModal" onclick="if(event.target===this)closeGranulesModal()">
+            <div class="bg-gray-900 rounded-2xl max-w-4xl max-h-[90vh] overflow-y-auto" style="width: 90%; max-width: 1000px; border: 1px solid rgba(255,255,255,0.1);">
+
+                <!-- Header sticky -->
+                <div class="sticky top-0 bg-gray-900/95 backdrop-blur-sm p-6 pb-4 z-10" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-white mb-1">Granules Détectées</h3>
+                            <p class="text-white/50 text-sm">${granules.length} granule(s) dans « ${strategyName} »</p>
+                        </div>
+                        <button onclick="closeGranulesModal()" class="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
                         </button>
                     </div>
-                    <span id="granule-selection-count" class="text-white/70 text-sm">0 sélectionnée(s)</span>
+
+                    <!-- Résumé catégories -->
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        ${Object.entries(categoryCounts).map(([cat, count]) => {
+                            const color = categoryColors[cat] || '#888';
+                            return `<span class="px-2 py-1 rounded-lg text-xs" style="background: ${color}15; color: ${color}; border: 1px solid ${color}30;">${cat} (${count})</span>`;
+                        }).join('')}
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex justify-between items-center">
+                        <div class="flex gap-2">
+                            <button onclick="selectAllGranules()" class="px-3 py-1.5 bg-purple-500/15 text-purple-400 rounded-lg text-xs hover:bg-purple-500/25 transition border border-purple-500/20">
+                                Tout sélectionner
+                            </button>
+                            <button onclick="selectOnlyNew()" class="px-3 py-1.5 bg-green-500/15 text-green-400 rounded-lg text-xs hover:bg-green-500/25 transition border border-green-500/20">
+                                Nouvelles uniquement
+                            </button>
+                        </div>
+                        <span id="granule-selection-count" class="text-white/50 text-sm">0 sélectionnée(s)</span>
+                    </div>
                 </div>
 
                 <!-- Grid Granules -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 p-6 pt-4">
     `;
 
     granules.forEach((granule, index) => {
         const catColor = categoryColors[granule.category] || '#888888';
+        const catIcon = categoryIcons[granule.category] || categoryIcons['CALCUL'];
+        const catDesc = categoryDescriptions[granule.category] || 'Granule atomique réutilisable.';
         const status = statusLabels[granule.status] || statusLabels['nouvelle'];
-        const scoreColor = granule.reusability_score >= 80 ? '#10b981' :
-                          granule.reusability_score >= 60 ? '#f59e0b' : '#ef4444';
+        const score = granule.reusability_score;
+        const scoreColor = score >= 90 ? '#22c55e' :
+                          score >= 75 ? '#4ade80' :
+                          score >= 60 ? '#fbbf24' :
+                          score >= 40 ? '#f97316' : '#ef4444';
 
-        // Auto-sélectionner nouvelles et améliorées
         const autoSelect = granule.status === 'nouvelle' || granule.status === 'amelioree';
 
         html += `
-            <div class="glass-container p-4 rounded-xl" data-granule-index="${index}">
-                <!-- Header -->
-                <div class="flex items-start gap-3 mb-3">
+            <div class="p-4 rounded-xl bg-white/5 hover:bg-white/8 transition group border border-transparent hover:border-white/10 relative" data-granule-index="${index}">
+
+                <!-- Score badge coin droit -->
+                <div class="absolute top-3 right-3 cursor-pointer" onclick="event.stopPropagation(); toggleGranuleScoreInfo(${index})">
+                    <span class="text-lg font-bold" style="color: ${scoreColor};">${score}</span>
+                </div>
+
+                <!-- Row 1: Checkbox + Icon + Name + Status -->
+                <div class="flex items-start gap-3 mb-3 pr-12">
                     <input type="checkbox"
-                           class="granule-checkbox mt-1 w-4 h-4 rounded"
+                           class="granule-checkbox mt-1 w-4 h-4 rounded accent-purple-500"
                            data-index="${index}"
                            ${autoSelect ? 'checked' : ''}
                            onchange="updateGranuleCount()">
-                    <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-1">
-                            <h4 class="text-white font-semibold">${granule.name}</h4>
-                            <span class="text-xs px-2 py-0.5 rounded"
-                                  style="background: ${status.color}20; color: ${status.color}; border: 1px solid ${status.color}40;">
-                                ${status.emoji} ${status.label}
+
+                    <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style="background: ${catColor}15;">
+                        <svg class="w-4 h-4" style="color: ${catColor};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            ${catIcon}
+                        </svg>
+                    </div>
+
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h4 class="text-white font-semibold text-sm truncate">${granule.name}</h4>
+                            <span class="text-xs px-1.5 py-0.5 rounded flex-shrink-0"
+                                  style="background: ${status.color}15; color: ${status.color}; border: 1px solid ${status.color}30;">
+                                ${status.label}
                             </span>
                         </div>
-                        <span class="inline-block px-2 py-1 rounded text-xs font-medium"
-                              style="background: ${catColor}20; color: ${catColor}; border: 1px solid ${catColor}40;">
-                            ${granule.category}
-                        </span>
                     </div>
                 </div>
 
-                <!-- Score -->
-                <div class="mb-3">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-white/50 text-xs">Réutilisabilité</span>
-                        <span class="text-white font-semibold text-sm">${granule.reusability_score}/100</span>
-                    </div>
-                    <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                        <div class="h-full transition-all"
-                             style="width: ${granule.reusability_score}%; background: ${scoreColor};"></div>
-                    </div>
-                    ${granule.existing_score !== undefined ? `
-                        <div class="text-xs text-white/50 mt-1">
-                            Bibliothèque: ${granule.existing_score}/100
+                <!-- Row 2: Category badge + Info button -->
+                <div class="flex items-center gap-2 mb-3 ml-10">
+                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium"
+                          style="background: ${catColor}15; color: ${catColor}; border: 1px solid ${catColor}30;">
+                        ${granule.category}
+                    </span>
+
+                    <!-- Info tooltip -->
+                    <div class="relative">
+                        <button onclick="event.stopPropagation(); toggleGranuleCatInfo(${index})"
+                            class="w-5 h-5 rounded-full flex items-center justify-center transition"
+                            style="background: ${catColor}15; color: ${catColor};">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </button>
+                        <div id="granule-cat-info-${index}" class="hidden absolute left-0 top-7 w-64 p-3 rounded-xl shadow-2xl z-50 text-xs"
+                             style="background: rgba(15,15,26,0.95); backdrop-filter: blur(10px); border: 1px solid ${catColor}30;">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg class="w-3.5 h-3.5 flex-shrink-0" style="color: ${catColor};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    ${catIcon}
+                                </svg>
+                                <span class="font-semibold" style="color: ${catColor};">${granule.category}</span>
+                            </div>
+                            <p class="text-white/70 leading-relaxed">${catDesc}</p>
                         </div>
-                    ` : ''}
+                    </div>
                 </div>
 
-                <!-- Description -->
-                <p class="text-white/70 text-xs mb-2">${granule.description}</p>
+                <!-- Row 4: Description -->
+                <p class="text-white/60 text-xs mb-2 ml-10">${granule.description}</p>
 
-                <!-- Code Preview -->
-                <details class="text-xs">
-                    <summary class="text-purple-400 cursor-pointer hover:text-purple-300">Voir code</summary>
-                    <div class="mt-2 bg-black/30 p-2 rounded">
-                        <pre class="text-green-400 text-xs overflow-x-auto">${granule.code_pine || 'N/A'}</pre>
+                <!-- Row 5: Code Preview -->
+                <details class="text-xs ml-10">
+                    <summary class="text-purple-400 cursor-pointer hover:text-purple-300 transition">Voir code</summary>
+                    <div class="mt-2 bg-black/30 p-2 rounded-lg">
+                        <pre class="text-green-400 text-xs overflow-x-auto whitespace-pre-wrap">${granule.code_pine || 'N/A'}</pre>
                     </div>
                 </details>
             </div>
@@ -314,14 +387,14 @@ function showGranulesModal(granules, strategyName) {
     html += `
                 </div>
 
-                <!-- Footer Actions -->
-                <div class="flex justify-end gap-3">
+                <!-- Footer sticky -->
+                <div class="sticky bottom-0 bg-gray-900/95 backdrop-blur-sm p-6 pt-4 flex justify-end gap-3" style="border-top: 1px solid rgba(255,255,255,0.05);">
                     <button onclick="closeGranulesModal()"
-                            class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition">
+                            class="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white/70 rounded-xl transition border border-white/10">
                         Annuler
                     </button>
                     <button onclick="saveSelectedGranulesToLibrary()"
-                            class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition font-medium">
+                            class="px-5 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-xl transition font-medium">
                         Sauvegarder dans Bibliothèque
                     </button>
                 </div>
@@ -341,6 +414,7 @@ function showGranulesModal(granules, strategyName) {
     // Compter sélection initiale
     updateGranuleCount();
 }
+
 
 function selectAllGranules() {
     document.querySelectorAll('.granule-checkbox').forEach(cb => cb.checked = true);
@@ -362,6 +436,127 @@ function updateGranuleCount() {
     const counter = document.getElementById('granule-selection-count');
     if (counter) counter.textContent = `${count} sélectionnée(s)`;
 }
+
+function toggleGranuleCatInfo(index) {
+    const popup = document.getElementById(`granule-cat-info-${index}`);
+    if (!popup) return;
+    
+    // Fermer tous les autres popups
+    document.querySelectorAll('[id^="granule-cat-info-"]').forEach(el => {
+        if (el.id !== `granule-cat-info-${index}`) el.classList.add('hidden');
+    });
+    
+    popup.classList.toggle('hidden');
+    
+    // Fermer au clic extérieur
+    if (!popup.classList.contains('hidden')) {
+        setTimeout(() => {
+            const closeHandler = (e) => {
+                if (!popup.contains(e.target) && !e.target.closest('button')) {
+                    popup.classList.add('hidden');
+                    document.removeEventListener('click', closeHandler);
+                }
+            };
+            document.addEventListener('click', closeHandler);
+        }, 10);
+    }
+}
+
+function toggleGranuleScoreInfo(index) {
+    const granule = window.detectedGranules[index];
+    if (!granule) return;
+
+    // Fermer un popup existant
+    const existing = document.getElementById('granule-score-popup');
+    if (existing) { existing.remove(); return; }
+
+    const score = granule.reusability_score;
+    const scoreColor = score >= 90 ? '#22c55e' :
+                      score >= 75 ? '#4ade80' :
+                      score >= 60 ? '#fbbf24' :
+                      score >= 40 ? '#f97316' : '#ef4444';
+
+    const gradeLabel = score >= 90 ? 'Excellent' :
+                      score >= 75 ? 'Très bon' :
+                      score >= 60 ? 'Bon' :
+                      score >= 40 ? 'Moyen' : 'Faible';
+
+    // Critères de scoring avec évaluation
+    const criteria = [
+        {
+            name: 'Atomicité',
+            desc: 'La granule est-elle indivisible ? Plus elle est simple et ciblée, plus elle est réutilisable.',
+            good: score >= 80
+        },
+        {
+            name: 'Universalité',
+            desc: 'Peut-elle être utilisée dans différents contextes (stratégies, filtres, timeframes) ?',
+            good: score >= 70
+        },
+        {
+            name: 'Indépendance',
+            desc: 'Fonctionne-t-elle sans dépendance à d\'autres composants spécifiques ?',
+            good: score >= 75
+        },
+        {
+            name: 'Pattern standard',
+            desc: 'Correspond-elle à un pattern de trading reconnu (SMA, RSI, comparaison, seuil) ?',
+            good: score >= 85
+        }
+    ];
+
+    const popup = document.createElement('div');
+    popup.id = 'granule-score-popup';
+    popup.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:100;';
+
+    popup.innerHTML = `
+        <div style="background:rgba(15,15,26,0.98);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:1.5rem;max-width:380px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                    <span style="font-size:2rem;font-weight:800;color:${scoreColor};">${score}</span>
+                    <div>
+                        <div style="color:white;font-size:13px;font-weight:600;">${gradeLabel}</div>
+                        <div style="color:rgba(255,255,255,0.4);font-size:11px;">Score de réutilisabilité</div>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('granule-score-popup').remove()"
+                    style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.05);border:none;color:rgba(255,255,255,0.5);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;">
+                    x
+                </button>
+            </div>
+
+            <div style="color:rgba(255,255,255,0.5);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">
+                Critères d'évaluation
+            </div>
+
+            ${criteria.map(c => `
+                <div style="display:flex;align-items:start;gap:0.5rem;padding:0.5rem 0;border-top:1px solid rgba(255,255,255,0.05);">
+                    <span style="color:${c.good ? '#22c55e' : '#f97316'};font-size:12px;margin-top:1px;">${c.good ? '●' : '○'}</span>
+                    <div>
+                        <div style="color:white;font-size:12px;font-weight:500;">${c.name}</div>
+                        <div style="color:rgba(255,255,255,0.4);font-size:11px;line-height:1.4;">${c.desc}</div>
+                    </div>
+                </div>
+            `).join('')}
+
+            <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid rgba(255,255,255,0.05);">
+                <div style="color:rgba(255,255,255,0.5);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.25rem;">
+                    Granule
+                </div>
+                <div style="color:white;font-size:12px;font-weight:500;">${granule.name}</div>
+                <div style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:2px;">${granule.description}</div>
+            </div>
+        </div>
+    `;
+
+    popup.addEventListener('click', (e) => {
+        if (e.target === popup) popup.remove();
+    });
+
+    document.body.appendChild(popup);
+}
+
 
 function closeGranulesModal() {
     const modal = document.getElementById('granulesModal');
@@ -2165,14 +2360,6 @@ async function forgeSendMessage() {
                     pine: data.pine_code,
                     python: data.python_code
                 };
-
-                // Analyse granulaire automatique
-                if (data.pine_code) {
-                    setTimeout(() => {
-                        console.log('[FORGE CHAT] Déclenchement analyse granulaire...');
-                        analyzeAndShowGranules(data.pine_code, 'pine', forgeState.currentProject?.name || 'Stratégie');
-                    }, 500);
-                }
             }
             
             // Recharger les messages (remplace les temporaires)
