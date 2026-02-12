@@ -532,7 +532,7 @@ function toggleGranuleScoreInfo(index) {
 
             ${criteria.map(c => `
                 <div style="display:flex;align-items:start;gap:0.5rem;padding:0.5rem 0;border-top:1px solid rgba(255,255,255,0.05);">
-                    <span style="color:${c.good ? '#22c55e' : '#f97316'};font-size:12px;margin-top:1px;">${c.good ? '●' : '○'}</span>
+                    <span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-top:3px;background:${c.good ? '#22c55e' : 'rgba(255,255,255,0.15)'};flex-shrink:0;"></span>
                     <div>
                         <div style="color:white;font-size:12px;font-weight:500;">${c.name}</div>
                         <div style="color:rgba(255,255,255,0.4);font-size:11px;line-height:1.4;">${c.desc}</div>
