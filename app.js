@@ -4948,18 +4948,21 @@ async function forgeGenerate() {
     renderSection();
     
     try {
+        console.log('[FORGE] 🔵 Requête envoyée vers API');
         const response = await fetch(`${API_BASE}/api/forge/generate`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                description: description,
-                type: forgeState.strategyType
-            })
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({description, conversation_history: forgeState.conversationHistory})
         });
-        
-        const data = await response.json();
 
-        console.log('[FORGE] ⚠️ RÉPONSE API REÇUE:', {success: data.success, hasPineCode: !!data.pine_code, hasError: !!data.error});
+        console.log('[FORGE] 🔵 Réponse reçue, status:', response.status, response.ok);
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('[FORGE] ⚠️ RÉPONSE API PARSÉE:', {success: data.success, hasPineCode: !!data.pine_code, hasError: !!data.error});
 
         if (data.success && data.pine_code) {
             console.log('[FORGE] Génération réussie, code Pine présent');
