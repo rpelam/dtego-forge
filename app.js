@@ -111,7 +111,7 @@ async function analyzeAndShowGranules(code, codeType, strategyName) {
 
     try {
         // 1. Extraction granules
-        const response = await fetch(`${API_URL}/api/forge/extract-granules`, {
+        const response = await fetch(`${API_BASE}/api/forge/extract-granules`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -147,7 +147,7 @@ async function analyzeAndShowGranules(code, codeType, strategyName) {
 async function compareGranulesWithLibrary(detectedGranules) {
     try {
         // Récupérer toutes les granules de la bibliothèque
-        const response = await fetch(`${API_URL}/api/forge/granules?per_page=1000`);
+        const response = await fetch(`${API_BASE}/api/forge/granules?per_page=1000`);
         const data = await response.json();
 
         if (!data.success) {
@@ -382,7 +382,7 @@ async function saveSelectedGranulesToLibrary() {
     });
 
     try {
-        const response = await fetch(`${API_URL}/api/forge/granules/save`, {
+        const response = await fetch(`${API_BASE}/api/forge/granules/save`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ granules: granulesData })
@@ -4960,12 +4960,15 @@ async function forgeGenerate() {
         const data = await response.json();
         
         if (data.success && data.pine_code) {
+            console.log('[FORGE] Génération réussie, code Pine présent');
             forgeState.pineCode = data.pine_code;
             forgeState.pythonCode = data.python_code || '';
             showCenteredModal('Code généré avec succès', 'success');
 
             // Analyse granulaire automatique
+            console.log('[FORGE] Déclenchement analyse granulaire dans 500ms...');
             setTimeout(() => {
+                console.log('[FORGE] Appel analyzeAndShowGranules()');
                 analyzeAndShowGranules(
                     forgeState.pineCode,
                     'pine',
@@ -4973,6 +4976,7 @@ async function forgeGenerate() {
                 );
             }, 500);
         } else {
+            console.log('[FORGE] Condition échouée - data.success:', data.success, 'data.pine_code:', !!data.pine_code);
             showCenteredModal(data.error || 'Erreur de génération', 'error');
         }
     } catch (e) {
