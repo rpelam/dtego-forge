@@ -4948,11 +4948,11 @@ async function forgeGenerate() {
     renderSection();
     
     try {
-        console.log('[FORGE] 🔵 Requête envoyée vers API');
+        console.log('[FORGE] 🔵 Requête envoyée vers API avec project_id:', forgeState.currentProjectId);
         const response = await fetch(`${API_BASE}/api/forge/generate`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({description, conversation_history: forgeState.conversationHistory})
+            body: JSON.stringify({project_id: forgeState.currentProjectId})
         });
 
         console.log('[FORGE] 🔵 Réponse reçue, status:', response.status, response.ok);
