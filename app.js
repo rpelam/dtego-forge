@@ -80,6 +80,331 @@ function showCenteredModal(message, type = 'info') {
     document.body.appendChild(overlay);
 }
 
+function showToast(message, type = 'info') {
+    const colors = {
+        success: '#10b981',
+        error: '#ef4444',
+        info: '#3b82f6'
+    };
+
+    const toast = document.createElement('div');
+    toast.className = 'fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity';
+    toast.style.cssText = `background: ${colors[type]}; color: white;`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// ========================================
+// ANALYSE GRANULAIRE
+// ========================================
+
+/**
+ * Analyse le code généré et affiche modal granules
+ */
+async function analyzeAndShowGranules(code, codeType, strategyName) {
+    console.log('[GRANULES] Début analyse pour:', strategyName);
+
+    try {
+        // 1. Extraction granules
+        const response = await fetch(`${API_URL}/api/forge/extract-granules`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                code: code,
+                code_type: codeType,
+                save_new: false
+            })
+        });
+
+        const data = await response.json();
+
+        if (!data.success || !data.granules || data.granules.length === 0) {
+            console.log('[GRANULES] Aucune granule détectée');
+            return;
+        }
+
+        console.log(`[GRANULES] ${data.granules.length} granule(s) détectée(s)`);
+
+        // 2. Comparaison avec bibliothèque existante
+        const comparison = await compareGranulesWithLibrary(data.granules);
+
+        // 3. Afficher modal
+        showGranulesModal(comparison, strategyName);
+
+    } catch (error) {
+        console.error('[GRANULES] Erreur analyse:', error);
+    }
+}
+
+/**
+ * Compare granules détectées avec bibliothèque
+ */
+async function compareGranulesWithLibrary(detectedGranules) {
+    try {
+        // Récupérer toutes les granules de la bibliothèque
+        const response = await fetch(`${API_URL}/api/forge/granules?per_page=1000`);
+        const data = await response.json();
+
+        if (!data.success) {
+            return detectedGranules.map(g => ({ ...g, status: 'nouvelle' }));
+        }
+
+        const libraryGranules = data.granules || [];
+
+        // Comparer chaque granule détectée
+        return detectedGranules.map(detected => {
+            // Chercher granule identique ou similaire
+            const existing = libraryGranules.find(lib =>
+                lib.name.toLowerCase() === detected.name.toLowerCase() &&
+                lib.category === detected.category
+            );
+
+            if (!existing) {
+                return { ...detected, status: 'nouvelle' };
+            }
+
+            // Comparer scores
+            if (detected.reusability_score > existing.reusability_score + 5) {
+                return {
+                    ...detected,
+                    status: 'amelioree',
+                    existing_id: existing.id,
+                    existing_score: existing.reusability_score
+                };
+            } else if (Math.abs(detected.reusability_score - existing.reusability_score) <= 5) {
+                return {
+                    ...detected,
+                    status: 'existante',
+                    existing_id: existing.id
+                };
+            } else {
+                return {
+                    ...detected,
+                    status: 'similaire',
+                    existing_id: existing.id,
+                    existing_score: existing.reusability_score
+                };
+            }
+        });
+
+    } catch (error) {
+        console.error('[GRANULES] Erreur comparaison:', error);
+        return detectedGranules.map(g => ({ ...g, status: 'nouvelle' }));
+    }
+}
+
+/**
+ * Affiche modal avec granules détectées
+ */
+function showGranulesModal(granules, strategyName) {
+    const categoryColors = {
+        'CALCUL': '#3b82f6',
+        'COMPARAISON': '#8b5cf6',
+        'TEMPORELLES': '#06b6d4',
+        'SEUIL': '#f59e0b',
+        'LOGIQUES': '#a78bfa',
+        'DONNÉES': '#10b981',
+        'TRANSFORMATION': '#ec4899',
+        'AGRÉGATION': '#f97316',
+        'ÉTAT/MÉMOIRE': '#6366f1'
+    };
+
+    const statusLabels = {
+        'nouvelle': { emoji: '✨', label: 'Nouvelle', color: '#10b981' },
+        'existante': { emoji: '♻️', label: 'Existante', color: '#6b7280' },
+        'amelioree': { emoji: '⬆️', label: 'Améliorée', color: '#f59e0b' },
+        'similaire': { emoji: '🔄', label: 'Similaire', color: '#3b82f6' }
+    };
+
+    let html = `
+        <div class="fixed inset-0 bg-black/80 flex items-center justify-center z-50" id="granulesModal">
+            <div class="bg-gray-900 rounded-2xl p-6 max-w-4xl max-h-[90vh] overflow-y-auto" style="width: 90%; max-width: 1000px;">
+                <!-- Header -->
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold text-white mb-2">Granules Détectées</h3>
+                    <p class="text-white/70">${granules.length} granule(s) dans « ${strategyName} »</p>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex gap-2">
+                        <button onclick="selectAllGranules()" class="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-lg text-sm hover:bg-purple-500/30 transition">
+                            Tout sélectionner
+                        </button>
+                        <button onclick="selectOnlyNew()" class="px-3 py-1 bg-green-500/20 text-green-400 rounded-lg text-sm hover:bg-green-500/30 transition">
+                            Nouvelles uniquement
+                        </button>
+                    </div>
+                    <span id="granule-selection-count" class="text-white/70 text-sm">0 sélectionnée(s)</span>
+                </div>
+
+                <!-- Grid Granules -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    `;
+
+    granules.forEach((granule, index) => {
+        const catColor = categoryColors[granule.category] || '#888888';
+        const status = statusLabels[granule.status] || statusLabels['nouvelle'];
+        const scoreColor = granule.reusability_score >= 80 ? '#10b981' :
+                          granule.reusability_score >= 60 ? '#f59e0b' : '#ef4444';
+
+        // Auto-sélectionner nouvelles et améliorées
+        const autoSelect = granule.status === 'nouvelle' || granule.status === 'amelioree';
+
+        html += `
+            <div class="glass-container p-4 rounded-xl" data-granule-index="${index}">
+                <!-- Header -->
+                <div class="flex items-start gap-3 mb-3">
+                    <input type="checkbox"
+                           class="granule-checkbox mt-1 w-4 h-4 rounded"
+                           data-index="${index}"
+                           ${autoSelect ? 'checked' : ''}
+                           onchange="updateGranuleCount()">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <h4 class="text-white font-semibold">${granule.name}</h4>
+                            <span class="text-xs px-2 py-0.5 rounded"
+                                  style="background: ${status.color}20; color: ${status.color}; border: 1px solid ${status.color}40;">
+                                ${status.emoji} ${status.label}
+                            </span>
+                        </div>
+                        <span class="inline-block px-2 py-1 rounded text-xs font-medium"
+                              style="background: ${catColor}20; color: ${catColor}; border: 1px solid ${catColor}40;">
+                            ${granule.category}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Score -->
+                <div class="mb-3">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-white/50 text-xs">Réutilisabilité</span>
+                        <span class="text-white font-semibold text-sm">${granule.reusability_score}/100</span>
+                    </div>
+                    <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full transition-all"
+                             style="width: ${granule.reusability_score}%; background: ${scoreColor};"></div>
+                    </div>
+                    ${granule.existing_score !== undefined ? `
+                        <div class="text-xs text-white/50 mt-1">
+                            Bibliothèque: ${granule.existing_score}/100
+                        </div>
+                    ` : ''}
+                </div>
+
+                <!-- Description -->
+                <p class="text-white/70 text-xs mb-2">${granule.description}</p>
+
+                <!-- Code Preview -->
+                <details class="text-xs">
+                    <summary class="text-purple-400 cursor-pointer hover:text-purple-300">Voir code</summary>
+                    <div class="mt-2 bg-black/30 p-2 rounded">
+                        <pre class="text-green-400 text-xs overflow-x-auto">${granule.code_pine || 'N/A'}</pre>
+                    </div>
+                </details>
+            </div>
+        `;
+    });
+
+    html += `
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="flex justify-end gap-3">
+                    <button onclick="closeGranulesModal()"
+                            class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition">
+                        Annuler
+                    </button>
+                    <button onclick="saveSelectedGranulesToLibrary()"
+                            class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition font-medium">
+                        Sauvegarder dans Bibliothèque
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Injecter modal
+    const existingModal = document.getElementById('granulesModal');
+    if (existingModal) existingModal.remove();
+
+    document.body.insertAdjacentHTML('beforeend', html);
+
+    // Stocker granules pour sauvegarde
+    window.detectedGranules = granules;
+
+    // Compter sélection initiale
+    updateGranuleCount();
+}
+
+function selectAllGranules() {
+    document.querySelectorAll('.granule-checkbox').forEach(cb => cb.checked = true);
+    updateGranuleCount();
+}
+
+function selectOnlyNew() {
+    window.detectedGranules.forEach((granule, index) => {
+        const checkbox = document.querySelector(`.granule-checkbox[data-index="${index}"]`);
+        if (checkbox) {
+            checkbox.checked = granule.status === 'nouvelle' || granule.status === 'amelioree';
+        }
+    });
+    updateGranuleCount();
+}
+
+function updateGranuleCount() {
+    const count = document.querySelectorAll('.granule-checkbox:checked').length;
+    const counter = document.getElementById('granule-selection-count');
+    if (counter) counter.textContent = `${count} sélectionnée(s)`;
+}
+
+function closeGranulesModal() {
+    const modal = document.getElementById('granulesModal');
+    if (modal) modal.remove();
+}
+
+async function saveSelectedGranulesToLibrary() {
+    const checkboxes = document.querySelectorAll('.granule-checkbox:checked');
+
+    if (checkboxes.length === 0) {
+        showToast('Sélectionnez au moins une granule', 'error');
+        return;
+    }
+
+    const granulesData = Array.from(checkboxes).map(cb => {
+        const index = parseInt(cb.dataset.index);
+        return window.detectedGranules[index];
+    });
+
+    try {
+        const response = await fetch(`${API_URL}/api/forge/granules/save`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ granules: granulesData })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showToast(`${data.summary.saved} granule(s) sauvegardée(s)`, 'success');
+            if (data.summary.skipped > 0) {
+                showToast(`${data.summary.skipped} déjà existante(s)`, 'info');
+            }
+            closeGranulesModal();
+        } else {
+            showToast(data.error || 'Erreur sauvegarde', 'error');
+        }
+    } catch (error) {
+        console.error('[GRANULES] Erreur sauvegarde:', error);
+        showToast('Erreur connexion API', 'error');
+    }
+}
+
 function showConfirmModal(message, onConfirm, onCancel = () => {}) {
     const existing = document.getElementById('confirm-modal-overlay');
     if (existing) existing.remove();
@@ -4420,6 +4745,15 @@ async function forgeConvertToPython() {
             forgeState.inputMode = 'python';
             renderSection();
             showCenteredModal(`Conversion IA réussie (${data.conversion_method})`, 'success');
+
+            // Analyse granulaire automatique
+            setTimeout(() => {
+                analyzeAndShowGranules(
+                    forgeState.pineCode,
+                    'pine',
+                    forgeState.projectName || 'Code converti'
+                );
+            }, 500);
         } else {
             throw new Error(data.error || 'Erreur de conversion');
         }
@@ -4629,6 +4963,15 @@ async function forgeGenerate() {
             forgeState.pineCode = data.pine_code;
             forgeState.pythonCode = data.python_code || '';
             showCenteredModal('Code généré avec succès', 'success');
+
+            // Analyse granulaire automatique
+            setTimeout(() => {
+                analyzeAndShowGranules(
+                    forgeState.pineCode,
+                    'pine',
+                    forgeState.projectName || 'Stratégie'
+                );
+            }, 500);
         } else {
             showCenteredModal(data.error || 'Erreur de génération', 'error');
         }
