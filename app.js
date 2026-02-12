@@ -2360,6 +2360,13 @@ async function forgeSendMessage() {
                     pine: data.pine_code,
                     python: data.python_code
                 };
+                
+                // Lancer analyse granulaire en arrière-plan
+                if (data.pine_code) {
+                    const projectName = forgeState.currentProject?.name || 'Stratégie';
+                    console.log('[FORGE CHAT] Lancement analyse granulaire pour:', projectName);
+                    analyzeAndShowGranules(data.pine_code, 'pine', projectName);
+                }
             }
             
             // Recharger les messages (remplace les temporaires)
