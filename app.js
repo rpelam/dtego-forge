@@ -4958,7 +4958,9 @@ async function forgeGenerate() {
         });
         
         const data = await response.json();
-        
+
+        console.log('[FORGE] ⚠️ RÉPONSE API REÇUE:', {success: data.success, hasPineCode: !!data.pine_code, hasError: !!data.error});
+
         if (data.success && data.pine_code) {
             console.log('[FORGE] Génération réussie, code Pine présent');
             forgeState.pineCode = data.pine_code;
