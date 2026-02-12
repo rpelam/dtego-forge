@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Analyse Granulaire - Dtego Trading</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+        }
+        .glass-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+        .library-card {
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .library-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body class="text-white p-8">
+    <div class="max-w-7xl mx-auto glass-container p-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h1 class="text-2xl font-bold mb-1" style="color: #d97706;">Analyse Granulaire</h1>
+                    <p class="text-white/40 text-sm">Décomposez votre code en granules atomiques réutilisables</p>
+                </div>
+                <div class="flex gap-3">
+                    <a href="index.html#atelier" class="px-4 py-2 rounded-lg text-white text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-lg" style="background: linear-gradient(135deg, #0891b2, #06b6d4); text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                        Atelier
+                    </a>
+                    <a href="index.html#forge" class="px-4 py-2 rounded-lg text-white text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-lg" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa); text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                        Forge
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 1: Analyse -->
+        <div class="glass-container p-6 mb-8">
+            <h3 class="text-xl font-bold text-white mb-4">Analyser Code</h3>
+
+            <!-- Input Code -->
+            <div class="mb-4">
+                <textarea
+                    id="granules-code-input"
+                    class="w-full px-4 py-3 rounded-xl text-sm font-mono resize-y"
+                    style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #e0e0e0; min-height: 240px;"
+                    placeholder="Collez votre code Pine Script ou Python...&#10;&#10;Exemple Pine Script:&#10;volMA = ta.sma(volume, 20)&#10;passVol = volume > volMA * 1.5"
+                    rows="10"
+                ></textarea>
+            </div>
+
+            <!-- Type de code + Bouton -->
+            <div class="flex items-center gap-3">
+                <select
+                    id="granules-code-type"
+                    class="px-4 py-2 rounded-lg text-sm font-medium"
+                    style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;">
+                    <option value="pine">Pine Script</option>
+                    <option value="python">Python</option>
+                </select>
+
+                <button
+                    id="analyze-granules-btn"
+                    class="px-6 py-2 rounded-lg text-white text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    style="background: linear-gradient(135deg, #d97706, #f59e0b); text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                    Analyser
+                </button>
+            </div>
+
+            <!-- Loader -->
+            <div id="granules-loader" class="hidden mt-6 text-center">
+                <svg class="animate-spin h-8 w-8 mx-auto text-amber-500" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="text-white/60 text-sm mt-3">Analyse en cours...</p>
+            </div>
+
+            <!-- Results -->
+            <div id="granules-results" class="hidden mt-6">
+                <!-- Rempli dynamiquement par JS -->
+            </div>
+        </div>
+
+        <!-- SECTION 2: Bibliothèque Granules -->
+        <div class="glass-container p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-white">Bibliothèque Granules</h3>
+                <button id="refresh-library-btn" class="px-4 py-2 rounded-lg text-white text-sm font-medium transition hover:-translate-y-0.5" style="background: #8b5cf6;">
+                    Actualiser
+                </button>
+            </div>
+
+            <!-- Filtres -->
+            <div class="flex items-center gap-3 mb-6">
+                <!-- Filtre Catégorie -->
+                <select
+                    id="filter-category"
+                    class="px-4 py-2 rounded-lg text-sm font-medium"
+                    style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;">
+                    <option value="">Toutes catégories</option>
+                    <option value="CALCUL">CALCUL</option>
+                    <option value="COMPARAISON">COMPARAISON</option>
+                    <option value="TEMPORELLES">TEMPORELLES</option>
+                    <option value="SEUIL">SEUIL</option>
+                    <option value="LOGIQUES">LOGIQUES</option>
+                    <option value="DONNÉES">DONNÉES</option>
+                    <option value="TRANSFORMATION">TRANSFORMATION</option>
+                    <option value="AGRÉGATION">AGRÉGATION</option>
+                    <option value="ÉTAT/MÉMOIRE">ÉTAT/MÉMOIRE</option>
+                </select>
+
+                <!-- Score minimum -->
+                <input
+                    type="number"
+                    id="filter-min-score"
+                    placeholder="Score min (0-100)"
+                    min="0"
+                    max="100"
+                    class="px-4 py-2 rounded-lg text-sm"
+                    style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; width: 180px;">
+
+                <!-- Recherche -->
+                <input
+                    type="text"
+                    id="filter-search"
+                    placeholder="Rechercher..."
+                    class="flex-1 px-4 py-2 rounded-lg text-sm"
+                    style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;">
+
+                <button id="apply-filters-btn" class="px-4 py-2 rounded-lg text-white text-sm font-medium transition" style="background: #8b5cf6;">
+                    Filtrer
+                </button>
+            </div>
+
+            <!-- Grid Granules -->
+            <div id="granules-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                <!-- Rempli dynamiquement par JS -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="granules-empty" class="hidden text-center py-12">
+                <div class="text-white/20 mb-4">
+                    <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                    </svg>
+                </div>
+                <p class="text-white/40">Aucune granule trouvée</p>
+                <p class="text-white/20 text-sm mt-2">Analysez du code pour créer des granules</p>
+            </div>
+
+            <!-- Pagination -->
+            <div id="granules-pagination" class="hidden flex items-center justify-center gap-2 pt-4 border-t border-white/10">
+                <button id="prev-page-btn" class="px-3 py-1 rounded text-sm text-white/60 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed" disabled>
+                    Précédent
+                </button>
+                <span id="page-info" class="text-sm text-white/60">Page 1 / 1</span>
+                <button id="next-page-btn" class="px-3 py-1 rounded text-sm text-white/60 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed" disabled>
+                    Suivant
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Détails Granule -->
+    <div id="granuleModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.7);">
+        <div class="glass-container p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="modal-granule-name" class="text-xl font-bold text-white"></h3>
+                <button onclick="closeGranuleModal()" class="text-white/40 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="modal-granule-content">
+                <!-- Rempli dynamiquement par JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // CONFIGURATION
+        // ========================================
+        const API_URL = 'https://api.dtego.net';
+        let allGranules = [];
+        let currentPage = 1;
+        const perPage = 12;
+
+        // Couleurs badges catégories
+        const categoryColors = {
+            'CALCUL': '#3b82f6',
+            'COMPARAISON': '#8b5cf6',
+            'TEMPORELLES': '#06b6d4',
+            'SEUIL': '#f59e0b',
+            'LOGIQUES': '#a78bfa',
+            'DONNÉES': '#10b981',
+            'TRANSFORMATION': '#ec4899',
+            'AGRÉGATION': '#f97316',
+            'ÉTAT/MÉMOIRE': '#6366f1'
+        };
+
+        // ========================================
+        // ANALYSE CODE
+        // ========================================
+        async function analyzeCode() {
+            const code = document.getElementById('granules-code-input').value.trim();
+            const codeType = document.getElementById('granules-code-type').value;
+
+            if (!code) {
+                showToast('Veuillez entrer du code à analyser', 'error');
+                return;
+            }
+
+            // Afficher loader
+            document.getElementById('analyze-granules-btn').disabled = true;
+            document.getElementById('granules-loader').classList.remove('hidden');
+            document.getElementById('granules-results').classList.add('hidden');
+
+            try {
+                const response = await fetch(`${API_URL}/api/forge/extract-granules`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        code: code,
+                        code_type: codeType,
+                        save_new: false
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.granules) {
+                    displayGranules(data.granules);
+                    showToast(`${data.granules.length} granule(s) détectée(s)`, 'success');
+                } else {
+                    showToast(data.error || 'Erreur analyse', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showToast('Erreur connexion API', 'error');
+            } finally {
+                document.getElementById('analyze-granules-btn').disabled = false;
+                document.getElementById('granules-loader').classList.add('hidden');
+            }
+        }
+
+        // ========================================
+        // AFFICHAGE GRANULES
+        // ========================================
+        function displayGranules(granules) {
+            const container = document.getElementById('granules-results');
+            container.classList.remove('hidden');
+
+            let html = `
+                <div class="granules-actions mb-4 flex justify-between items-center">
+                    <div class="flex gap-2">
+                        <button onclick="selectAllGranules()" class="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-lg text-sm hover:bg-purple-500/30 transition">
+                            Tout sélectionner
+                        </button>
+                        <button onclick="deselectAllGranules()" class="px-3 py-1 bg-gray-500/20 text-gray-400 rounded-lg text-sm hover:bg-gray-500/30 transition">
+                            Tout désélectionner
+                        </button>
+                    </div>
+                    <span id="selection-count" class="text-white/70 text-sm">0 sélectionnée(s)</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            `;
+
+            granules.forEach((granule, index) => {
+                const color = categoryColors[granule.category] || '#888888';
+                const scoreColor = granule.reusability_score >= 80 ? '#10b981' :
+                                  granule.reusability_score >= 60 ? '#f59e0b' : '#ef4444';
+
+                html += `
+                    <div class="granule-card glass-container p-4 rounded-xl"
+                         data-index="${index}"
+                         data-name="${granule.name}"
+                         data-category="${granule.category}"
+                         data-score="${granule.reusability_score}">
+
+                        <!-- Header -->
+                        <div class="flex items-start gap-3 mb-3">
+                            <input type="checkbox"
+                                   class="granule-select mt-1 w-4 h-4 rounded"
+                                   onchange="updateSelectionCount()">
+                            <div class="flex-1">
+                                <h4 class="text-white font-semibold mb-1">${granule.name}</h4>
+                                <span class="inline-block px-2 py-1 rounded text-xs font-medium"
+                                      style="background: ${color}20; color: ${color}; border: 1px solid ${color}40;">
+                                    ${granule.category}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Score -->
+                        <div class="mb-3">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-white/50 text-xs">Réutilisabilité</span>
+                                <span class="text-white font-semibold text-sm">${granule.reusability_score}/100</span>
+                            </div>
+                            <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                                <div class="h-full transition-all"
+                                     style="width: ${granule.reusability_score}%; background: ${scoreColor};"></div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <p class="text-white/70 text-sm mb-3">${granule.description}</p>
+
+                        <!-- Code Preview -->
+                        <details class="mb-3">
+                            <summary class="text-purple-400 text-sm cursor-pointer hover:text-purple-300">Voir code</summary>
+                            <div class="mt-2 space-y-2">
+                                <div class="bg-black/30 p-2 rounded text-xs">
+                                    <div class="text-white/50 mb-1">Pine Script:</div>
+                                    <pre class="text-green-400">${granule.code_pine || 'N/A'}</pre>
+                                </div>
+                                <div class="bg-black/30 p-2 rounded text-xs">
+                                    <div class="text-white/50 mb-1">Python:</div>
+                                    <pre class="text-blue-400">${granule.code_python || 'N/A'}</pre>
+                                </div>
+                            </div>
+                        </details>
+
+                        <!-- Parameters -->
+                        ${granule.parameters && granule.parameters.length > 0 ? `
+                            <div class="text-xs text-white/50">
+                                <strong>Paramètres:</strong>
+                                ${granule.parameters.map(p => p.name).join(', ')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            html += `
+                </div>
+                <button onclick="saveSelectedGranules()"
+                        class="w-full px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium transition">
+                    Sauvegarder Sélectionnées
+                </button>
+            `;
+
+            container.innerHTML = html;
+
+            // Stocker granules pour sauvegarde
+            window.currentGranules = granules;
+        }
+
+        // ========================================
+        // SÉLECTION
+        // ========================================
+        function selectAllGranules() {
+            document.querySelectorAll('.granule-select').forEach(cb => cb.checked = true);
+            updateSelectionCount();
+        }
+
+        function deselectAllGranules() {
+            document.querySelectorAll('.granule-select').forEach(cb => cb.checked = false);
+            updateSelectionCount();
+        }
+
+        function updateSelectionCount() {
+            const count = document.querySelectorAll('.granule-select:checked').length;
+            const counter = document.getElementById('selection-count');
+            if (counter) {
+                counter.textContent = `${count} sélectionnée(s)`;
+            }
+        }
+
+        // ========================================
+        // SAUVEGARDE
+        // ========================================
+        async function saveSelectedGranules() {
+            const selected = document.querySelectorAll('.granule-select:checked');
+
+            if (selected.length === 0) {
+                showToast('Sélectionnez au moins une granule', 'error');
+                return;
+            }
+
+            const granules = Array.from(selected).map(cb => {
+                const index = parseInt(cb.closest('.granule-card').dataset.index);
+                return window.currentGranules[index];
+            });
+
+            try {
+                const response = await fetch(`${API_URL}/api/forge/granules/save`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ granules })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast(`${data.summary.saved} granule(s) sauvegardée(s)`, 'success');
+                    if (data.summary.skipped > 0) {
+                        showToast(`${data.summary.skipped} déjà existante(s)`, 'info');
+                    }
+                    // Recharger bibliothèque
+                    loadGranulesLibrary();
+                } else {
+                    showToast(data.error || 'Erreur sauvegarde', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showToast('Erreur connexion API', 'error');
+            }
+        }
+
+        // ========================================
+        // BIBLIOTHÈQUE
+        // ========================================
+        async function loadGranulesLibrary() {
+            const category = document.getElementById('filter-category')?.value || '';
+            const minScore = document.getElementById('filter-min-score')?.value || '';
+            const search = document.getElementById('filter-search')?.value || '';
+
+            const params = new URLSearchParams();
+            if (category) params.append('category', category);
+            if (minScore) params.append('min_score', minScore);
+            if (search) params.append('search', search);
+            params.append('page', currentPage);
+            params.append('per_page', perPage);
+
+            try {
+                const response = await fetch(`${API_URL}/api/forge/granules?${params}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    allGranules = data.granules;
+                    displayGranulesGrid(data.granules);
+                    updatePaginationInfo(data.total);
+                } else {
+                    showToast(data.error || 'Erreur chargement', 'error');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showToast('Erreur connexion API', 'error');
+            }
+        }
+
+        function displayGranulesGrid(granules) {
+            const grid = document.getElementById('granules-grid');
+
+            if (granules.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-white/50">
+                        Aucune granule trouvée
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            granules.forEach(granule => {
+                const color = categoryColors[granule.category] || '#888888';
+                const scoreColor = granule.reusability_score >= 80 ? '#10b981' :
+                                  granule.reusability_score >= 60 ? '#f59e0b' : '#ef4444';
+
+                html += `
+                    <div class="library-card p-4 rounded-xl cursor-pointer hover:scale-105 transition-transform"
+                         onclick="showGranuleDetails(${granule.id})">
+                        <h4 class="text-white font-semibold mb-2">${granule.name}</h4>
+                        <span class="inline-block px-2 py-1 rounded text-xs font-medium mb-2"
+                              style="background: ${color}20; color: ${color}; border: 1px solid ${color}40;">
+                            ${granule.category}
+                        </span>
+                        <div class="mb-2">
+                            <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                <div class="h-full" style="width: ${granule.reusability_score}%; background: ${scoreColor};"></div>
+                            </div>
+                        </div>
+                        <p class="text-white/50 text-xs">${granule.usage_count || 0} utilisation(s)</p>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+        }
+
+        function updatePaginationInfo(total) {
+            const totalPages = Math.ceil(total / perPage);
+            document.getElementById('page-info').textContent = `Page ${currentPage} / ${totalPages}`;
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = currentPage === totalPages;
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                loadGranulesLibrary();
+            }
+        }
+
+        function nextPage() {
+            currentPage++;
+            loadGranulesLibrary();
+        }
+
+        function applyFilters() {
+            currentPage = 1;
+            loadGranulesLibrary();
+        }
+
+        // ========================================
+        // MODAL DÉTAILS
+        // ========================================
+        function showGranuleDetails(id) {
+            const granule = allGranules.find(g => g.id === id);
+            if (!granule) return;
+
+            const modal = document.getElementById('granuleModal');
+            const color = categoryColors[granule.category] || '#888888';
+
+            modal.querySelector('.modal-content').innerHTML = `
+                <div class="mb-4">
+                    <h3 class="text-xl font-bold text-white mb-2">${granule.name}</h3>
+                    <span class="inline-block px-3 py-1 rounded text-sm font-medium"
+                          style="background: ${color}20; color: ${color}; border: 1px solid ${color}40;">
+                        ${granule.category}
+                    </span>
+                </div>
+
+                <div class="mb-4">
+                    <div class="text-white/50 text-sm mb-1">Score Réutilisabilité</div>
+                    <div class="text-2xl font-bold text-white">${granule.reusability_score}/100</div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="text-white/50 text-sm mb-2">Description</div>
+                    <p class="text-white">${granule.description}</p>
+                </div>
+
+                <div class="mb-4">
+                    <div class="text-white/50 text-sm mb-2">Code Pine Script</div>
+                    <pre class="bg-black/30 p-3 rounded text-green-400 text-sm overflow-x-auto">${granule.code_pine || 'N/A'}</pre>
+                </div>
+
+                <div class="mb-4">
+                    <div class="text-white/50 text-sm mb-2">Code Python</div>
+                    <pre class="bg-black/30 p-3 rounded text-blue-400 text-sm overflow-x-auto">${granule.code_python || 'N/A'}</pre>
+                </div>
+
+                ${granule.parameters && granule.parameters.length > 0 ? `
+                    <div class="mb-4">
+                        <div class="text-white/50 text-sm mb-2">Paramètres</div>
+                        <div class="space-y-1">
+                            ${granule.parameters.map(p => `
+                                <div class="text-white text-sm">
+                                    <strong>${p.name}:</strong>
+                                    ${p.min !== undefined ? `min=${p.min}` : ''}
+                                    ${p.max !== undefined ? `max=${p.max}` : ''}
+                                    ${p.default !== undefined ? `défaut=${p.default}` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+
+                <button onclick="closeModal('granuleModal')"
+                        class="w-full px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition">
+                    Fermer
+                </button>
+            `;
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // ========================================
+        // TOAST
+        // ========================================
+        function showToast(message, type = 'info') {
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 ${colors[type]} text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ========================================
+        // INIT
+        // ========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Charger bibliothèque au démarrage
+            loadGranulesLibrary();
+
+            // Event listeners
+            document.getElementById('analyze-granules-btn')?.addEventListener('click', analyzeCode);
+            document.getElementById('filter-category')?.addEventListener('change', applyFilters);
+            document.getElementById('filter-min-score')?.addEventListener('input', applyFilters);
+            document.getElementById('filter-search')?.addEventListener('input', applyFilters);
+            document.getElementById('prev-page')?.addEventListener('click', prevPage);
+            document.getElementById('next-page')?.addEventListener('click', nextPage);
+        });
+    </script>
+</body>
+</html>
