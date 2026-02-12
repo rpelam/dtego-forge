@@ -402,10 +402,6 @@ function renderAtelierConvert() {
                                 class="w-full px-3 py-2 rounded-lg text-sm text-amber-400 hover:bg-amber-500/10 transition text-center">
                                 Voir toute la bibliothèque
                             </button>
-                            <button onclick="window.location.href='granules.html';"
-                                class="w-full px-3 py-2 rounded-lg text-sm text-purple-400 hover:bg-purple-500/10 transition text-center">
-                                Analyse Granulaire
-                            </button>
                         </div>
                     </div>
                 </div>
