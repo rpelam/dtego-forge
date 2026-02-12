@@ -2014,44 +2014,68 @@ function renderForgeChatMessage(msg) {
         } catch(e) {}
         
         return `
-            <div data-message-role="assistant" class="p-4 rounded-xl" style="background: rgba(217, 119, 6, 0.1); border: 1px solid rgba(217, 119, 6, 0.2);">
-                <div class="flex items-center gap-2 mb-3">
-                    <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    <span class="text-amber-400 font-medium">${msg.content}</span>
-                </div>
-                ${metadata.pine_code ? `
-                    <div class="mt-3 space-y-3">
-                        <!-- Boutons code -->
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="forgeShowResultCode('pine', '${msg.id}')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition">
-                                Pine Script
-                            </button>
-                            <button onclick="forgeShowResultCode('python', '${msg.id}')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition">
-                                Python
-                            </button>
-                            <button onclick="forgeCopyResultCode('pine', '${msg.id}')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-white/10 text-white/70 hover:bg-white/15 transition">
-                                Copier Pine
-                            </button>
+            <div data-message-role="assistant" class="flex justify-start">
+                <div class="max-w-[85%] rounded-2xl rounded-bl-md overflow-hidden" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
+                    
+                    <!-- Header avec checkmark -->
+                    <div class="px-5 pt-4 pb-3" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+                        <div class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background: rgba(74, 222, 128, 0.15);">
+                                <svg class="w-3.5 h-3.5" style="color: #4ade80;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </div>
+                            <p class="text-white/90 text-sm leading-relaxed">${msg.content}</p>
                         </div>
-                        
-                        <!-- Zone code -->
-                        <div id="forge-result-code-${msg.id}" class="hidden">
-                            <pre class="p-3 rounded-lg text-xs overflow-x-auto" style="background: rgba(0,0,0,0.3); max-height: 300px;"><code class="text-white/80"></code></pre>
-                        </div>
-                        
-                        <!-- Bouton BACKTEST -->
-                        <button onclick="forgeStartBacktestFromChat('${msg.id}')"
-                            class="px-6 py-3 rounded-xl text-white font-medium transition flex items-center justify-center gap-2 hover:opacity-90"
-                            style="background: linear-gradient(135deg, #10b981, #14b8a6);">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                            </svg>
-                            Tester la stratégie
-                        </button>
                     </div>
-                ` : ''}
+                    
+                    ${metadata.pine_code ? `
+                        <!-- Actions -->
+                        <div class="px-5 py-3 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-2">
+                                <button onclick="forgeShowResultCode('pine', '${msg.id}')" 
+                                    class="px-3 py-1.5 rounded-lg text-xs font-medium transition"
+                                    style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.08);"
+                                    onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='#fff';"
+                                    onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='rgba(255,255,255,0.7)';">
+                                    Pine Script
+                                </button>
+                                <button onclick="forgeShowResultCode('python', '${msg.id}')" 
+                                    class="px-3 py-1.5 rounded-lg text-xs font-medium transition"
+                                    style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.08);"
+                                    onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='#fff';"
+                                    onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='rgba(255,255,255,0.7)';">
+                                    Python
+                                </button>
+                                <button onclick="forgeCopyResultCode('pine', '${msg.id}')" 
+                                    class="px-3 py-1.5 rounded-lg text-xs font-medium transition"
+                                    style="background: transparent; color: rgba(255,255,255,0.4);"
+                                    onmouseover="this.style.color='rgba(255,255,255,0.8)';"
+                                    onmouseout="this.style.color='rgba(255,255,255,0.4)';">
+                                    Copier Pine
+                                </button>
+                            </div>
+                            
+                            <button onclick="forgeStartBacktestFromChat('${msg.id}')"
+                                class="px-4 py-2 rounded-xl text-white text-xs font-semibold transition flex items-center gap-2"
+                                style="background: linear-gradient(135deg, #d97706, #f59e0b); box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);"
+                                onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 16px rgba(217,119,6,0.4)';"
+                                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(217,119,6,0.3)';">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                </svg>
+                                Tester
+                            </button>
+                        </div>
+                        
+                        <!-- Zone code (cachee par defaut) -->
+                        <div id="forge-result-code-${msg.id}" class="hidden">
+                            <div class="mx-4 mb-4 rounded-xl overflow-hidden" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06);">
+                                <pre class="p-4 text-xs overflow-x-auto" style="max-height: 300px;"><code class="text-white/80"></code></pre>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
             </div>
         `;
     }
