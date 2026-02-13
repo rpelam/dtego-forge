@@ -844,7 +844,7 @@ function forgeShowResult(pineCode, pythonCode, version) {
 
         <div class="fm-result-tabs">
             <div class="fm-tabs-row">
-                <button class="fm-tab-btn fm-active" onclick="forgeModalSwitchTab('pine', this)">Pine Script</button>
+                <button class="fm-tab-btn" onclick="forgeModalSwitchTab('pine', this)">Pine Script</button>
                 <button class="fm-tab-btn" onclick="forgeModalSwitchTab('python', this)">Python</button>
             </div>
         </div>
@@ -852,7 +852,7 @@ function forgeShowResult(pineCode, pythonCode, version) {
         <div class="fm-result-code" id="fmResultCode">
             <div class="fm-code-block">
                 <button class="fm-copy-btn" id="fmCopyBtn" onclick="forgeModalCopyCode()">Copier</button>
-                <pre id="fmCodeContent">${escapeHtml(pineCode)}</pre>
+                <pre id="fmCodeContent"></pre>
             </div>
         </div>
 
@@ -873,12 +873,6 @@ function forgeShowResult(pineCode, pythonCode, version) {
     `;
 
     resultEl.classList.add('fm-active');
-
-    // Auto-expand code
-    setTimeout(() => {
-        const codeEl = document.getElementById('fmResultCode');
-        if (codeEl) codeEl.classList.add('fm-expanded');
-    }, 100);
 }
 
 /**
@@ -999,52 +993,24 @@ function forgeModalShowGranules() {
         const status = statusLabels[g.status] || statusLabels['nouvelle'];
         const score = g.reusability_score;
         const scoreColor = score >= 90 ? '#22c55e' : score >= 75 ? '#4ade80' : score >= 60 ? '#fbbf24' : score >= 40 ? '#f97316' : '#ef4444';
-        const gradeLabel = score >= 90 ? 'Excellent' : score >= 75 ? 'Très bon' : score >= 60 ? 'Bon' : score >= 40 ? 'Moyen' : 'Faible';
         const autoSelect = g.status === 'nouvelle' || g.status === 'amelioree';
 
         return `
-            <div class="fm-granule-item" style="position:relative;">
+            <div class="fm-granule-item">
                 <div style="display:flex;align-items:center;gap:10px;">
                     <input type="checkbox" class="fm-granule-cb" data-index="${i}" ${autoSelect ? 'checked' : ''} onchange="forgeModalUpdateGranuleCount()" style="accent-color:#a78bfa;">
                     <div style="flex:1;min-width:0;">
-                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                             <span style="color:#fff;font-size:13px;font-weight:600;">${escapeHtml(g.name)}</span>
-                            <span onclick="event.stopPropagation();fmToggleCatInfo(${i})" style="font-size:10px;padding:2px 6px;border-radius:6px;background:${catColor}15;color:${catColor};border:1px solid ${catColor}30;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='${catColor}25'" onmouseout="this.style.background='${catColor}15'">${g.category}</span>
+                            <span style="font-size:10px;padding:2px 6px;border-radius:6px;background:${catColor}15;color:${catColor};border:1px solid ${catColor}30;">${g.category}</span>
+                            <button onclick="event.stopPropagation();fmShowCategoryInfo('${g.category}')" style="width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);cursor:pointer;flex-shrink:0;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+                                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </button>
                             <span style="font-size:10px;padding:2px 6px;border-radius:6px;background:${status.color}15;color:${status.color};border:1px solid ${status.color}30;">${status.label}</span>
                         </div>
                         <p style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:4px;">${escapeHtml(g.description)}</p>
                     </div>
-                    <span onclick="event.stopPropagation();fmToggleScoreInfo(${i})" style="font-size:16px;font-weight:700;color:${scoreColor};flex-shrink:0;cursor:pointer;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">${score}</span>
-                </div>
-                <!-- Tooltip catégorie -->
-                <div id="fm-cat-tip-${i}" style="display:none;position:absolute;left:40px;top:100%;z-index:60;width:280px;padding:12px;border-radius:12px;background:rgba(15,15,26,0.97);backdrop-filter:blur(12px);border:1px solid ${catColor}30;box-shadow:0 12px 40px rgba(0,0,0,0.5);margin-top:4px;">
-                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-                        <span style="font-size:12px;font-weight:600;color:${catColor};">${g.category}</span>
-                    </div>
-                    <p style="color:rgba(255,255,255,0.6);font-size:11px;line-height:1.5;">${catDesc}</p>
-                </div>
-                <!-- Tooltip score -->
-                <div id="fm-score-tip-${i}" style="display:none;position:absolute;right:0;top:100%;z-index:60;width:260px;padding:14px;border-radius:12px;background:rgba(15,15,26,0.97);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);box-shadow:0 12px 40px rgba(0,0,0,0.5);margin-top:4px;">
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                        <span style="font-size:22px;font-weight:800;color:${scoreColor};">${score}</span>
-                        <div>
-                            <div style="color:#fff;font-size:12px;font-weight:600;">${gradeLabel}</div>
-                            <div style="color:rgba(255,255,255,0.35);font-size:10px;">Score de réutilisabilité</div>
-                        </div>
-                    </div>
-                    <div style="display:flex;flex-direction:column;gap:6px;">
-                        ${[
-                            {name:'Atomicité', good: score >= 80},
-                            {name:'Universalité', good: score >= 70},
-                            {name:'Indépendance', good: score >= 75},
-                            {name:'Pattern standard', good: score >= 85}
-                        ].map(c => `
-                            <div style="display:flex;align-items:center;gap:6px;">
-                                <span style="width:6px;height:6px;border-radius:50%;background:${c.good ? '#22c55e' : 'rgba(255,255,255,0.15)'};flex-shrink:0;"></span>
-                                <span style="color:${c.good ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.35)'};font-size:11px;">${c.name}</span>
-                            </div>
-                        `).join('')}
-                    </div>
+                    <span style="font-size:11px;font-weight:600;padding:3px 8px;border-radius:8px;background:${scoreColor}12;color:${scoreColor};border:1px solid ${scoreColor}30;flex-shrink:0;letter-spacing:0.02em;">${score}</span>
                 </div>
             </div>
         `;
@@ -1057,9 +1023,6 @@ function forgeModalShowGranules() {
                     <div style="font-size:17px;font-weight:600;color:rgba(255,255,255,0.9);">Granules détectées</div>
                     <div style="font-size:13px;color:rgba(255,255,255,0.35);">${granules.length} granule(s) dans « ${escapeHtml(strategyName)} »</div>
                 </div>
-                <button onclick="forgeModalBackToResult()" style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border:none;cursor:pointer;color:rgba(255,255,255,0.5);transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.color='rgba(255,255,255,0.5)'">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-                </button>
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
                 ${Object.entries(categoryCounts).map(([cat, count]) => {
@@ -1076,7 +1039,7 @@ function forgeModalShowGranules() {
             </div>
         </div>
 
-        <div class="fm-granules-list" onclick="document.querySelectorAll('[id^=fm-cat-tip-],[id^=fm-score-tip-]').forEach(e=>e.style.display='none')">${listHtml}</div>
+        <div class="fm-granules-list">${listHtml}</div>
 
         <div class="fm-granules-footer">
             <button class="fm-btn-secondary" onclick="forgeCloseModal()">Fermer</button>
@@ -1126,27 +1089,119 @@ function forgeModalUpdateGranuleCount() {
 }
 
 /**
- * Toggle tooltip catégorie dans la modale granules
+ * Affiche une modale d'information détaillée sur un type de granule
  */
-function fmToggleCatInfo(index) {
-    // Fermer tous les autres tooltips
-    document.querySelectorAll('[id^="fm-cat-tip-"],[id^="fm-score-tip-"]').forEach(el => {
-        if (el.id !== `fm-cat-tip-${index}`) el.style.display = 'none';
-    });
-    const tip = document.getElementById(`fm-cat-tip-${index}`);
-    if (tip) tip.style.display = tip.style.display === 'none' ? 'block' : 'none';
-}
+function fmShowCategoryInfo(category) {
+    const categoryColors = {
+        'CALCUL': '#3b82f6', 'COMPARAISON': '#8b5cf6', 'TEMPORELLES': '#06b6d4',
+        'SEUIL': '#f59e0b', 'LOGIQUES': '#a78bfa', 'DONNÉES': '#10b981',
+        'TRANSFORMATION': '#ec4899', 'AGRÉGATION': '#f97316', 'ÉTAT/MÉMOIRE': '#6366f1'
+    };
 
-/**
- * Toggle tooltip score dans la modale granules
- */
-function fmToggleScoreInfo(index) {
-    // Fermer tous les autres tooltips
-    document.querySelectorAll('[id^="fm-cat-tip-"],[id^="fm-score-tip-"]').forEach(el => {
-        if (el.id !== `fm-score-tip-${index}`) el.style.display = 'none';
+    const categoryInfo = {
+        'CALCUL': {
+            title: 'Calcul',
+            desc: 'Opération mathématique de base : moyenne mobile, somme, delta, ratio. Brique fondamentale réutilisable dans de nombreux contextes.',
+            examples: ['Moyenne mobile (SMA, EMA)', 'Somme cumulative', 'Delta / Différence', 'Ratio / Pourcentage', 'Min / Max', 'True Range'],
+            icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>'
+        },
+        'COMPARAISON': {
+            title: 'Comparaison',
+            desc: 'Évalue une condition entre deux valeurs (supérieur, inférieur, croisement). Retourne un résultat vrai ou faux.',
+            examples: ['Égalité (==, !=)', 'Supériorité (>, >=, <, <=)', 'Between (dans une plage)', 'Crossed above / below'],
+            icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>'
+        },
+        'TEMPORELLES': {
+            title: 'Temporelles',
+            desc: 'Gère le temps : détection de nouveau jour, plage horaire, reset périodique, barres depuis un événement.',
+            examples: ['Nouveau jour (UTC, local)', 'Plage horaire (de X à Y)', 'Barres depuis événement', 'Reset périodique'],
+            icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+        },
+        'SEUIL': {
+            title: 'Seuil',
+            desc: 'Définit une limite fixe ou dynamique au-delà de laquelle une condition est activée.',
+            examples: ['Seuil absolu (> 100)', 'Seuil pourcentage (> 15%)', 'Seuil multiple (> 2x moyenne)', 'Seuil dynamique (> ATR * 1.5)'],
+            icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>'
+        },
+        'LOGIQUES': {
+            title: 'Logiques',
+            desc: 'Combine plusieurs conditions avec des opérateurs logiques. Permet de construire des règles complexes.',
+            examples: ['AND (toutes conditions vraies)', 'OR (au moins une vraie)', 'NOT (inverse)', 'IF / THEN / ELSE'],
+            icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>'
+        },
+        'DONNÉES': {
+            title: 'Données',
+            desc: 'Accède aux données brutes du marché : prix OHLCV, volume, données multi-timeframe.',
+            examples: ['Extraction OHLCV', 'Volume par période', 'Tick data', 'Multi-timeframe (request.security)'],
+            icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>'
+        },
+        'TRANSFORMATION': {
+            title: 'Transformation',
+            desc: 'Convertit une valeur d\'un format à un autre : pourcentage en décimal, normalisation, arrondi.',
+            examples: ['Normalisation', 'Conversion %', 'Arrondi', 'Mapping de plage'],
+            icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>'
+        },
+        'AGRÉGATION': {
+            title: 'Agrégation',
+            desc: 'Regroupe plusieurs valeurs en une seule : somme cumulative, comptage, moyenne pondérée.',
+            examples: ['Somme cumulative', 'Comptage événements', 'Moyenne pondérée', 'Agrégation multi-barres'],
+            icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>'
+        },
+        'ÉTAT/MÉMOIRE': {
+            title: 'État / Mémoire',
+            desc: 'Conserve un état entre les barres : compteur, flag, valeur précédente, historique.',
+            examples: ['Compteur', 'Flag booléen', 'Valeur précédente (prev)', 'Historique N barres'],
+            icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z"/>'
+        }
+    };
+
+    const info = categoryInfo[category];
+    if (!info) return;
+    const color = categoryColors[category] || '#888';
+
+    // Supprimer popup existante
+    const existing = document.getElementById('fmCategoryInfoModal');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'fmCategoryInfoModal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1100;animation:fmOverlayIn 0.2s ease;';
+
+    modal.innerHTML = `
+        <div style="width:340px;max-width:90vw;background:rgba(15,15,26,0.98);backdrop-filter:blur(20px);border:1px solid ${color}25;border-radius:20px;padding:28px;box-shadow:0 24px 64px rgba(0,0,0,0.5);animation:fmModalIn 0.3s cubic-bezier(0.16,1,0.3,1);">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                <div style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${color}15;border:1px solid ${color}25;">
+                    <svg width="20" height="20" fill="none" stroke="${color}" viewBox="0 0 24 24">${info.icon}</svg>
+                </div>
+                <div>
+                    <div style="font-size:16px;font-weight:600;color:#fff;">${info.title}</div>
+                    <div style="font-size:11px;color:${color};font-weight:500;text-transform:uppercase;letter-spacing:0.05em;">Type de granule</div>
+                </div>
+            </div>
+
+            <p style="color:rgba(255,255,255,0.6);font-size:12px;line-height:1.6;margin-bottom:16px;">${info.desc}</p>
+
+            <div style="padding:12px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);">
+                <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Exemples</div>
+                ${info.examples.map(ex => `
+                    <div style="display:flex;align-items:center;gap:6px;padding:4px 0;">
+                        <span style="width:4px;height:4px;border-radius:50%;background:${color};flex-shrink:0;"></span>
+                        <span style="color:rgba(255,255,255,0.6);font-size:11px;">${ex}</span>
+                    </div>
+                `).join('')}
+            </div>
+
+            <button onclick="document.getElementById('fmCategoryInfoModal').remove()" style="width:100%;margin-top:16px;padding:10px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.6)'">
+                Compris
+            </button>
+        </div>
+    `;
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
     });
-    const tip = document.getElementById(`fm-score-tip-${index}`);
-    if (tip) tip.style.display = tip.style.display === 'none' ? 'block' : 'none';
+
+    document.body.appendChild(modal);
 }
 
 /**
@@ -2985,8 +3040,11 @@ async function forgeSendMessage() {
         if (messagesDiv) messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }, 50);
     
-    // Afficher modale GENERATING pendant l'appel API
-    forgeShowGenerating();
+    // Afficher modale GENERATING seulement si commande FORGE détectée
+    const isForgeCommand = /\bforge\b/i.test(message);
+    if (isForgeCommand) {
+        forgeShowGenerating();
+    }
     
     try {
         const response = await fetch(`${API_BASE}/api/forge/chat`, {
