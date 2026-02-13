@@ -1621,10 +1621,12 @@ function renderForgeProjects() {
                         <p class="text-white/60 text-sm mt-1">Vos projets de stratégies</p>
                     </div>
                 </div>
+                ${!forgeState.isLoadingProjects && projects.length > 0 ? `
                 <button onclick="forgeShowNewProjectModal()" class="px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2" style="background: linear-gradient(135deg, #b45309, #d97706); color: white;">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Nouveau projet
                 </button>
+                ` : ''}
             </div>
             
             <!-- Liste des projets -->
