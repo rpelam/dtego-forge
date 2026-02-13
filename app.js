@@ -711,11 +711,11 @@ function injectForgeModalCSS() {
             display:flex; align-items:center; justify-content:center; gap:6px;
         }
         .fm-btn-granules:hover:not(:disabled) { background:rgba(139,92,246,0.2); color:#a78bfa; }
-        .fm-btn-granules:disabled { opacity:0.4; cursor:not-allowed; }
+        .fm-btn-granules:disabled { opacity:0.7; cursor:wait; }
         .fm-btn-granules .fm-mini-loader {
-            width:14px; height:14px; border-radius:50%;
-            border:2px solid rgba(139,92,246,0.2); border-top-color:#a78bfa;
-            animation: fmSpin 1s linear infinite;
+            width:16px; height:16px; border-radius:50%;
+            border:2px solid rgba(139,92,246,0.15); border-top-color:#a78bfa;
+            animation: fmSpin 0.8s linear infinite;
         }
         .fm-btn-primary {
             flex:1.5; padding:11px 0; border-radius:12px; font-size:13px; font-weight:600;
@@ -861,7 +861,7 @@ function forgeShowResult(pineCode, pythonCode, version) {
             <button class="fm-btn-granules" id="fmBtnGranules"
                     onclick="forgeModalShowGranules()"
                     ${!granulesReady ? 'disabled' : ''}>
-                ${granulesLoading ? '<span class="fm-mini-loader"></span> Granules...' : (granulesReady ? `Granules (${forgeState.forgeModalGranules.length})` : 'Granules')}
+                ${granulesLoading ? '<span class="fm-mini-loader"></span> Analyse...' : (granulesReady ? `Granules (${forgeState.forgeModalGranules.length})` : 'Granules')}
             </button>
             <button class="fm-btn-primary" onclick="forgeModalTest()">
                 <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -969,6 +969,17 @@ function forgeModalShowGranules() {
         'SEUIL': '#f59e0b', 'LOGIQUES': '#a78bfa', 'DONNÉES': '#10b981',
         'TRANSFORMATION': '#ec4899', 'AGRÉGATION': '#f97316', 'ÉTAT/MÉMOIRE': '#6366f1'
     };
+    const categoryDescriptions = {
+        'CALCUL': 'Opération mathématique de base : moyenne mobile, somme, delta, ratio.',
+        'COMPARAISON': 'Évalue une condition entre deux valeurs. Retourne vrai ou faux.',
+        'TEMPORELLES': 'Gère le temps : nouveau jour, plage horaire, reset périodique.',
+        'SEUIL': 'Définit une limite fixe ou dynamique au-delà de laquelle une condition est activée.',
+        'LOGIQUES': 'Combine plusieurs conditions avec des opérateurs (AND, OR, NOT).',
+        'DONNÉES': 'Accède aux données brutes du marché : prix OHLCV, volume, multi-timeframe.',
+        'TRANSFORMATION': 'Convertit une valeur : pourcentage en décimal, normalisation, arrondi.',
+        'AGRÉGATION': 'Regroupe plusieurs valeurs : somme cumulative, comptage, moyenne pondérée.',
+        'ÉTAT/MÉMOIRE': 'Conserve un état entre les barres : compteur, flag, valeur précédente.'
+    };
     const statusLabels = {
         'nouvelle': { label: 'Nouvelle', color: '#10b981' },
         'existante': { label: 'Existante', color: '#6b7280' },
@@ -984,24 +995,56 @@ function forgeModalShowGranules() {
 
     let listHtml = granules.map((g, i) => {
         const catColor = categoryColors[g.category] || '#888';
+        const catDesc = categoryDescriptions[g.category] || 'Granule atomique réutilisable.';
         const status = statusLabels[g.status] || statusLabels['nouvelle'];
         const score = g.reusability_score;
         const scoreColor = score >= 90 ? '#22c55e' : score >= 75 ? '#4ade80' : score >= 60 ? '#fbbf24' : score >= 40 ? '#f97316' : '#ef4444';
+        const gradeLabel = score >= 90 ? 'Excellent' : score >= 75 ? 'Très bon' : score >= 60 ? 'Bon' : score >= 40 ? 'Moyen' : 'Faible';
         const autoSelect = g.status === 'nouvelle' || g.status === 'amelioree';
 
         return `
-            <div class="fm-granule-item">
+            <div class="fm-granule-item" style="position:relative;">
                 <div style="display:flex;align-items:center;gap:10px;">
                     <input type="checkbox" class="fm-granule-cb" data-index="${i}" ${autoSelect ? 'checked' : ''} onchange="forgeModalUpdateGranuleCount()" style="accent-color:#a78bfa;">
                     <div style="flex:1;min-width:0;">
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                             <span style="color:#fff;font-size:13px;font-weight:600;">${escapeHtml(g.name)}</span>
-                            <span style="font-size:10px;padding:2px 6px;border-radius:6px;background:${catColor}15;color:${catColor};border:1px solid ${catColor}30;">${g.category}</span>
+                            <span onclick="event.stopPropagation();fmToggleCatInfo(${i})" style="font-size:10px;padding:2px 6px;border-radius:6px;background:${catColor}15;color:${catColor};border:1px solid ${catColor}30;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='${catColor}25'" onmouseout="this.style.background='${catColor}15'">${g.category}</span>
                             <span style="font-size:10px;padding:2px 6px;border-radius:6px;background:${status.color}15;color:${status.color};border:1px solid ${status.color}30;">${status.label}</span>
                         </div>
                         <p style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:4px;">${escapeHtml(g.description)}</p>
                     </div>
-                    <span style="font-size:16px;font-weight:700;color:${scoreColor};flex-shrink:0;">${score}</span>
+                    <span onclick="event.stopPropagation();fmToggleScoreInfo(${i})" style="font-size:16px;font-weight:700;color:${scoreColor};flex-shrink:0;cursor:pointer;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">${score}</span>
+                </div>
+                <!-- Tooltip catégorie -->
+                <div id="fm-cat-tip-${i}" style="display:none;position:absolute;left:40px;top:100%;z-index:60;width:280px;padding:12px;border-radius:12px;background:rgba(15,15,26,0.97);backdrop-filter:blur(12px);border:1px solid ${catColor}30;box-shadow:0 12px 40px rgba(0,0,0,0.5);margin-top:4px;">
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                        <span style="font-size:12px;font-weight:600;color:${catColor};">${g.category}</span>
+                    </div>
+                    <p style="color:rgba(255,255,255,0.6);font-size:11px;line-height:1.5;">${catDesc}</p>
+                </div>
+                <!-- Tooltip score -->
+                <div id="fm-score-tip-${i}" style="display:none;position:absolute;right:0;top:100%;z-index:60;width:260px;padding:14px;border-radius:12px;background:rgba(15,15,26,0.97);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);box-shadow:0 12px 40px rgba(0,0,0,0.5);margin-top:4px;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                        <span style="font-size:22px;font-weight:800;color:${scoreColor};">${score}</span>
+                        <div>
+                            <div style="color:#fff;font-size:12px;font-weight:600;">${gradeLabel}</div>
+                            <div style="color:rgba(255,255,255,0.35);font-size:10px;">Score de réutilisabilité</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:6px;">
+                        ${[
+                            {name:'Atomicité', good: score >= 80},
+                            {name:'Universalité', good: score >= 70},
+                            {name:'Indépendance', good: score >= 75},
+                            {name:'Pattern standard', good: score >= 85}
+                        ].map(c => `
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <span style="width:6px;height:6px;border-radius:50%;background:${c.good ? '#22c55e' : 'rgba(255,255,255,0.15)'};flex-shrink:0;"></span>
+                                <span style="color:${c.good ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.35)'};font-size:11px;">${c.name}</span>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             </div>
         `;
@@ -1033,10 +1076,10 @@ function forgeModalShowGranules() {
             </div>
         </div>
 
-        <div class="fm-granules-list">${listHtml}</div>
+        <div class="fm-granules-list" onclick="document.querySelectorAll('[id^=fm-cat-tip-],[id^=fm-score-tip-]').forEach(e=>e.style.display='none')">${listHtml}</div>
 
         <div class="fm-granules-footer">
-            <button class="fm-btn-secondary" onclick="forgeModalBackToResult()">Retour</button>
+            <button class="fm-btn-secondary" onclick="forgeCloseModal()">Fermer</button>
             <button class="fm-btn-primary" onclick="forgeModalSaveGranules()" style="background:linear-gradient(135deg, #7c3aed, #a78bfa);">
                 Sauvegarder dans Bibliothèque
             </button>
@@ -1080,6 +1123,30 @@ function forgeModalUpdateGranuleCount() {
     const count = document.querySelectorAll('.fm-granule-cb:checked').length;
     const el = document.getElementById('fmGranuleCount');
     if (el) el.textContent = `${count} sélectionnée(s)`;
+}
+
+/**
+ * Toggle tooltip catégorie dans la modale granules
+ */
+function fmToggleCatInfo(index) {
+    // Fermer tous les autres tooltips
+    document.querySelectorAll('[id^="fm-cat-tip-"],[id^="fm-score-tip-"]').forEach(el => {
+        if (el.id !== `fm-cat-tip-${index}`) el.style.display = 'none';
+    });
+    const tip = document.getElementById(`fm-cat-tip-${index}`);
+    if (tip) tip.style.display = tip.style.display === 'none' ? 'block' : 'none';
+}
+
+/**
+ * Toggle tooltip score dans la modale granules
+ */
+function fmToggleScoreInfo(index) {
+    // Fermer tous les autres tooltips
+    document.querySelectorAll('[id^="fm-cat-tip-"],[id^="fm-score-tip-"]').forEach(el => {
+        if (el.id !== `fm-score-tip-${index}`) el.style.display = 'none';
+    });
+    const tip = document.getElementById(`fm-score-tip-${index}`);
+    if (tip) tip.style.display = tip.style.display === 'none' ? 'block' : 'none';
 }
 
 /**
@@ -2918,6 +2985,9 @@ async function forgeSendMessage() {
         if (messagesDiv) messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }, 50);
     
+    // Afficher modale GENERATING pendant l'appel API
+    forgeShowGenerating();
+    
     try {
         const response = await fetch(`${API_BASE}/api/forge/chat`, {
             method: 'POST',
@@ -2943,8 +3013,7 @@ async function forgeSendMessage() {
                     python: data.python_code
                 };
                 
-                // Afficher modale RESULT (crée le DOM puis transition immédiate)
-                forgeShowGenerating();
+                // Transition modale GENERATING → RESULT
                 forgeShowResult(data.pine_code, data.python_code, data.version);
                 
                 // Lancer analyse granulaire en arrière-plan
