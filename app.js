@@ -993,6 +993,7 @@ function forgeModalShowGranules() {
         const status = statusLabels[g.status] || statusLabels['nouvelle'];
         const score = g.reusability_score;
         const scoreColor = score >= 90 ? '#22c55e' : score >= 75 ? '#4ade80' : score >= 60 ? '#fbbf24' : score >= 40 ? '#f97316' : '#ef4444';
+        const gradeLabel = score >= 90 ? 'Excellent' : score >= 75 ? 'Très bon' : score >= 60 ? 'Bon' : score >= 40 ? 'Moyen' : 'Faible';
         const autoSelect = g.status === 'nouvelle' || g.status === 'amelioree';
 
         return `
@@ -1001,16 +1002,13 @@ function forgeModalShowGranules() {
                     <input type="checkbox" class="fm-granule-cb" data-index="${i}" ${autoSelect ? 'checked' : ''} onchange="forgeModalUpdateGranuleCount()" style="accent-color:#a78bfa;">
                     <div style="flex:1;min-width:0;">
                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                            <span style="color:#fff;font-size:13px;font-weight:600;">${escapeHtml(g.name)}</span>
+                            <span onclick="event.stopPropagation();fmShowCategoryInfo('${g.category}')" style="color:#fff;font-size:13px;font-weight:600;text-decoration:underline;text-decoration-color:rgba(255,255,255,0.25);text-underline-offset:3px;cursor:pointer;transition:text-decoration-color 0.2s;" onmouseover="this.style.textDecorationColor='rgba(255,255,255,0.6)'" onmouseout="this.style.textDecorationColor='rgba(255,255,255,0.25)'">${escapeHtml(g.name)}</span>
                             <span style="font-size:10px;padding:2px 6px;border-radius:6px;background:${catColor}15;color:${catColor};border:1px solid ${catColor}30;">${g.category}</span>
-                            <button onclick="event.stopPropagation();fmShowCategoryInfo('${g.category}')" style="width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);cursor:pointer;flex-shrink:0;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
-                                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            </button>
                             <span style="font-size:10px;padding:2px 6px;border-radius:6px;background:${status.color}15;color:${status.color};border:1px solid ${status.color}30;">${status.label}</span>
                         </div>
                         <p style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:4px;">${escapeHtml(g.description)}</p>
                     </div>
-                    <span style="font-size:11px;font-weight:600;padding:3px 8px;border-radius:8px;background:${scoreColor}12;color:${scoreColor};border:1px solid ${scoreColor}30;flex-shrink:0;letter-spacing:0.02em;">${score}</span>
+                    <span onclick="event.stopPropagation();fmShowScoreInfo(${score}, '${gradeLabel}', '${scoreColor}')" style="font-size:11px;font-weight:600;padding:3px 8px;border-radius:8px;background:${scoreColor}12;color:${scoreColor};border:1px solid ${scoreColor}30;flex-shrink:0;letter-spacing:0.02em;cursor:pointer;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">${score}</span>
                 </div>
             </div>
         `;
@@ -1168,7 +1166,10 @@ function fmShowCategoryInfo(category) {
     modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1100;animation:fmOverlayIn 0.2s ease;';
 
     modal.innerHTML = `
-        <div style="width:340px;max-width:90vw;background:rgba(15,15,26,0.98);backdrop-filter:blur(20px);border:1px solid ${color}25;border-radius:20px;padding:28px;box-shadow:0 24px 64px rgba(0,0,0,0.5);animation:fmModalIn 0.3s cubic-bezier(0.16,1,0.3,1);">
+        <div style="position:relative;width:340px;max-width:90vw;background:rgba(15,15,26,0.98);backdrop-filter:blur(20px);border:1px solid ${color}25;border-radius:20px;padding:28px;box-shadow:0 24px 64px rgba(0,0,0,0.5);animation:fmModalIn 0.3s cubic-bezier(0.16,1,0.3,1);">
+            <button onclick="document.getElementById('fmCategoryInfoModal').remove()" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);cursor:pointer;color:rgba(255,255,255,0.4);transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.12)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.4)'">
+                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
                 <div style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${color}15;border:1px solid ${color}25;">
                     <svg width="20" height="20" fill="none" stroke="${color}" viewBox="0 0 24 24">${info.icon}</svg>
@@ -1190,10 +1191,6 @@ function fmShowCategoryInfo(category) {
                     </div>
                 `).join('')}
             </div>
-
-            <button onclick="document.getElementById('fmCategoryInfoModal').remove()" style="width:100%;margin-top:16px;padding:10px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.6)'">
-                Compris
-            </button>
         </div>
     `;
 
@@ -1205,8 +1202,58 @@ function fmShowCategoryInfo(category) {
 }
 
 /**
- * Sauvegarde des granules sélectionnées depuis la modale
+ * Affiche une modale d'information détaillée sur le score de réutilisabilité
  */
+function fmShowScoreInfo(score, gradeLabel, scoreColor) {
+    // Supprimer popup existante
+    const existing = document.getElementById('fmScoreInfoModal');
+    if (existing) existing.remove();
+
+    const criteria = [
+        {name: 'Atomicité', desc: 'La granule ne peut pas être décomposée davantage', good: score >= 80},
+        {name: 'Universalité', desc: 'Applicable dans de nombreux contextes différents', good: score >= 70},
+        {name: 'Indépendance', desc: 'Fonctionne sans dépendances complexes', good: score >= 75},
+        {name: 'Pattern standard', desc: 'Utilise des patterns reconnus et éprouvés', good: score >= 85}
+    ];
+
+    const modal = document.createElement('div');
+    modal.id = 'fmScoreInfoModal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1100;animation:fmOverlayIn 0.2s ease;';
+
+    modal.innerHTML = `
+        <div style="position:relative;width:300px;max-width:90vw;background:rgba(15,15,26,0.98);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:28px;box-shadow:0 24px 64px rgba(0,0,0,0.5);animation:fmModalIn 0.3s cubic-bezier(0.16,1,0.3,1);">
+            <button onclick="document.getElementById('fmScoreInfoModal').remove()" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);cursor:pointer;color:rgba(255,255,255,0.4);transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.12)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(255,255,255,0.4)'">
+                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+                <span style="font-size:32px;font-weight:800;color:${scoreColor};">${score}</span>
+                <div>
+                    <div style="color:#fff;font-size:14px;font-weight:600;">${gradeLabel}</div>
+                    <div style="color:rgba(255,255,255,0.35);font-size:11px;">Score de réutilisabilité</div>
+                </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                ${criteria.map(c => `
+                    <div style="display:flex;align-items:flex-start;gap:8px;">
+                        <span style="margin-top:2px;width:8px;height:8px;border-radius:50%;background:${c.good ? '#22c55e' : 'rgba(255,255,255,0.12)'};flex-shrink:0;${c.good ? 'box-shadow:0 0 6px rgba(34,197,94,0.3);' : ''}"></span>
+                        <div>
+                            <div style="color:${c.good ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.35)'};font-size:12px;font-weight:500;">${c.name}</div>
+                            <div style="color:rgba(255,255,255,0.3);font-size:10px;margin-top:1px;">${c.desc}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
+
+    document.body.appendChild(modal);
+}
 async function forgeModalSaveGranules() {
     const checkboxes = document.querySelectorAll('.fm-granule-cb:checked');
     if (checkboxes.length === 0) {
