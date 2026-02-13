@@ -600,6 +600,594 @@ async function saveSelectedGranulesToLibrary() {
     }
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// MODALE FORGE UNIFIÉE — 3 ÉTATS: GENERATING → RESULT → GRANULES
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Injecte le CSS de la modale Forge (appelé une seule fois)
+ */
+function injectForgeModalCSS() {
+    if (document.getElementById('forge-modal-css')) return;
+    const style = document.createElement('style');
+    style.id = 'forge-modal-css';
+    style.textContent = `
+        .forge-overlay {
+            position: fixed; inset: 0; z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+            animation: fmOverlayIn 0.3s ease;
+        }
+        .forge-overlay.fm-hidden { display: none; }
+        @keyframes fmOverlayIn { from{opacity:0} to{opacity:1} }
+
+        .forge-modal {
+            width: 420px; max-width: 90vw;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+            overflow: hidden;
+            animation: fmModalIn 0.4s cubic-bezier(0.16,1,0.3,1);
+            transition: width 0.4s cubic-bezier(0.16,1,0.3,1);
+        }
+        .forge-modal.fm-wide { width: 700px; }
+        @keyframes fmModalIn { from{opacity:0;transform:scale(0.95) translateY(12px)} to{opacity:1;transform:scale(1) translateY(0)} }
+
+        /* État 1: GENERATING */
+        .fm-generating { padding: 48px 32px 40px; text-align: center; }
+        .fm-generating .fm-loader {
+            width: 56px; height: 56px; margin: 0 auto 24px;
+            border-radius: 50%; border: 2.5px solid rgba(255,255,255,0.06);
+            border-top-color: #d97706; animation: fmSpin 1s linear infinite;
+        }
+        @keyframes fmSpin { to{transform:rotate(360deg)} }
+        .fm-generating .fm-gen-title { font-size:17px; font-weight:600; color:rgba(255,255,255,0.9); margin-bottom:6px; }
+        .fm-generating .fm-gen-step { font-size:13px; color:rgba(255,255,255,0.35); margin-bottom:28px; transition:opacity 0.3s; }
+        .fm-generating .fm-progress-track { width:100%; height:2px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden; }
+        .fm-generating .fm-progress-fill {
+            height:100%; border-radius:2px;
+            background: linear-gradient(90deg, #d97706, #f59e0b);
+            animation: fmProgress 18s cubic-bezier(0.4,0,0.2,1) forwards;
+        }
+        @keyframes fmProgress { 0%{width:0%} 15%{width:20%} 40%{width:45%} 65%{width:60%} 85%{width:78%} 100%{width:92%} }
+
+        /* État 2: RESULT */
+        .fm-result { display:none; animation: fmResultIn 0.4s ease; }
+        .fm-result.fm-active { display:block; }
+        @keyframes fmResultIn { from{opacity:0} to{opacity:1} }
+
+        .fm-result-header { padding:28px 28px 20px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.06); }
+        .fm-result-check {
+            width:44px; height:44px; border-radius:50%;
+            background:rgba(74,222,128,0.1); border:1.5px solid rgba(74,222,128,0.25);
+            display:flex; align-items:center; justify-content:center; margin:0 auto 14px;
+        }
+        .fm-result-title { font-size:17px; font-weight:600; color:rgba(255,255,255,0.9); margin-bottom:4px; }
+        .fm-result-subtitle { font-size:13px; color:rgba(255,255,255,0.35); }
+
+        .fm-result-tabs { padding:16px 28px; border-bottom:1px solid rgba(255,255,255,0.06); }
+        .fm-tabs-row { display:flex; gap:6px; background:rgba(255,255,255,0.03); border-radius:10px; padding:3px; }
+        .fm-tab-btn {
+            flex:1; padding:8px 0; border-radius:8px; font-size:12px; font-weight:500;
+            text-align:center; border:none; cursor:pointer; transition:all 0.2s;
+            background:transparent; color:rgba(255,255,255,0.4);
+        }
+        .fm-tab-btn:hover { color:rgba(255,255,255,0.7); }
+        .fm-tab-btn.fm-active { background:rgba(255,255,255,0.08); color:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.2); }
+
+        .fm-result-code { padding:0 28px; max-height:0; overflow:hidden; transition:max-height 0.3s ease, padding 0.3s ease; }
+        .fm-result-code.fm-expanded { max-height:280px; padding:16px 28px; }
+        .fm-code-block {
+            background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.05);
+            border-radius:12px; padding:16px; max-height:240px; overflow-y:auto; position:relative;
+        }
+        .fm-code-block pre {
+            font-family:'SF Mono','Menlo','Consolas',monospace;
+            font-size:11.5px; line-height:1.6; color:rgba(255,255,255,0.7);
+            white-space:pre-wrap; margin:0;
+        }
+        .fm-copy-btn {
+            position:absolute; top:10px; right:10px; padding:5px 10px;
+            border-radius:6px; font-size:10px; font-weight:500; border:none; cursor:pointer;
+            background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.4); transition:all 0.2s;
+        }
+        .fm-copy-btn:hover { background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.8); }
+        .fm-copy-btn.fm-copied { background:rgba(74,222,128,0.15); color:#4ade80; }
+
+        .fm-result-actions { padding:20px 28px 24px; display:flex; gap:10px; }
+        .fm-btn-secondary {
+            flex:1; padding:11px 0; border-radius:12px; font-size:13px; font-weight:500;
+            text-align:center; border:1px solid rgba(255,255,255,0.08); cursor:pointer; transition:all 0.2s;
+            background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.6);
+        }
+        .fm-btn-secondary:hover { background:rgba(255,255,255,0.1); color:#fff; }
+        .fm-btn-granules {
+            flex:1; padding:11px 0; border-radius:12px; font-size:13px; font-weight:500;
+            text-align:center; border:1px solid rgba(139,92,246,0.3); cursor:pointer; transition:all 0.2s;
+            background:rgba(139,92,246,0.1); color:rgba(139,92,246,0.7);
+            display:flex; align-items:center; justify-content:center; gap:6px;
+        }
+        .fm-btn-granules:hover:not(:disabled) { background:rgba(139,92,246,0.2); color:#a78bfa; }
+        .fm-btn-granules:disabled { opacity:0.4; cursor:not-allowed; }
+        .fm-btn-granules .fm-mini-loader {
+            width:14px; height:14px; border-radius:50%;
+            border:2px solid rgba(139,92,246,0.2); border-top-color:#a78bfa;
+            animation: fmSpin 1s linear infinite;
+        }
+        .fm-btn-primary {
+            flex:1.5; padding:11px 0; border-radius:12px; font-size:13px; font-weight:600;
+            text-align:center; border:none; cursor:pointer; transition:all 0.2s;
+            background:linear-gradient(135deg, #d97706, #f59e0b); color:#fff;
+            box-shadow:0 4px 12px rgba(217,119,6,0.25);
+            display:flex; align-items:center; justify-content:center; gap:6px;
+        }
+        .fm-btn-primary:hover { transform:translateY(-1px); box-shadow:0 6px 16px rgba(217,119,6,0.35); }
+
+        /* État 3: GRANULES */
+        .fm-granules { display:none; animation: fmResultIn 0.4s ease; }
+        .fm-granules.fm-active { display:block; }
+        .fm-granules-header { padding:24px 28px 16px; border-bottom:1px solid rgba(255,255,255,0.06); }
+        .fm-granules-list { padding:16px 28px; max-height:400px; overflow-y:auto; }
+        .fm-granule-item {
+            padding:12px; margin-bottom:8px; border-radius:12px;
+            background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);
+            transition: background 0.2s;
+        }
+        .fm-granule-item:hover { background:rgba(255,255,255,0.06); }
+        .fm-granules-footer {
+            padding:16px 28px 24px; display:flex; gap:10px;
+            border-top:1px solid rgba(255,255,255,0.06);
+        }
+
+        /* Scrollbar modale */
+        .fm-code-block::-webkit-scrollbar, .fm-granules-list::-webkit-scrollbar { width:4px; }
+        .fm-code-block::-webkit-scrollbar-track, .fm-granules-list::-webkit-scrollbar-track { background:transparent; }
+        .fm-code-block::-webkit-scrollbar-thumb, .fm-granules-list::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:4px; }
+    `;
+    document.head.appendChild(style);
+}
+
+/**
+ * Affiche la modale en état GENERATING
+ */
+function forgeShowGenerating() {
+    injectForgeModalCSS();
+
+    // Nettoyer timers précédents
+    forgeState.forgeModalStepTimers.forEach(t => clearTimeout(t));
+    forgeState.forgeModalStepTimers = [];
+    forgeState.forgeModalGranules = null;
+    forgeState.forgeModalGranulesLoading = false;
+
+    // Supprimer modale existante
+    const existing = document.getElementById('forgeModalOverlay');
+    if (existing) existing.remove();
+
+    const steps = [
+        { text: "Analyse de la stratégie...", delay: 0 },
+        { text: "Génération du Pine Script...", delay: 3000 },
+        { text: "Conversion en Python...", delay: 8000 },
+        { text: "Validation du code...", delay: 13000 }
+    ];
+
+    const html = `
+        <div class="forge-overlay" id="forgeModalOverlay">
+            <div class="forge-modal" id="forgeModalBox">
+                <div class="fm-generating" id="fmStateGenerating">
+                    <div class="fm-loader"></div>
+                    <div class="fm-gen-title">Forge en cours</div>
+                    <div class="fm-gen-step" id="fmGenStep">${steps[0].text}</div>
+                    <div class="fm-progress-track">
+                        <div class="fm-progress-fill" id="fmProgressFill"></div>
+                    </div>
+                </div>
+                <div class="fm-result" id="fmStateResult"></div>
+                <div class="fm-granules" id="fmStateGranules"></div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', html);
+
+    // Rotation des steps
+    steps.forEach(step => {
+        const t = setTimeout(() => {
+            const el = document.getElementById('fmGenStep');
+            if (el) el.textContent = step.text;
+        }, step.delay);
+        forgeState.forgeModalStepTimers.push(t);
+    });
+}
+
+/**
+ * Transition vers état RESULT
+ */
+function forgeShowResult(pineCode, pythonCode, version) {
+    forgeState.forgeModalPineCode = pineCode || '';
+    forgeState.forgeModalPythonCode = pythonCode || '';
+    forgeState.forgeModalVersion = version;
+    forgeState.forgeModalCurrentTab = 'pine';
+
+    // Arrêter timers de génération
+    forgeState.forgeModalStepTimers.forEach(t => clearTimeout(t));
+    forgeState.forgeModalStepTimers = [];
+
+    const genEl = document.getElementById('fmStateGenerating');
+    const resultEl = document.getElementById('fmStateResult');
+    const modalBox = document.getElementById('forgeModalBox');
+    if (!genEl || !resultEl) return;
+
+    // Cacher generating
+    genEl.style.display = 'none';
+    // Retirer wide si granules l'avait mis
+    if (modalBox) modalBox.classList.remove('fm-wide');
+
+    const versionLabel = version ? `v${version}` : '';
+    const subtitle = versionLabel ? `Code généré (${versionLabel}) — Pine Script + Python` : 'Pine Script + Python';
+
+    const granulesLoading = forgeState.forgeModalGranulesLoading;
+    const granulesReady = forgeState.forgeModalGranules && forgeState.forgeModalGranules.length > 0;
+
+    resultEl.innerHTML = `
+        <div class="fm-result-header">
+            <div class="fm-result-check">
+                <svg width="20" height="20" fill="none" stroke="#4ade80" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <div class="fm-result-title">Stratégie générée</div>
+            <div class="fm-result-subtitle">${subtitle}</div>
+        </div>
+
+        <div class="fm-result-tabs">
+            <div class="fm-tabs-row">
+                <button class="fm-tab-btn fm-active" onclick="forgeModalSwitchTab('pine', this)">Pine Script</button>
+                <button class="fm-tab-btn" onclick="forgeModalSwitchTab('python', this)">Python</button>
+            </div>
+        </div>
+
+        <div class="fm-result-code" id="fmResultCode">
+            <div class="fm-code-block">
+                <button class="fm-copy-btn" id="fmCopyBtn" onclick="forgeModalCopyCode()">Copier</button>
+                <pre id="fmCodeContent">${escapeHtml(pineCode)}</pre>
+            </div>
+        </div>
+
+        <div class="fm-result-actions">
+            <button class="fm-btn-secondary" onclick="forgeCloseModal()">Fermer</button>
+            <button class="fm-btn-granules" id="fmBtnGranules"
+                    onclick="forgeModalShowGranules()"
+                    ${!granulesReady ? 'disabled' : ''}>
+                ${granulesLoading ? '<span class="fm-mini-loader"></span> Granules...' : (granulesReady ? `Granules (${forgeState.forgeModalGranules.length})` : 'Granules')}
+            </button>
+            <button class="fm-btn-primary" onclick="forgeModalTest()">
+                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                Tester
+            </button>
+        </div>
+    `;
+
+    resultEl.classList.add('fm-active');
+
+    // Auto-expand code
+    setTimeout(() => {
+        const codeEl = document.getElementById('fmResultCode');
+        if (codeEl) codeEl.classList.add('fm-expanded');
+    }, 100);
+}
+
+/**
+ * Escape HTML pour affichage sécurisé du code
+ */
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
+}
+
+/**
+ * Switch tab Pine/Python dans la modale
+ */
+function forgeModalSwitchTab(tab, btn) {
+    forgeState.forgeModalCurrentTab = tab;
+    document.querySelectorAll('#fmStateResult .fm-tab-btn').forEach(b => b.classList.remove('fm-active'));
+    if (btn) btn.classList.add('fm-active');
+
+    const code = tab === 'pine' ? forgeState.forgeModalPineCode : forgeState.forgeModalPythonCode;
+    const codeEl = document.getElementById('fmCodeContent');
+    if (codeEl) codeEl.textContent = code;
+
+    // Reset bouton copier
+    const copyBtn = document.getElementById('fmCopyBtn');
+    if (copyBtn) { copyBtn.textContent = 'Copier'; copyBtn.classList.remove('fm-copied'); }
+
+    // Auto-expand
+    const codeArea = document.getElementById('fmResultCode');
+    if (codeArea) codeArea.classList.add('fm-expanded');
+}
+
+/**
+ * Copier le code affiché
+ */
+function forgeModalCopyCode() {
+    const code = forgeState.forgeModalCurrentTab === 'pine'
+        ? forgeState.forgeModalPineCode : forgeState.forgeModalPythonCode;
+    navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('fmCopyBtn');
+        if (btn) { btn.textContent = 'Copié'; btn.classList.add('fm-copied'); }
+        setTimeout(() => {
+            if (btn) { btn.textContent = 'Copier'; btn.classList.remove('fm-copied'); }
+        }, 2000);
+    });
+}
+
+/**
+ * Met à jour le bouton Granules quand les données arrivent
+ */
+function forgeModalUpdateGranulesButton() {
+    const btn = document.getElementById('fmBtnGranules');
+    if (!btn) return;
+
+    const granules = forgeState.forgeModalGranules;
+    if (granules && granules.length > 0) {
+        btn.disabled = false;
+        btn.innerHTML = `Granules (${granules.length})`;
+    } else if (granules && granules.length === 0) {
+        btn.disabled = true;
+        btn.innerHTML = 'Aucune granule';
+    } else {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="fm-mini-loader"></span> Granules...';
+    }
+}
+
+/**
+ * Affiche l'état GRANULES dans la modale
+ */
+function forgeModalShowGranules() {
+    const granules = forgeState.forgeModalGranules;
+    if (!granules || granules.length === 0) return;
+
+    const resultEl = document.getElementById('fmStateResult');
+    const granulesEl = document.getElementById('fmStateGranules');
+    const modalBox = document.getElementById('forgeModalBox');
+    if (!resultEl || !granulesEl) return;
+
+    // Élargir la modale
+    if (modalBox) modalBox.classList.add('fm-wide');
+
+    // Cacher result
+    resultEl.classList.remove('fm-active');
+
+    const categoryColors = {
+        'CALCUL': '#3b82f6', 'COMPARAISON': '#8b5cf6', 'TEMPORELLES': '#06b6d4',
+        'SEUIL': '#f59e0b', 'LOGIQUES': '#a78bfa', 'DONNÉES': '#10b981',
+        'TRANSFORMATION': '#ec4899', 'AGRÉGATION': '#f97316', 'ÉTAT/MÉMOIRE': '#6366f1'
+    };
+    const statusLabels = {
+        'nouvelle': { label: 'Nouvelle', color: '#10b981' },
+        'existante': { label: 'Existante', color: '#6b7280' },
+        'amelioree': { label: 'Améliorée', color: '#f59e0b' },
+        'similaire': { label: 'Similaire', color: '#3b82f6' }
+    };
+
+    // Compteur catégories
+    const categoryCounts = {};
+    granules.forEach(g => { categoryCounts[g.category] = (categoryCounts[g.category] || 0) + 1; });
+
+    const strategyName = forgeState.currentProject?.name || 'Stratégie';
+
+    let listHtml = granules.map((g, i) => {
+        const catColor = categoryColors[g.category] || '#888';
+        const status = statusLabels[g.status] || statusLabels['nouvelle'];
+        const score = g.reusability_score;
+        const scoreColor = score >= 90 ? '#22c55e' : score >= 75 ? '#4ade80' : score >= 60 ? '#fbbf24' : score >= 40 ? '#f97316' : '#ef4444';
+        const autoSelect = g.status === 'nouvelle' || g.status === 'amelioree';
+
+        return `
+            <div class="fm-granule-item">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <input type="checkbox" class="fm-granule-cb" data-index="${i}" ${autoSelect ? 'checked' : ''} onchange="forgeModalUpdateGranuleCount()" style="accent-color:#a78bfa;">
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                            <span style="color:#fff;font-size:13px;font-weight:600;">${escapeHtml(g.name)}</span>
+                            <span style="font-size:10px;padding:2px 6px;border-radius:6px;background:${catColor}15;color:${catColor};border:1px solid ${catColor}30;">${g.category}</span>
+                            <span style="font-size:10px;padding:2px 6px;border-radius:6px;background:${status.color}15;color:${status.color};border:1px solid ${status.color}30;">${status.label}</span>
+                        </div>
+                        <p style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:4px;">${escapeHtml(g.description)}</p>
+                    </div>
+                    <span style="font-size:16px;font-weight:700;color:${scoreColor};flex-shrink:0;">${score}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    granulesEl.innerHTML = `
+        <div class="fm-granules-header">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                <div>
+                    <div style="font-size:17px;font-weight:600;color:rgba(255,255,255,0.9);">Granules détectées</div>
+                    <div style="font-size:13px;color:rgba(255,255,255,0.35);">${granules.length} granule(s) dans « ${escapeHtml(strategyName)} »</div>
+                </div>
+                <button onclick="forgeModalBackToResult()" style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border:none;cursor:pointer;color:rgba(255,255,255,0.5);transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.color='rgba(255,255,255,0.5)'">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+                ${Object.entries(categoryCounts).map(([cat, count]) => {
+                    const c = categoryColors[cat] || '#888';
+                    return `<span style="padding:3px 8px;border-radius:8px;font-size:11px;background:${c}15;color:${c};border:1px solid ${c}30;">${cat} (${count})</span>`;
+                }).join('')}
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div style="display:flex;gap:6px;">
+                    <button onclick="forgeModalSelectAllGranules()" style="padding:5px 10px;border-radius:8px;font-size:11px;background:rgba(139,92,246,0.1);color:#a78bfa;border:1px solid rgba(139,92,246,0.2);cursor:pointer;">Tout sélectionner</button>
+                    <button onclick="forgeModalSelectNewGranules()" style="padding:5px 10px;border-radius:8px;font-size:11px;background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.2);cursor:pointer;">Nouvelles</button>
+                </div>
+                <span id="fmGranuleCount" style="color:rgba(255,255,255,0.4);font-size:12px;">0 sélectionnée(s)</span>
+            </div>
+        </div>
+
+        <div class="fm-granules-list">${listHtml}</div>
+
+        <div class="fm-granules-footer">
+            <button class="fm-btn-secondary" onclick="forgeModalBackToResult()">Retour</button>
+            <button class="fm-btn-primary" onclick="forgeModalSaveGranules()" style="background:linear-gradient(135deg, #7c3aed, #a78bfa);">
+                Sauvegarder dans Bibliothèque
+            </button>
+        </div>
+    `;
+
+    granulesEl.classList.add('fm-active');
+
+    // Stocker pour sauvegarde
+    window.forgeModalDetectedGranules = granules;
+    forgeModalUpdateGranuleCount();
+}
+
+/**
+ * Retour de GRANULES vers RESULT
+ */
+function forgeModalBackToResult() {
+    const granulesEl = document.getElementById('fmStateGranules');
+    const resultEl = document.getElementById('fmStateResult');
+    const modalBox = document.getElementById('forgeModalBox');
+    if (granulesEl) granulesEl.classList.remove('fm-active');
+    if (modalBox) modalBox.classList.remove('fm-wide');
+    if (resultEl) resultEl.classList.add('fm-active');
+}
+
+function forgeModalSelectAllGranules() {
+    document.querySelectorAll('.fm-granule-cb').forEach(cb => cb.checked = true);
+    forgeModalUpdateGranuleCount();
+}
+
+function forgeModalSelectNewGranules() {
+    const granules = window.forgeModalDetectedGranules || [];
+    granules.forEach((g, i) => {
+        const cb = document.querySelector(`.fm-granule-cb[data-index="${i}"]`);
+        if (cb) cb.checked = (g.status === 'nouvelle' || g.status === 'amelioree');
+    });
+    forgeModalUpdateGranuleCount();
+}
+
+function forgeModalUpdateGranuleCount() {
+    const count = document.querySelectorAll('.fm-granule-cb:checked').length;
+    const el = document.getElementById('fmGranuleCount');
+    if (el) el.textContent = `${count} sélectionnée(s)`;
+}
+
+/**
+ * Sauvegarde des granules sélectionnées depuis la modale
+ */
+async function forgeModalSaveGranules() {
+    const checkboxes = document.querySelectorAll('.fm-granule-cb:checked');
+    if (checkboxes.length === 0) {
+        showToast('Sélectionnez au moins une granule', 'error');
+        return;
+    }
+
+    const granules = window.forgeModalDetectedGranules || [];
+    const selected = Array.from(checkboxes).map(cb => granules[parseInt(cb.dataset.index)]);
+
+    try {
+        const response = await fetch(`${API_BASE}/api/forge/granules/save`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ granules: selected })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            showToast(`${data.summary.saved} granule(s) sauvegardée(s)`, 'success');
+            if (data.summary.skipped > 0) showToast(`${data.summary.skipped} déjà existante(s)`, 'info');
+            forgeModalBackToResult();
+        } else {
+            showToast(data.error || 'Erreur sauvegarde', 'error');
+        }
+    } catch (error) {
+        console.error('[FORGE MODAL] Erreur sauvegarde granules:', error);
+        showToast('Erreur connexion API', 'error');
+    }
+}
+
+/**
+ * Tester la stratégie depuis la modale
+ */
+function forgeModalTest() {
+    // Charger code dans forgeState
+    forgeState.pineCode = forgeState.forgeModalPineCode;
+    forgeState.pythonCode = forgeState.forgeModalPythonCode;
+    forgeState.strategyType = 'strategy';
+
+    // Fermer modale
+    forgeCloseModal();
+
+    // Activer zone backtest
+    forgeState.showChatBacktest = true;
+    renderSection();
+
+    // Scroll vers backtest
+    setTimeout(() => {
+        const el = document.getElementById('forge-chat-backtest-zone');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+}
+
+/**
+ * Rouvrir la modale RESULT depuis un message du chat
+ */
+function forgeReopenResultFromMsg(msgId) {
+    const msg = forgeState.messages.find(m => m.id === msgId);
+    if (!msg) return;
+    
+    let metadata = {};
+    try {
+        metadata = typeof msg.metadata === 'string' ? JSON.parse(msg.metadata) : (msg.metadata || {});
+    } catch(e) {}
+    
+    if (!metadata.pine_code) return;
+    
+    // Stocker dans l'état modale
+    forgeState.forgeModalPineCode = metadata.pine_code;
+    forgeState.forgeModalPythonCode = metadata.python_code || '';
+    forgeState.forgeModalGranules = null;
+    forgeState.forgeModalGranulesLoading = false;
+    
+    // Créer la modale directement en état RESULT
+    forgeShowGenerating();
+    forgeShowResult(metadata.pine_code, metadata.python_code || '', null);
+}
+
+/**
+ * Rouvrir la modale RESULT (depuis le chat)
+ */
+function forgeReopenResult() {
+    if (!forgeState.forgeModalPineCode) return;
+    forgeShowGenerating();
+    // Skip directement au résultat
+    forgeShowResult(
+        forgeState.forgeModalPineCode,
+        forgeState.forgeModalPythonCode,
+        forgeState.forgeModalVersion
+    );
+}
+
+/**
+ * Fermer la modale Forge
+ */
+function forgeCloseModal() {
+    forgeState.forgeModalStepTimers.forEach(t => clearTimeout(t));
+    forgeState.forgeModalStepTimers = [];
+    const overlay = document.getElementById('forgeModalOverlay');
+    if (overlay) overlay.remove();
+}
+
 function showConfirmModal(message, onConfirm, onCancel = () => {}) {
     const existing = document.getElementById('confirm-modal-overlay');
     if (existing) existing.remove();
@@ -701,6 +1289,14 @@ let forgeState = {
     isAnalyzing: false,
     isSimulating: false, // État pour le bouton Simuler
     isConverting: false, // État pour le bouton Python
+    // Modale Forge unifiée
+    forgeModalPineCode: '',
+    forgeModalPythonCode: '',
+    forgeModalVersion: null,
+    forgeModalCurrentTab: 'pine',
+    forgeModalGranules: null,       // null=loading, []=vide, [...]= données
+    forgeModalGranulesLoading: false,
+    forgeModalStepTimers: [],
     strategyType: 'strategy', // 'strategy' ou 'indicator'
     inputMode: 'natural', // 'natural', 'pine' ou 'python' - Toggle zone d'entrée
     selectedAssets: 'BTCUSDT,ETHUSDT,SOLUSDT,BNBUSDT,XRPUSDT',
@@ -2009,7 +2605,7 @@ function renderForgeChatMessage(msg) {
     const isForgeResult = msg.message_type === 'forge_result';
     
     if (isForgeResult) {
-        // Message spécial avec code généré
+        // Message épuré avec code généré — détails dans la modale
         let metadata = {};
         try {
             metadata = typeof msg.metadata === 'string' ? JSON.parse(msg.metadata) : (msg.metadata || {});
@@ -2019,64 +2615,25 @@ function renderForgeChatMessage(msg) {
             <div data-message-role="assistant" class="flex justify-start">
                 <div class="max-w-[85%] rounded-2xl rounded-bl-md overflow-hidden" style="background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
                     
-                    <!-- Header avec checkmark -->
-                    <div class="px-5 pt-4 pb-3" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
-                        <div class="flex items-start gap-3">
-                            <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background: rgba(74, 222, 128, 0.15);">
+                    <div class="px-5 py-4 flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(74, 222, 128, 0.15);">
                                 <svg class="w-3.5 h-3.5" style="color: #4ade80;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
                                 </svg>
                             </div>
                             <p class="text-white/90 text-sm leading-relaxed">${msg.content}</p>
                         </div>
-                    </div>
-                    
-                    ${metadata.pine_code ? `
-                        <!-- Actions -->
-                        <div class="px-5 py-3 flex items-center justify-between gap-3">
-                            <div class="flex items-center gap-2">
-                                <button onclick="forgeShowResultCode('pine', '${msg.id}')" 
-                                    class="px-3 py-1.5 rounded-lg text-xs font-medium transition"
-                                    style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.08);"
-                                    onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='#fff';"
-                                    onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='rgba(255,255,255,0.7)';">
-                                    Pine Script
-                                </button>
-                                <button onclick="forgeShowResultCode('python', '${msg.id}')" 
-                                    class="px-3 py-1.5 rounded-lg text-xs font-medium transition"
-                                    style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.08);"
-                                    onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='#fff';"
-                                    onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='rgba(255,255,255,0.7)';">
-                                    Python
-                                </button>
-                                <button onclick="forgeCopyResultCode('pine', '${msg.id}')" 
-                                    class="px-3 py-1.5 rounded-lg text-xs font-medium transition"
-                                    style="background: transparent; color: rgba(255,255,255,0.4);"
-                                    onmouseover="this.style.color='rgba(255,255,255,0.8)';"
-                                    onmouseout="this.style.color='rgba(255,255,255,0.4)';">
-                                    Copier Pine
-                                </button>
-                            </div>
-                            
-                            <button onclick="forgeStartBacktestFromChat('${msg.id}')"
-                                class="px-4 py-2 rounded-xl text-white text-xs font-semibold transition flex items-center gap-2"
-                                style="background: linear-gradient(135deg, #d97706, #f59e0b); box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);"
-                                onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 16px rgba(217,119,6,0.4)';"
-                                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(217,119,6,0.3)';">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                                </svg>
-                                Tester
+                        ${metadata.pine_code ? `
+                            <button onclick="forgeReopenResultFromMsg('${msg.id}')"
+                                class="px-3 py-1.5 rounded-lg text-xs font-medium transition flex-shrink-0"
+                                style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.08);"
+                                onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='#fff';"
+                                onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='rgba(255,255,255,0.5)';">
+                                Voir le code
                             </button>
-                        </div>
-                        
-                        <!-- Zone code (cachee par defaut) -->
-                        <div id="forge-result-code-${msg.id}" class="hidden">
-                            <div class="mx-4 mb-4 rounded-xl overflow-hidden" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06);">
-                                <pre class="p-4 text-xs overflow-x-auto" style="max-height: 300px;"><code class="text-white/80"></code></pre>
-                            </div>
-                        </div>
-                    ` : ''}
+                        ` : ''}
+                    </div>
                 </div>
             </div>
         `;
@@ -2381,18 +2938,50 @@ async function forgeSendMessage() {
                 if (projectIndex !== -1) {
                     forgeState.projects[projectIndex].current_version = data.version;
                 }
-                showCenteredModal(`Code généré (v${data.version})`, 'success');
                 forgeState.lastGeneratedCode = {
                     pine: data.pine_code,
                     python: data.python_code
                 };
                 
+                // Afficher modale RESULT (crée le DOM puis transition immédiate)
+                forgeShowGenerating();
+                forgeShowResult(data.pine_code, data.python_code, data.version);
+                
                 // Lancer analyse granulaire en arrière-plan
                 if (data.pine_code) {
                     const projectName = forgeState.currentProject?.name || 'Stratégie';
-                    console.log('[FORGE CHAT] Lancement analyse granulaire pour:', projectName);
-                    analyzeAndShowGranules(data.pine_code, 'pine', projectName);
+                    console.log('[FORGE CHAT] Lancement analyse granulaire en background');
+                    forgeState.forgeModalGranulesLoading = true;
+                    forgeModalUpdateGranulesButton();
+                    
+                    // Extraction + comparaison en parallèle
+                    (async () => {
+                        try {
+                            const grResp = await fetch(`${API_BASE}/api/forge/extract-granules`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ code: data.pine_code, code_type: 'pine', save_new: false })
+                            });
+                            const grData = await grResp.json();
+                            
+                            if (grData.success && grData.granules && grData.granules.length > 0) {
+                                const comparison = await compareGranulesWithLibrary(grData.granules);
+                                forgeState.forgeModalGranules = comparison;
+                                console.log(`[FORGE MODAL] ${comparison.length} granule(s) prêtes`);
+                            } else {
+                                forgeState.forgeModalGranules = [];
+                            }
+                        } catch (grErr) {
+                            console.error('[FORGE MODAL] Erreur granules:', grErr);
+                            forgeState.forgeModalGranules = [];
+                        }
+                        forgeState.forgeModalGranulesLoading = false;
+                        forgeModalUpdateGranulesButton();
+                    })();
                 }
+            } else {
+                // Pas une commande Forge (message texte) — fermer la modale
+                forgeCloseModal();
             }
             
             // Recharger les messages (remplace les temporaires)
@@ -2400,11 +2989,13 @@ async function forgeSendMessage() {
         } else {
             // Retirer le message thinking en cas d'erreur
             forgeState.messages = forgeState.messages.filter(m => m.id !== 'thinking');
+            forgeCloseModal();
             showCenteredModal(data.error || 'Erreur d\'envoi', 'error');
         }
     } catch (error) {
         console.error('[Forge] Error sending message:', error);
         forgeState.messages = forgeState.messages.filter(m => m.id !== 'thinking');
+        forgeCloseModal();
         showCenteredModal('Erreur d\'envoi', 'error');
     }
     
@@ -5174,46 +5765,62 @@ async function forgeGenerate() {
     
     forgeState.isGenerating = true;
     renderSection();
+    forgeShowGenerating();
     
     try {
-        console.log('[FORGE] 🔵 Requête envoyée vers API avec project_id:', forgeState.currentProjectId);
+        console.log('[FORGE] Requête envoyée vers API avec project_id:', forgeState.currentProjectId);
         const response = await fetch(`${API_BASE}/api/forge/generate`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({project_id: forgeState.currentProjectId})
         });
 
-        console.log('[FORGE] 🔵 Réponse reçue, status:', response.status, response.ok);
-
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
         }
 
         const data = await response.json();
-        console.log('[FORGE] ⚠️ RÉPONSE API PARSÉE:', {success: data.success, hasPineCode: !!data.pine_code, hasError: !!data.error});
 
         if (data.success && data.pine_code) {
-            console.log('[FORGE] Génération réussie, code Pine présent');
             forgeState.pineCode = data.pine_code;
             forgeState.pythonCode = data.python_code || '';
-            showCenteredModal('Code généré avec succès', 'success');
+            
+            // Transition modale vers RESULT
+            forgeShowResult(data.pine_code, data.python_code || '', null);
 
-            // Analyse granulaire automatique
-            console.log('[FORGE] Déclenchement analyse granulaire dans 500ms...');
-            setTimeout(() => {
-                console.log('[FORGE] Appel analyzeAndShowGranules()');
-                analyzeAndShowGranules(
-                    forgeState.pineCode,
-                    'pine',
-                    forgeState.projectName || 'Stratégie'
-                );
-            }, 500);
+            // Analyse granulaire en arrière-plan
+            forgeState.forgeModalGranulesLoading = true;
+            forgeModalUpdateGranulesButton();
+            
+            (async () => {
+                try {
+                    const grResp = await fetch(`${API_BASE}/api/forge/extract-granules`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code: data.pine_code, code_type: 'pine', save_new: false })
+                    });
+                    const grData = await grResp.json();
+                    
+                    if (grData.success && grData.granules && grData.granules.length > 0) {
+                        const comparison = await compareGranulesWithLibrary(grData.granules);
+                        forgeState.forgeModalGranules = comparison;
+                    } else {
+                        forgeState.forgeModalGranules = [];
+                    }
+                } catch (grErr) {
+                    console.error('[FORGE] Erreur granules:', grErr);
+                    forgeState.forgeModalGranules = [];
+                }
+                forgeState.forgeModalGranulesLoading = false;
+                forgeModalUpdateGranulesButton();
+            })();
         } else {
-            console.log('[FORGE] Condition échouée - data.success:', data.success, 'data.pine_code:', !!data.pine_code);
+            forgeCloseModal();
             showCenteredModal(data.error || 'Erreur de génération', 'error');
         }
     } catch (e) {
         console.error('Forge generate error:', e);
+        forgeCloseModal();
         showCenteredModal('Erreur de connexion', 'error');
     } finally {
         forgeState.isGenerating = false;
