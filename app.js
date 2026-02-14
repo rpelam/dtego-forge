@@ -669,14 +669,14 @@ function injectForgeModalCSS() {
         .fm-result-subtitle { font-size:13px; color:rgba(255,255,255,0.35); }
 
         .fm-result-tabs { padding:16px 28px 0; }
-        .fm-tabs-row { display:flex; gap:0; background:rgba(255,255,255,0.04); border-radius:10px; padding:3px; border:1px solid rgba(255,255,255,0.08); }
+        .fm-tabs-row { display:flex; gap:8px; background:transparent; border-radius:10px; padding:0; border:none; }
         .fm-tab-btn {
-            flex:1; padding:9px 0; border-radius:8px; font-size:12px; font-weight:600;
-            text-align:center; border:none; cursor:pointer; transition:all 0.2s;
-            background:transparent; color:rgba(255,255,255,0.35); letter-spacing:0.01em;
+            flex:1; padding:10px 0; border-radius:8px; font-size:13px; font-weight:600;
+            text-align:center; border:1px solid rgba(255,255,255,0.15); cursor:pointer; transition:all 0.2s;
+            background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.5); letter-spacing:0.01em;
         }
-        .fm-tab-btn:hover { color:rgba(255,255,255,0.7); background:rgba(255,255,255,0.04); }
-        .fm-tab-btn.fm-active { background:rgba(255,255,255,0.12); color:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); }
+        .fm-tab-btn:hover { color:rgba(255,255,255,0.9); background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.25); }
+        .fm-tab-btn.fm-active { background:rgba(255,255,255,0.12); color:#fff; box-shadow:0 2px 10px rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.3); }
 
         .fm-result-code { padding:0 28px; max-height:0; overflow:hidden; transition:max-height 0.3s ease, padding 0.3s ease; }
         .fm-result-code.fm-expanded { max-height:280px; padding:12px 28px 16px; }
@@ -1006,7 +1006,7 @@ function forgeModalShowGranules() {
                     <input type="checkbox" class="fm-granule-cb" data-index="${i}" ${autoSelect ? 'checked' : ''} onchange="forgeModalUpdateGranuleCount()" style="accent-color:#a78bfa;">
                     <div style="flex:1;min-width:0;">
                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                            <span onclick="event.stopPropagation();fmShowCategoryInfo('${g.category}')" style="color:#fff;font-size:13px;font-weight:600;text-decoration:underline;text-decoration-color:rgba(167,139,250,0.4);text-underline-offset:2px;text-decoration-thickness:1.5px;cursor:pointer;transition:text-decoration-color 0.2s;" onmouseover="this.style.textDecorationColor='rgba(167,139,250,0.8)'" onmouseout="this.style.textDecorationColor='rgba(167,139,250,0.4)'">${escapeHtml(g.name)}</span>
+                            <span onclick="event.stopPropagation();fmShowCategoryInfo('${g.category}')" style="color:#fff;font-size:13px;font-weight:600;text-decoration:underline;text-decoration-color:rgba(255,255,255,0.7);text-underline-offset:4px;text-decoration-thickness:3px;cursor:pointer;transition:text-decoration-color 0.2s;" onmouseover="this.style.textDecorationColor='rgba(255,255,255,1)'" onmouseout="this.style.textDecorationColor='rgba(255,255,255,0.7)'">${escapeHtml(g.name)}</span>
                             <span style="font-size:10px;padding:2px 6px;border-radius:6px;background:${catColor}15;color:${catColor};border:1px solid ${catColor}30;">${g.category}</span>
                             <span style="font-size:10px;padding:2px 6px;border-radius:6px;background:${status.color}15;color:${status.color};border:1px solid ${status.color}30;">${status.label}</span>
                         </div>
