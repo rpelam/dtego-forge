@@ -1277,9 +1277,13 @@ async function forgeModalSaveGranules() {
         const data = await response.json();
 
         if (data.success) {
-            showToast(`${data.summary.saved} granule(s) sauvegardée(s)`, 'success');
-            if (data.summary.skipped > 0) showToast(`${data.summary.skipped} déjà existante(s)`, 'info');
             forgeModalBackToResult();
+            setTimeout(() => {
+                showToast(`${data.summary.saved} granule(s) sauvegardée(s)`, 'success');
+                if (data.summary.skipped > 0) {
+                    showToast(`${data.summary.skipped} déjà existante(s)`, 'info');
+                }
+            }, 400);
         } else {
             showToast(data.error || 'Erreur sauvegarde', 'error');
         }
