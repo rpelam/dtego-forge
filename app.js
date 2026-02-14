@@ -88,7 +88,7 @@ function showToast(message, type = 'info') {
     };
 
     const toast = document.createElement('div');
-    toast.className = 'fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity';
+    toast.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity';
     toast.style.cssText = `background: ${colors[type]}; color: white;`;
     toast.textContent = message;
     document.body.appendChild(toast);
