@@ -668,21 +668,21 @@ function injectForgeModalCSS() {
         .fm-result-title { font-size:17px; font-weight:600; color:rgba(255,255,255,0.9); margin-bottom:4px; }
         .fm-result-subtitle { font-size:13px; color:rgba(255,255,255,0.35); }
 
-        .fm-result-tabs { padding:16px 28px; border-bottom:1px solid rgba(255,255,255,0.06); }
-        .fm-tabs-row { display:flex; gap:6px; background:rgba(255,255,255,0.03); border-radius:10px; padding:3px; }
+        .fm-result-tabs { padding:16px 28px 0; }
+        .fm-tabs-row { display:flex; gap:0; background:rgba(255,255,255,0.04); border-radius:10px; padding:3px; border:1px solid rgba(255,255,255,0.08); }
         .fm-tab-btn {
-            flex:1; padding:8px 0; border-radius:8px; font-size:12px; font-weight:500;
+            flex:1; padding:9px 0; border-radius:8px; font-size:12px; font-weight:600;
             text-align:center; border:none; cursor:pointer; transition:all 0.2s;
-            background:transparent; color:rgba(255,255,255,0.4);
+            background:transparent; color:rgba(255,255,255,0.35); letter-spacing:0.01em;
         }
-        .fm-tab-btn:hover { color:rgba(255,255,255,0.7); }
-        .fm-tab-btn.fm-active { background:rgba(255,255,255,0.08); color:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.2); }
+        .fm-tab-btn:hover { color:rgba(255,255,255,0.7); background:rgba(255,255,255,0.04); }
+        .fm-tab-btn.fm-active { background:rgba(255,255,255,0.12); color:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); }
 
         .fm-result-code { padding:0 28px; max-height:0; overflow:hidden; transition:max-height 0.3s ease, padding 0.3s ease; }
-        .fm-result-code.fm-expanded { max-height:280px; padding:16px 28px; }
+        .fm-result-code.fm-expanded { max-height:280px; padding:12px 28px 16px; }
         .fm-code-block {
-            background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.05);
-            border-radius:12px; padding:16px; max-height:240px; overflow-y:auto; position:relative;
+            background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.06);
+            border-radius:12px; padding:14px 16px; max-height:220px; overflow-y:auto;
         }
         .fm-code-block pre {
             font-family:'SF Mono','Menlo','Consolas',monospace;
@@ -690,9 +690,9 @@ function injectForgeModalCSS() {
             white-space:pre-wrap; margin:0;
         }
         .fm-copy-btn {
-            position:absolute; top:10px; right:10px; padding:5px 10px;
+            padding:5px 12px;
             border-radius:6px; font-size:10px; font-weight:500; border:none; cursor:pointer;
-            background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.4); transition:all 0.2s;
+            background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.5); transition:all 0.2s;
         }
         .fm-copy-btn:hover { background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.8); }
         .fm-copy-btn.fm-copied { background:rgba(74,222,128,0.15); color:#4ade80; }
@@ -850,9 +850,13 @@ function forgeShowResult(pineCode, pythonCode, version) {
         </div>
 
         <div class="fm-result-code" id="fmResultCode">
-            <div class="fm-code-block">
-                <button class="fm-copy-btn" id="fmCopyBtn" onclick="forgeModalCopyCode()">Copier</button>
-                <pre id="fmCodeContent"></pre>
+            <div style="position:relative;">
+                <div style="display:flex;justify-content:flex-end;padding:0 0 6px;">
+                    <button class="fm-copy-btn" id="fmCopyBtn" onclick="forgeModalCopyCode()">Copier</button>
+                </div>
+                <div class="fm-code-block">
+                    <pre id="fmCodeContent"></pre>
+                </div>
             </div>
         </div>
 
@@ -1002,7 +1006,7 @@ function forgeModalShowGranules() {
                     <input type="checkbox" class="fm-granule-cb" data-index="${i}" ${autoSelect ? 'checked' : ''} onchange="forgeModalUpdateGranuleCount()" style="accent-color:#a78bfa;">
                     <div style="flex:1;min-width:0;">
                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                            <span onclick="event.stopPropagation();fmShowCategoryInfo('${g.category}')" style="color:#fff;font-size:13px;font-weight:600;text-decoration:underline;text-decoration-color:rgba(255,255,255,0.25);text-underline-offset:3px;cursor:pointer;transition:text-decoration-color 0.2s;" onmouseover="this.style.textDecorationColor='rgba(255,255,255,0.6)'" onmouseout="this.style.textDecorationColor='rgba(255,255,255,0.25)'">${escapeHtml(g.name)}</span>
+                            <span onclick="event.stopPropagation();fmShowCategoryInfo('${g.category}')" style="color:#fff;font-size:13px;font-weight:600;text-decoration:underline;text-decoration-color:rgba(167,139,250,0.4);text-underline-offset:2px;text-decoration-thickness:1.5px;cursor:pointer;transition:text-decoration-color 0.2s;" onmouseover="this.style.textDecorationColor='rgba(167,139,250,0.8)'" onmouseout="this.style.textDecorationColor='rgba(167,139,250,0.4)'">${escapeHtml(g.name)}</span>
                             <span style="font-size:10px;padding:2px 6px;border-radius:6px;background:${catColor}15;color:${catColor};border:1px solid ${catColor}30;">${g.category}</span>
                             <span style="font-size:10px;padding:2px 6px;border-radius:6px;background:${status.color}15;color:${status.color};border:1px solid ${status.color}30;">${status.label}</span>
                         </div>
