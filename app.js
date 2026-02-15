@@ -2584,6 +2584,7 @@ function renderForgeChat() {
                                 <span class="px-2 py-0.5 rounded text-xs font-medium" style="background: rgba(217, 119, 6, 0.2); color: #fbbf24;">
                                     v${project.current_version || 0}
                                 </span>
+                                ${project.current_version > 0 ? `<button onclick="forgeReopenResult()" class="px-2.5 py-1 rounded-lg text-xs font-medium transition" style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.08);" onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='rgba(255,255,255,0.5)';">Voir le code</button>` : ''}
                             </div>
                             <p class="text-white/40 text-sm">${project.description || ''}</p>
                         </div>
