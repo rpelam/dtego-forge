@@ -1340,44 +1340,52 @@ function forgeModalTest() {
 function forgeReopenResultFromMsg(msgId) {
     const msg = forgeState.messages.find(m => m.id === msgId);
     if (!msg) return;
-    
+
     let metadata = {};
     try {
         metadata = typeof msg.metadata === 'string' ? JSON.parse(msg.metadata) : (msg.metadata || {});
     } catch(e) {}
-    
+
     if (!metadata.pine_code) return;
-    
-    // Stocker dans l'état modale
+
     forgeState.forgeModalPineCode = metadata.pine_code;
     forgeState.forgeModalPythonCode = metadata.python_code || '';
-    forgeState.forgeModalGranules = null;
-    forgeState.forgeModalGranulesLoading = true;
 
-    // Créer la modale directement en état RESULT
+    if (metadata.granules && metadata.granules.length > 0) {
+        forgeState.forgeModalGranules = metadata.granules;
+        forgeState.forgeModalGranulesLoading = false;
+    } else {
+        forgeState.forgeModalGranules = null;
+        forgeState.forgeModalGranulesLoading = true;
+    }
+
     forgeShowGenerating();
     forgeShowResult(metadata.pine_code, metadata.python_code || '', null);
 
-    (async () => {
-        try {
-            const grResp = await fetch(`${API_BASE}/api/forge/extract-granules`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code: metadata.pine_code, code_type: 'pine', save_new: false })
-            });
-            const grData = await grResp.json();
-            if (grData.success && grData.granules && grData.granules.length > 0) {
-                const comparison = await compareGranulesWithLibrary(grData.granules);
-                forgeState.forgeModalGranules = comparison;
-            } else {
+    if (!metadata.granules || metadata.granules.length === 0) {
+        (async () => {
+            try {
+                const grResp = await fetch(`${API_BASE}/api/forge/extract-granules`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: metadata.pine_code, code_type: 'pine', save_new: false })
+                });
+                const grData = await grResp.json();
+                if (grData.success && grData.granules && grData.granules.length > 0) {
+                    const comparison = await compareGranulesWithLibrary(grData.granules);
+                    forgeState.forgeModalGranules = comparison;
+                    metadata.granules = comparison;
+                    msg.metadata = metadata;
+                } else {
+                    forgeState.forgeModalGranules = [];
+                }
+            } catch (e) {
                 forgeState.forgeModalGranules = [];
             }
-        } catch (e) {
-            forgeState.forgeModalGranules = [];
-        }
-        forgeState.forgeModalGranulesLoading = false;
-        forgeModalUpdateGranulesButton();
-    })();
+            forgeState.forgeModalGranulesLoading = false;
+            forgeModalUpdateGranulesButton();
+        })();
+    }
 }
 
 /**
@@ -3195,6 +3203,12 @@ async function forgeSendMessage() {
                             if (grData.success && grData.granules && grData.granules.length > 0) {
                                 const comparison = await compareGranulesWithLibrary(grData.granules);
                                 forgeState.forgeModalGranules = comparison;
+                                const resultMsg = [...(forgeState.messages || [])].reverse().find(m => m.message_type === 'forge_result');
+                                if (resultMsg) {
+                                    let meta = typeof resultMsg.metadata === 'string' ? JSON.parse(resultMsg.metadata) : (resultMsg.metadata || {});
+                                    meta.granules = comparison;
+                                    resultMsg.metadata = meta;
+                                }
                                 console.log(`[FORGE MODAL] ${comparison.length} granule(s) prêtes`);
                             } else {
                                 forgeState.forgeModalGranules = [];
