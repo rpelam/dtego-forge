@@ -87,15 +87,32 @@ function showToast(message, type = 'info') {
         info: '#3b82f6'
     };
 
+    // Create/get toast container
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 flex flex-col gap-2.5';
+        document.body.appendChild(container);
+    }
+
+    // Create toast
     const toast = document.createElement('div');
-    toast.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity';
+    toast.className = 'px-4 py-2 rounded-lg shadow-lg transition-opacity';
     toast.style.cssText = `background: ${colors[type]}; color: white;`;
     toast.textContent = message;
-    document.body.appendChild(toast);
+    container.appendChild(toast);
 
+    // Remove after 3s
     setTimeout(() => {
         toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 300);
+        setTimeout(() => {
+            toast.remove();
+            // Remove container if empty
+            if (container.children.length === 0) {
+                container.remove();
+            }
+        }, 300);
     }, 3000);
 }
 
@@ -725,6 +742,7 @@ function injectForgeModalCSS() {
             display:flex; align-items:center; justify-content:center; gap:6px;
         }
         .fm-btn-primary:hover { transform:translateY(-1px); box-shadow:0 6px 16px rgba(217,119,6,0.35); }
+        .fm-btn-primary:active { transform:scale(0.95); opacity:0.8; }
 
         /* État 3: GRANULES */
         .fm-granules { display:none; animation: fmResultIn 0.4s ease; }
