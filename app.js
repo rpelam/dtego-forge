@@ -1352,11 +1352,32 @@ function forgeReopenResultFromMsg(msgId) {
     forgeState.forgeModalPineCode = metadata.pine_code;
     forgeState.forgeModalPythonCode = metadata.python_code || '';
     forgeState.forgeModalGranules = null;
-    forgeState.forgeModalGranulesLoading = false;
-    
+    forgeState.forgeModalGranulesLoading = true;
+
     // Créer la modale directement en état RESULT
     forgeShowGenerating();
     forgeShowResult(metadata.pine_code, metadata.python_code || '', null);
+
+    (async () => {
+        try {
+            const grResp = await fetch(`${API_BASE}/api/forge/extract-granules`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: metadata.pine_code, code_type: 'pine', save_new: false })
+            });
+            const grData = await grResp.json();
+            if (grData.success && grData.granules && grData.granules.length > 0) {
+                const comparison = await compareGranulesWithLibrary(grData.granules);
+                forgeState.forgeModalGranules = comparison;
+            } else {
+                forgeState.forgeModalGranules = [];
+            }
+        } catch (e) {
+            forgeState.forgeModalGranules = [];
+        }
+        forgeState.forgeModalGranulesLoading = false;
+        forgeModalUpdateGranulesButton();
+    })();
 }
 
 /**
