@@ -92,7 +92,8 @@ function showToast(message, type = 'info') {
     if (!container) {
         container = document.createElement('div');
         container.id = 'toastContainer';
-        container.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 flex flex-col gap-2.5';
+        container.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-2.5';
+        container.style.zIndex = '10001';
         document.body.appendChild(container);
     }
 
