@@ -1377,6 +1377,12 @@ function forgeReopenResultFromMsg(msgId) {
                     forgeState.forgeModalGranules = comparison;
                     metadata.granules = comparison;
                     msg.metadata = metadata;
+                    // Persist to DB
+                    fetch(`${API_BASE}/api/forge/messages/${msg.id}/metadata`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ granules: comparison })
+                    }).catch(e => console.error('[FORGE] Failed to persist granules:', e));
                 } else {
                     forgeState.forgeModalGranules = [];
                 }
@@ -3209,6 +3215,12 @@ async function forgeSendMessage() {
                                     let meta = typeof resultMsg.metadata === 'string' ? JSON.parse(resultMsg.metadata) : (resultMsg.metadata || {});
                                     meta.granules = comparison;
                                     resultMsg.metadata = meta;
+                                    // Persist to DB
+                                    fetch(`${API_BASE}/api/forge/messages/${resultMsg.id}/metadata`, {
+                                        method: 'PATCH',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ granules: comparison })
+                                    }).catch(e => console.error('[FORGE] Failed to persist granules:', e));
                                 }
                                 console.log(`[FORGE MODAL] ${comparison.length} granule(s) prêtes`);
                             } else {
