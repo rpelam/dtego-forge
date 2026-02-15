@@ -1361,6 +1361,7 @@ function forgeReopenResultFromMsg(msgId) {
 
     forgeShowGenerating();
     forgeShowResult(metadata.pine_code, metadata.python_code || '', null);
+    forgeModalUpdateGranulesButton();
 
     if (!metadata.granules || metadata.granules.length === 0) {
         (async () => {
