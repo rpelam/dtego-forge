@@ -1351,6 +1351,8 @@ function forgeReopenResultFromMsg(msgId) {
     forgeState.forgeModalPineCode = metadata.pine_code;
     forgeState.forgeModalPythonCode = metadata.python_code || '';
 
+    forgeShowGenerating();
+
     if (metadata.granules && metadata.granules.length > 0) {
         forgeState.forgeModalGranules = metadata.granules;
         forgeState.forgeModalGranulesLoading = false;
@@ -1359,7 +1361,6 @@ function forgeReopenResultFromMsg(msgId) {
         forgeState.forgeModalGranulesLoading = true;
     }
 
-    forgeShowGenerating();
     forgeShowResult(metadata.pine_code, metadata.python_code || '', null);
     forgeModalUpdateGranulesButton();
 
