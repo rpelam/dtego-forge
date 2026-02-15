@@ -1363,9 +1363,15 @@ function forgeReopenResultFromMsg(msgId) {
  * Rouvrir la modale RESULT (depuis le chat)
  */
 function forgeReopenResult() {
-    if (!forgeState.forgeModalPineCode) return;
+    if (!forgeState.forgeModalPineCode) {
+        const resultMsg = [...(forgeState.messages || [])].reverse().find(m => m.message_type === 'forge_result');
+        if (resultMsg) {
+            forgeReopenResultFromMsg(resultMsg.id);
+            return;
+        }
+        return;
+    }
     forgeShowGenerating();
-    // Skip directement au résultat
     forgeShowResult(
         forgeState.forgeModalPineCode,
         forgeState.forgeModalPythonCode,
