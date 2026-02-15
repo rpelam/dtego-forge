@@ -1287,6 +1287,8 @@ async function forgeModalSaveGranules() {
     const granules = window.forgeModalDetectedGranules || [];
     const selected = Array.from(checkboxes).map(cb => granules[parseInt(cb.dataset.index)]);
 
+    forgeCloseModal();
+
     try {
         const response = await fetch(`${API_BASE}/api/forge/granules/save`, {
             method: 'POST',
@@ -1296,7 +1298,6 @@ async function forgeModalSaveGranules() {
         const data = await response.json();
 
         if (data.success) {
-            forgeCloseModal();
             showToast(`${data.summary.saved} granule(s) sauvegardée(s)`, 'success');
             if (data.summary.skipped > 0) {
                 showToast(`${data.summary.skipped} déjà existante(s)`, 'info');
