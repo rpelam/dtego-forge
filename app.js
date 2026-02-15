@@ -2817,7 +2817,7 @@ function renderForgeChatMessage(msg) {
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
                                 </svg>
                             </div>
-                            <p class="text-white/90 text-sm leading-relaxed">${msg.content}</p>
+                            <p class="text-white/90 text-sm leading-relaxed">${msg.content.includes(').') ? msg.content.split(').')[0] + ')' : msg.content}</p>
                         </div>
                         ${metadata.pine_code ? `
                             <button onclick="forgeReopenResultFromMsg('${msg.id}')"
