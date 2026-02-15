@@ -1408,12 +1408,19 @@ function forgeReopenResult() {
         }
         return;
     }
+    // Sauvegarder granules avant reset
+    const savedGranules = forgeState.forgeModalGranules;
+    const savedLoading = forgeState.forgeModalGranulesLoading;
     forgeShowGenerating();
+    // Restaurer après reset
+    forgeState.forgeModalGranules = savedGranules;
+    forgeState.forgeModalGranulesLoading = savedLoading;
     forgeShowResult(
         forgeState.forgeModalPineCode,
         forgeState.forgeModalPythonCode,
         forgeState.forgeModalVersion
     );
+    forgeModalUpdateGranulesButton();
 }
 
 /**
