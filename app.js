@@ -2643,7 +2643,7 @@ function renderForgeChat() {
                         <button onclick="forgeShowVersionsModal()" class="p-2 rounded-lg bg-white/5 text-white/60 hover:bg-white/10 hover:text-white transition" title="Historique des versions">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </button>
-                        <button onclick="forgeSaveToLibrary()" class="px-4 py-2 rounded-lg text-sm font-medium transition" style="background: linear-gradient(135deg, #10b981, #14b8a6); color: white;">
+                        <button onclick="forgeQuickSave()" class="px-4 py-2 rounded-lg text-sm font-medium transition" style="background: linear-gradient(135deg, #10b981, #14b8a6); color: white;">
                             Sauvegarder
                         </button>
                     </div>
@@ -5034,9 +5034,9 @@ function forgeImportFile(event) {
 
 // Sauvegarde rapide dans la Bibliothèque
 function forgeQuickSave() {
-    const content = forgeState.inputMode === 'natural' ? forgeState.description 
-                  : forgeState.inputMode === 'pine' ? forgeState.pineCode 
-                  : forgeState.pythonCode;
+    const content = forgeState.inputMode === 'natural' ? forgeState.description
+                  : forgeState.inputMode === 'pine' ? (forgeState.pineCode || forgeState.forgeModalPineCode)
+                  : (forgeState.pythonCode || forgeState.forgeModalPythonCode);
     
     if (!content) {
         showCenteredModal('Rien à sauvegarder', 'error');
@@ -5920,6 +5920,11 @@ async function forgeSaveToLibrary() {
         if (data.success) {
             showCenteredModal(`"${name}" sauvegardé dans la bibliothèque`, 'success');
             await loadLibrary();
+        } else if (data.error && data.error.includes('existe')) {
+            showPromptModal('Ce nom existe déjà. Nouveau nom:', name + ' (2)', async (newName) => {
+                forgeState.sourceMeta = { ...forgeState.sourceMeta, name: newName };
+                await forgeSaveToLibrary();
+            });
         } else {
             showErrorModal(data.error || 'Une erreur est survenue lors de la sauvegarde.', 'Erreur de sauvegarde');
         }
