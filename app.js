@@ -5890,8 +5890,8 @@ async function forgeSaveToLibrary() {
         || 'Ma stratégie';
 
     // Récupérer le code depuis le projet ou forgeState
-    const pineCode = forgeState.currentProject?.currentVersion?.pine_code || forgeState.pineCode;
-    const pythonCode = forgeState.currentProject?.currentVersion?.python_code || forgeState.pythonCode;
+    const pineCode = forgeState.currentProject?.currentVersion?.pine_code || forgeState.forgeModalPineCode || forgeState.pineCode;
+    const pythonCode = forgeState.currentProject?.currentVersion?.python_code || forgeState.forgeModalPythonCode || forgeState.pythonCode;
 
     if (!pineCode && !pythonCode) {
         showErrorModal('Aucun code à sauvegarder. Générez d\'abord du code Pine ou Python.', 'Code manquant');
