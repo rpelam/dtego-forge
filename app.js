@@ -5034,19 +5034,23 @@ function forgeImportFile(event) {
 
 // Sauvegarde rapide dans la Bibliothèque
 function forgeQuickSave() {
-    const content = forgeState.inputMode === 'natural' ? forgeState.description
-                  : forgeState.inputMode === 'pine' ? (forgeState.pineCode || forgeState.forgeModalPineCode)
-                  : (forgeState.pythonCode || forgeState.forgeModalPythonCode);
-    
-    if (!content) {
+    const anyCode = forgeState.currentProject?.currentVersion?.pine_code
+        || forgeState.forgeModalPineCode
+        || forgeState.forgeModalPythonCode
+        || forgeState.pineCode
+        || forgeState.pythonCode
+        || forgeState.description;
+
+    if (!anyCode) {
         showCenteredModal('Rien à sauvegarder', 'error');
         return;
     }
-    
+
     // Déterminer le nom
-    let defaultName = forgeState.sourceMeta?.name || '';
-    if (!defaultName && forgeState.pineCode) {
-        const nameMatch = forgeState.pineCode.match(/(?:strategy|indicator)\s*\(\s*["']([^"']+)["']/);
+    let defaultName = forgeState.sourceMeta?.name || forgeState.currentProject?.name || '';
+    const codeForName = forgeState.forgeModalPineCode || forgeState.pineCode;
+    if (!defaultName && codeForName) {
+        const nameMatch = codeForName.match(/(?:strategy|indicator)\s*\(\s*["']([^"']+)["']/);
         if (nameMatch) defaultName = nameMatch[1];
     }
     if (!defaultName) {
