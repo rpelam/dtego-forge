@@ -5924,6 +5924,15 @@ async function forgeSaveToLibrary(overrideName) {
         if (data.success) {
             showCenteredModal(`"${name}" sauvegardé dans la bibliothèque`, 'success');
             await loadLibrary();
+            // Proposer sauvegarde granules si disponibles
+            const granules = forgeState.forgeModalGranules;
+            if (granules && granules.length > 0) {
+                setTimeout(() => {
+                    showConfirmModal(`${granules.length} granule(s) détectée(s). Sauvegarder dans la bibliothèque ?`, async () => {
+                        await forgeModalSaveGranules();
+                    });
+                }, 1500);
+            }
         } else if (data.error && data.error.includes('existe')) {
             showPromptModal('Ce nom existe déjà. Nouveau nom:', name + ' (2)', async (newName) => {
                 await forgeSaveToLibrary(newName);
