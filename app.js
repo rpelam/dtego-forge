@@ -5886,11 +5886,11 @@ function showErrorModal(message, title = 'Erreur') {
     document.body.appendChild(overlay);
 }
 
-async function forgeSaveToLibrary() {
-    // Si projet ouvert, utiliser son nom directement
-    const name = forgeState.currentProject?.name
-        || document.getElementById('forge-strategy-name')?.value?.trim()
+async function forgeSaveToLibrary(overrideName) {
+    const name = overrideName
         || forgeState.sourceMeta?.name
+        || forgeState.currentProject?.name
+        || document.getElementById('forge-strategy-name')?.value?.trim()
         || 'Ma stratégie';
 
     // Récupérer le code depuis le projet ou forgeState
@@ -5926,8 +5926,7 @@ async function forgeSaveToLibrary() {
             await loadLibrary();
         } else if (data.error && data.error.includes('existe')) {
             showPromptModal('Ce nom existe déjà. Nouveau nom:', name + ' (2)', async (newName) => {
-                forgeState.sourceMeta = { ...forgeState.sourceMeta, name: newName };
-                await forgeSaveToLibrary();
+                await forgeSaveToLibrary(newName);
             });
         } else {
             showErrorModal(data.error || 'Une erreur est survenue lors de la sauvegarde.', 'Erreur de sauvegarde');
