@@ -5903,6 +5903,10 @@ async function forgeSaveToLibrary(overrideName) {
     }
 
     try {
+        // Feedback INSTANTANÉ
+        showCenteredModal('Sauvegarde en cours...', 'success');
+
+        // Sauvegarde stratégie
         const response = await fetch(`${API_BASE}/api/library`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -5936,21 +5940,20 @@ async function forgeSaveToLibrary(overrideName) {
                     if (gData.success) granulesSaved = gData.saved || granules.length;
                 } catch (e) { console.error('Granules save error:', e); }
             }
-            const msg = granulesSaved > 0
-                ? `"${name}" + ${granulesSaved} granule(s) sauvegardés`
-                : `"${name}" sauvegardé dans la bibliothèque`;
-            showCenteredModal(msg, 'success');
+            const parts = [`Stratégie "${name}"`];
+            if (granulesSaved > 0) parts.push(`${granulesSaved} granule(s)`);
+            showCenteredModal(parts.join(' + ') + ' sauvegardé(s)', 'success');
             await loadLibrary();
         } else if (data.error && data.error.includes('existe')) {
             showPromptModal('Ce nom existe déjà. Nouveau nom:', name + ' (2)', async (newName) => {
                 await forgeSaveToLibrary(newName);
             });
         } else {
-            showErrorModal(data.error || 'Une erreur est survenue lors de la sauvegarde.', 'Erreur de sauvegarde');
+            showErrorModal(data.error || 'Erreur lors de la sauvegarde.', 'Erreur de sauvegarde');
         }
     } catch (e) {
         console.error('Save error:', e);
-        showErrorModal('Impossible de contacter le serveur. Vérifiez votre connexion internet.', 'Erreur de connexion');
+        showErrorModal('Impossible de contacter le serveur.', 'Erreur de connexion');
     }
 }
 
