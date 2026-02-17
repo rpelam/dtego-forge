@@ -5922,17 +5922,25 @@ async function forgeSaveToLibrary(overrideName) {
         const data = await response.json();
 
         if (data.success) {
-            showCenteredModal(`"${name}" sauvegardé dans la bibliothèque`, 'success');
-            await loadLibrary();
-            // Proposer sauvegarde granules si disponibles
+            // Sauvegarde automatique granules si disponibles
             const granules = forgeState.forgeModalGranules;
+            let granulesSaved = 0;
             if (granules && granules.length > 0) {
-                setTimeout(() => {
-                    showConfirmModal(`${granules.length} granule(s) détectée(s). Sauvegarder dans la bibliothèque ?`, async () => {
-                        await forgeModalSaveGranules();
+                try {
+                    const gRes = await fetch(`${API_BASE}/api/forge/granules/save`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ granules: granules.map(g => ({ name: g.name, type: g.type || 'granule', category: g.category || 'other', pine_code: g.pine_code || '', python_code: g.python_code || '', parameters: g.parameters || [], description: g.description || '' })) })
                     });
-                }, 1500);
+                    const gData = await gRes.json();
+                    if (gData.success) granulesSaved = gData.saved || granules.length;
+                } catch (e) { console.error('Granules save error:', e); }
             }
+            const msg = granulesSaved > 0
+                ? `"${name}" + ${granulesSaved} granule(s) sauvegardés`
+                : `"${name}" sauvegardé dans la bibliothèque`;
+            showCenteredModal(msg, 'success');
+            await loadLibrary();
         } else if (data.error && data.error.includes('existe')) {
             showPromptModal('Ce nom existe déjà. Nouveau nom:', name + ' (2)', async (newName) => {
                 await forgeSaveToLibrary(newName);
