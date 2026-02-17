@@ -5903,8 +5903,8 @@ async function forgeSaveToLibrary(overrideName) {
     }
 
     try {
-        // Feedback INSTANTANÉ
-        showCenteredModal('Sauvegarde en cours...', 'success');
+        // Feedback INSTANTANÉ (toast auto-dismiss, pas de bouton)
+        showToast('Sauvegarde en cours...', 'info');
 
         // Sauvegarde stratégie
         const response = await fetch(`${API_BASE}/api/library`, {
@@ -5940,10 +5940,26 @@ async function forgeSaveToLibrary(overrideName) {
                     if (gData.success) granulesSaved = gData.saved || granules.length;
                 } catch (e) { console.error('Granules save error:', e); }
             }
-            const parts = [`Stratégie "${name}"`];
-            if (granulesSaved > 0) parts.push(`${granulesSaved} granule(s)`);
-            showCenteredModal(parts.join(' + ') + ' sauvegardé(s)', 'success');
             await loadLibrary();
+            const lines = [`Stratégie "${name}"`];
+            if (granulesSaved > 0) lines.push(`${granulesSaved} granule(s)`);
+            const overlay = document.createElement('div');
+            overlay.id = 'forgeSaveConfirmOverlay';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000;backdrop-filter:blur(4px);';
+            overlay.innerHTML = `
+                <div style="background:rgba(30,30,40,0.95);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:32px;max-width:400px;width:90%;text-align:center;">
+                    <div style="width:48px;height:48px;border-radius:12px;background:rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+                        <svg width="24" height="24" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <div style="color:white;font-size:16px;font-weight:600;margin-bottom:8px;">Sauvegarde réussie</div>
+                    <div style="color:rgba(255,255,255,0.7);font-size:14px;margin-bottom:24px;">${lines.join('<br>')}</div>
+                    <div style="display:flex;gap:12px;justify-content:center;">
+                        <button onclick="document.getElementById('forgeSaveConfirmOverlay').remove()" style="padding:10px 20px;border-radius:10px;background:rgba(255,255,255,0.1);color:white;border:none;cursor:pointer;font-size:14px;">Fermer</button>
+                        <button onclick="document.getElementById('forgeSaveConfirmOverlay').remove();forgeShowSection('bibliotheque')" style="padding:10px 20px;border-radius:10px;background:linear-gradient(135deg,#10b981,#14b8a6);color:white;border:none;cursor:pointer;font-size:14px;font-weight:600;">Voir dans la Bibliothèque</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
         } else if (data.error && data.error.includes('existe')) {
             showPromptModal('Ce nom existe déjà. Nouveau nom:', name + ' (2)', async (newName) => {
                 await forgeSaveToLibrary(newName);
