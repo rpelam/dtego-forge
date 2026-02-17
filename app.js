@@ -80,7 +80,7 @@ function showCenteredModal(message, type = 'info') {
     document.body.appendChild(overlay);
 }
 
-function showToast(message, type = 'info') {
+function showToast(message, type = 'info', persistent = false) {
     const colors = {
         success: '#10b981',
         error: '#ef4444',
@@ -104,17 +104,18 @@ function showToast(message, type = 'info') {
     toast.textContent = message;
     container.appendChild(toast);
 
-    // Remove after 3s
-    setTimeout(() => {
-        toast.style.opacity = '0';
+    // Remove after 3s SAUF si persistent
+    if (!persistent) {
         setTimeout(() => {
-            toast.remove();
-            // Remove container if empty
-            if (container.children.length === 0) {
-                container.remove();
-            }
-        }, 300);
-    }, 3000);
+            toast.style.opacity = '0';
+            setTimeout(() => {
+                toast.remove();
+                if (container.children.length === 0) {
+                    container.remove();
+                }
+            }, 300);
+        }, 3000);
+    }
 
     return toast;
 }
@@ -5907,7 +5908,7 @@ async function forgeSaveToLibrary(overrideName) {
     let toastEl = null;
     try {
         // Feedback INSTANTANÉ — persiste jusqu'à la modale
-        toastEl = showToast('Sauvegarde en cours...', 'info');
+        toastEl = showToast('Sauvegarde en cours...', 'info', true);
 
         // Sauvegarde stratégie
         const response = await fetch(`${API_BASE}/api/library`, {
@@ -5940,7 +5941,7 @@ async function forgeSaveToLibrary(overrideName) {
                         body: JSON.stringify({ granules: granules.map(g => ({ name: g.name, type: g.type || 'granule', category: g.category || 'other', pine_code: g.pine_code || '', python_code: g.python_code || '', parameters: g.parameters || [], description: g.description || '' })) })
                     });
                     const gData = await gRes.json();
-                    if (gData.success) granulesSaved = gData.saved || granules.length;
+                    if (gData.success) granulesSaved = (gData.summary?.saved ?? (Array.isArray(gData.saved) ? gData.saved.length : gData.saved)) ?? 0;
                 } catch (e) { console.error('Granules save error:', e); }
             }
             await loadLibrary();
