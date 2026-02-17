@@ -2634,18 +2634,15 @@ function renderForgeChat() {
                                 <button onclick="forgeShowRenameModal()" class="p-1 rounded text-white/40 hover:text-white hover:bg-white/10 transition" title="Renommer">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                 </button>
-                                <span class="px-2 py-0.5 rounded text-xs font-medium" style="background: rgba(217, 119, 6, 0.2); color: #fbbf24;">
+                                <button onclick="forgeShowVersionsModal()" class="px-2 py-0.5 rounded text-xs font-medium cursor-pointer transition" style="background: rgba(217, 119, 6, 0.2); color: #fbbf24; border: none;" onmouseover="this.style.background='rgba(217, 119, 6, 0.35)'" onmouseout="this.style.background='rgba(217, 119, 6, 0.2)'" title="Historique des versions">
                                     v${project.current_version || 0}
-                                </span>
+                                </button>
                                 ${project.current_version > 0 ? `<button onclick="forgeReopenResult()" class="px-2.5 py-1 rounded-lg text-xs font-medium transition" style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.08);" onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='rgba(255,255,255,0.5)';">Voir le code</button>` : ''}
                             </div>
                             <p class="text-white/40 text-sm">${project.description || ''}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button onclick="forgeShowVersionsModal()" class="p-2 rounded-lg bg-white/5 text-white/60 hover:bg-white/10 hover:text-white transition" title="Historique des versions">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </button>
                         <button onclick="forgeQuickSave()" class="px-4 py-2 rounded-lg text-sm font-medium transition" style="background: linear-gradient(135deg, #10b981, #14b8a6); color: white;">
                             Sauvegarder
                         </button>
