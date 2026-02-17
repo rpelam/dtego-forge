@@ -115,6 +115,8 @@ function showToast(message, type = 'info') {
             }
         }, 300);
     }, 3000);
+
+    return toast;
 }
 
 // ========================================
@@ -5902,9 +5904,10 @@ async function forgeSaveToLibrary(overrideName) {
         return;
     }
 
+    let toastEl = null;
     try {
-        // Feedback INSTANTANÉ (toast auto-dismiss, pas de bouton)
-        showToast('Sauvegarde en cours...', 'info');
+        // Feedback INSTANTANÉ — persiste jusqu'à la modale
+        toastEl = showToast('Sauvegarde en cours...', 'info');
 
         // Sauvegarde stratégie
         const response = await fetch(`${API_BASE}/api/library`, {
@@ -5941,34 +5944,43 @@ async function forgeSaveToLibrary(overrideName) {
                 } catch (e) { console.error('Granules save error:', e); }
             }
             await loadLibrary();
-            const lines = [`Stratégie "${name}"`];
-            if (granulesSaved > 0) lines.push(`${granulesSaved} granule(s)`);
+            // Tuer le toast AVANT d'afficher la modale — transition fluide
+            if (toastEl) { toastEl.remove(); const tc = document.getElementById('toastContainer'); if (tc && tc.children.length === 0) tc.remove(); }
+            // Récapitulatif détaillé de ce qui a été sauvé
+            const itemType = forgeState.strategyType === 'strategy' ? 'Stratégie' : 'Indicateur';
+            let detailHTML = '<div style="text-align:left;background:rgba(255,255,255,0.05);border-radius:10px;padding:12px 16px;margin-bottom:20px;">';
+            detailHTML += '<div style="display:flex;align-items:center;gap:8px;' + (granulesSaved > 0 ? 'margin-bottom:10px;' : '') + '"><svg width="16" height="16" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg><span style="color:white;font-size:13px;">' + itemType + ' <strong>\u201C' + name + '\u201D</strong></span></div>';
+            if (granulesSaved > 0) {
+                detailHTML += '<div style="display:flex;align-items:center;gap:8px;"><svg width="16" height="16" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg><span style="color:white;font-size:13px;">' + granulesSaved + ' granule' + (granulesSaved > 1 ? 's' : '') + '</span></div>';
+            }
+            detailHTML += '</div>';
             const overlay = document.createElement('div');
             overlay.id = 'forgeSaveConfirmOverlay';
             overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000;backdrop-filter:blur(4px);';
-            overlay.innerHTML = `
-                <div style="background:rgba(30,30,40,0.95);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:32px;max-width:400px;width:90%;text-align:center;">
-                    <div style="width:48px;height:48px;border-radius:12px;background:rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-                        <svg width="24" height="24" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                    </div>
-                    <div style="color:white;font-size:16px;font-weight:600;margin-bottom:8px;">Sauvegarde réussie</div>
-                    <div style="color:rgba(255,255,255,0.7);font-size:14px;margin-bottom:24px;">${lines.join('<br>')}</div>
-                    <div style="display:flex;gap:12px;justify-content:center;">
-                        <button onclick="document.getElementById('forgeSaveConfirmOverlay').remove()" style="padding:10px 20px;border-radius:10px;background:rgba(255,255,255,0.1);color:white;border:none;cursor:pointer;font-size:14px;">Fermer</button>
-                        <button onclick="document.getElementById('forgeSaveConfirmOverlay').remove();forgeShowSection('bibliotheque')" style="padding:10px 20px;border-radius:10px;background:linear-gradient(135deg,#10b981,#14b8a6);color:white;border:none;cursor:pointer;font-size:14px;font-weight:600;">Voir dans la Bibliothèque</button>
-                    </div>
-                </div>
-            `;
+            overlay.innerHTML = '<div style="background:rgba(30,30,40,0.95);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:32px;max-width:420px;width:90%;text-align:center;">'
+                + '<div style="width:48px;height:48px;border-radius:12px;background:rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">'
+                + '<svg width="24" height="24" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>'
+                + '</div>'
+                + '<div style="color:white;font-size:16px;font-weight:600;margin-bottom:16px;">Sauvegarde réussie</div>'
+                + detailHTML
+                + '<div style="display:flex;gap:12px;justify-content:center;">'
+                + '<button onclick="document.getElementById(\'forgeSaveConfirmOverlay\').remove()" style="padding:10px 20px;border-radius:10px;background:rgba(255,255,255,0.1);color:white;border:none;cursor:pointer;font-size:14px;">Fermer</button>'
+                + '<button onclick="document.getElementById(\'forgeSaveConfirmOverlay\').remove();window.location.href=\'bibliotheque.html\'" style="padding:10px 20px;border-radius:10px;background:linear-gradient(135deg,#10b981,#14b8a6);color:white;border:none;cursor:pointer;font-size:14px;font-weight:600;">Voir dans la Bibliothèque</button>'
+                + '</div>'
+                + '</div>';
             document.body.appendChild(overlay);
         } else if (data.error && data.error.includes('existe')) {
+            if (toastEl) { toastEl.remove(); const tc = document.getElementById('toastContainer'); if (tc && tc.children.length === 0) tc.remove(); }
             showPromptModal('Ce nom existe déjà. Nouveau nom:', name + ' (2)', async (newName) => {
                 await forgeSaveToLibrary(newName);
             });
         } else {
+            if (toastEl) { toastEl.remove(); const tc = document.getElementById('toastContainer'); if (tc && tc.children.length === 0) tc.remove(); }
             showErrorModal(data.error || 'Erreur lors de la sauvegarde.', 'Erreur de sauvegarde');
         }
     } catch (e) {
         console.error('Save error:', e);
+        if (toastEl) { toastEl.remove(); const tc = document.getElementById('toastContainer'); if (tc && tc.children.length === 0) tc.remove(); }
         showErrorModal('Impossible de contacter le serveur.', 'Erreur de connexion');
     }
 }
