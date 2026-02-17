@@ -5958,15 +5958,16 @@ async function forgeSaveToLibrary(overrideName) {
             const overlay = document.createElement('div');
             overlay.id = 'forgeSaveConfirmOverlay';
             overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000;backdrop-filter:blur(4px);';
-            overlay.innerHTML = '<div style="background:rgba(30,30,40,0.95);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:32px;max-width:420px;width:90%;text-align:center;">'
+            overlay.innerHTML = '<style>@keyframes frgSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style><div style="background:rgba(30,30,40,0.95);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:32px;max-width:420px;width:90%;text-align:center;">'
                 + '<div style="width:48px;height:48px;border-radius:12px;background:rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">'
                 + '<svg width="24" height="24" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>'
                 + '</div>'
                 + '<div style="color:white;font-size:16px;font-weight:600;margin-bottom:16px;">Sauvegarde réussie</div>'
                 + detailHTML
                 + '<div style="display:flex;gap:12px;">'
-                + '<button onclick="document.getElementById(\'forgeSaveConfirmOverlay\').remove()" style="flex:1;padding:10px 20px;border-radius:10px;background:rgba(255,255,255,0.1);color:white;border:none;cursor:pointer;font-size:14px;">Fermer</button>'
-                + '<button onclick="window.location.href=\'bibliotheque.html\'" style="flex:1;padding:10px 20px;border-radius:10px;background:linear-gradient(135deg,#10b981,#14b8a6);color:white;border:none;cursor:pointer;font-size:14px;font-weight:600;">Voir dans la Bibliothèque</button>'
+                + '<button onclick="document.getElementById(\'forgeSaveConfirmOverlay\').remove()" style="flex:1;padding:0.75rem 1.5rem;border-radius:12px;background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.8);cursor:pointer;font-size:0.95rem;font-weight:600;transition:all 0.2s ease;" onmouseover="this.style.background=\'rgba(255,255,255,0.05)\';this.style.borderColor=\'rgba(255,255,255,0.3)\';this.style.color=\'#ffffff\'" onmouseout="this.style.background=\'transparent\';this.style.borderColor=\'rgba(255,255,255,0.2)\';this.style.color=\'rgba(255,255,255,0.8)\'">Fermer</button>'
+                + '<button id="forgeBtnGoLib" onclick="this.innerHTML=\'<span style=&quot;display:inline-flex;align-items:center;gap:8px;&quot;><svg width=&quot;16&quot; height=&quot;16&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;white&quot; stroke-width=&quot;2.5&quot; style=&quot;animation:frgSpin 0.8s linear infinite&quot;><circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;10&quot; stroke-dasharray=&quot;31.4 31.4&quot; stroke-linecap=&quot;round&quot;/></svg>Chargement...</span>\';this.style.background=\'#22c55e\';this.style.pointerEvents=\'none\';window.location.href=\'bibliotheque.html\'" style="flex:1;padding:0.75rem 1.5rem;border-radius:12px;background:#4ade80;color:#ffffff;border:none;cursor:pointer;font-size:0.95rem;font-weight:600;transition:all 0.2s ease;" onmouseover="this.style.background=\'#22c55e\';this.style.boxShadow=\'0 8px 20px rgba(74,222,128,0.3)\';this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.background=\'#4ade80\';this.style.boxShadow=\'none\';this.style.transform=\'none\'" onmousedown="this.style.transform=\'translateY(0)\'" onmouseup="this.style.transform=\'translateY(-1px)\'">'
+                + 'Voir dans la Bibliothèque</button>'
                 + '</div>'
                 + '</div>';
             document.body.appendChild(overlay);
