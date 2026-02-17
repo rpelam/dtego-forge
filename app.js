@@ -5964,9 +5964,9 @@ async function forgeSaveToLibrary(overrideName) {
                 + '</div>'
                 + '<div style="color:white;font-size:16px;font-weight:600;margin-bottom:16px;">Sauvegarde réussie</div>'
                 + detailHTML
-                + '<div style="display:flex;gap:12px;justify-content:center;">'
-                + '<button onclick="document.getElementById(\'forgeSaveConfirmOverlay\').remove()" style="padding:10px 20px;border-radius:10px;background:rgba(255,255,255,0.1);color:white;border:none;cursor:pointer;font-size:14px;">Fermer</button>'
-                + '<button onclick="document.getElementById(\'forgeSaveConfirmOverlay\').remove();window.location.href=\'bibliotheque.html\'" style="padding:10px 20px;border-radius:10px;background:linear-gradient(135deg,#10b981,#14b8a6);color:white;border:none;cursor:pointer;font-size:14px;font-weight:600;">Voir dans la Bibliothèque</button>'
+                + '<div style="display:flex;gap:12px;">'
+                + '<button onclick="document.getElementById(\'forgeSaveConfirmOverlay\').remove()" style="flex:1;padding:10px 20px;border-radius:10px;background:rgba(255,255,255,0.1);color:white;border:none;cursor:pointer;font-size:14px;">Fermer</button>'
+                + '<button onclick="window.location.href=\'bibliotheque.html\'" style="flex:1;padding:10px 20px;border-radius:10px;background:linear-gradient(135deg,#10b981,#14b8a6);color:white;border:none;cursor:pointer;font-size:14px;font-weight:600;">Voir dans la Bibliothèque</button>'
                 + '</div>'
                 + '</div>';
             document.body.appendChild(overlay);
