@@ -31,6 +31,15 @@ async function grantAccess() {
           .catch(function() {})
     ]);
     renderSection();
+
+    // Deep link: ouvrir directement un projet depuis la Bibliothèque
+    const urlParams = new URLSearchParams(window.location.search);
+    const openProjectId = urlParams.get('openProject');
+    if (openProjectId) {
+        // Nettoyer l'URL sans recharger la page
+        window.history.replaceState({}, '', window.location.pathname);
+        await forgeOpenProject(openProjectId);
+    }
 }
 
 async function loadLibraryData() {
