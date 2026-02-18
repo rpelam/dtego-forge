@@ -425,7 +425,16 @@
                 }
                 const project = createData.project;
                 const projectId = project.id;
-                const code = item.pine_code || item.python_code || '';
+                var code = item.pine_code || item.python_code || '';
+                if (!code) {
+                    try {
+                        const detailResp = await fetch('https://api.dtego.net/api/library/' + item.id);
+                        const detailData = await detailResp.json();
+                        if (detailData.item) {
+                            code = detailData.item.pine_code || detailData.item.python_code || '';
+                        }
+                    } catch(e) {}
+                }
                 var codeMessage = '';
                 var messages = [
                     { role: 'assistant', content: 'Projet créé. Décrivez votre stratégie ou posez vos questions. Tapez FORGE quand vous êtes prêt à générer le code.', message_type: 'system' }
