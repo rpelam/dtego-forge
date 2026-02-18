@@ -36,8 +36,8 @@ async function grantAccess() {
     const urlParams = new URLSearchParams(window.location.search);
     const openProjectId = urlParams.get('openProject');
     if (openProjectId) {
-        // Nettoyer l'URL sans recharger la page
         window.history.replaceState({}, '', window.location.pathname);
+        forgeState.atelierMode = 'create';
         await forgeOpenProject(openProjectId);
     }
 }
