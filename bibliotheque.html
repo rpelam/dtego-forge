@@ -404,7 +404,17 @@
 
         function loadInAtelier() {
             if (!currentItemId) return;
-            window.location.href = `index.html#atelier?load=${currentItemId}`;
+            const item = allItems.find(i => i.id === currentItemId);
+            if (!item) return;
+
+            if (item.type === 'project') {
+                // Projet Forge: ouvrir directement dans le chat
+                window.location.href = 'index.html?openProject=' + currentItemId;
+            } else {
+                // Item bibliothèque (granule, indicator, strategy, filter)
+                // TODO: Vue code dédiée - pour l'instant ouvrir dans Forge
+                window.location.href = 'index.html?openProject=' + currentItemId;
+            }
         }
 
         function editItem() {
