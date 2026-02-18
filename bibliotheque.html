@@ -402,18 +402,42 @@
             currentItemId = null;
         }
 
-        function loadInAtelier() {
+        async function loadInAtelier() {
             if (!currentItemId) return;
             const item = allItems.find(i => i.id === currentItemId);
             if (!item) return;
-
-            if (item.type === 'project') {
-                // Projet Forge: ouvrir directement dans le chat
-                window.location.href = 'index.html?openProject=' + currentItemId;
-            } else {
-                // Item bibliothèque (granule, indicator, strategy, filter)
-                // TODO: Vue code dédiée - pour l'instant ouvrir dans Forge
-                window.location.href = 'index.html?openProject=' + currentItemId;
+            closeDetailsModal();
+            const grid = document.getElementById('libraryGrid');
+            const savedHTML = grid.innerHTML;
+            grid.innerHTML = '<div class="col-span-4 text-center py-16"><p class="text-white/40 text-sm">Ouverture dans l\'Atelier...</p></div>';
+            try {
+                const projectName = item.name + ' (édition)';
+                const createResp = await fetch(API_BASE + '/api/forge/projects', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: projectName, description: 'Importé depuis la Bibliothèque (' + item.type + ')' })
+                });
+                const createData = await createResp.json();
+                if (!createData.success || !createData.project) {
+                    grid.innerHTML = savedHTML;
+                    showConfirm('Erreur', createData.error || 'Impossible de créer le projet.', 'OK', function(){}, '#ef4444', true);
+                    return;
+                }
+                const projectId = createData.project.id;
+                const code = item.pine_code || item.python_code || '';
+                if (code) {
+                    const codeType = item.pine_code ? 'Pine Script' : 'Python';
+                    const msg = 'Voici mon code ' + codeType + ' ("' + item.name + '") importé depuis la Bibliothèque :\n\n```\n' + code + '\n```\n\nJe souhaite le modifier.';
+                    await fetch(API_BASE + '/api/forge/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ project_id: projectId, message: msg, skip_ai: true })
+                    });
+                }
+                window.location.href = 'index.html?openProject=' + projectId;
+            } catch (error) {
+                grid.innerHTML = savedHTML;
+                showConfirm('Erreur', 'Erreur réseau: ' + error.message, 'OK', function(){}, '#ef4444', true);
             }
         }
 
