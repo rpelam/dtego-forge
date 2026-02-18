@@ -329,7 +329,7 @@
             };
 
             return `
-                <div class="library-card p-4 rounded-xl border" style="background: ${color.bg}; border-color: ${color.border};" onclick="showDetails('${item.id}')">
+                <div class="library-card group p-4 rounded-xl border" style="background: ${color.bg}; border-color: ${color.border};" onclick="showDetails('${item.id}')">
                     <div class="flex items-start justify-between mb-3">
                         <svg class="w-5 h-5 flex-shrink-0" style="color: ${color.icon};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             ${icons[item.type] || icons['indicator']}
@@ -341,10 +341,15 @@
                     <h3 class="text-white font-semibold text-sm mb-1 line-clamp-2">${item.name || 'Sans nom'}</h3>
                     <p class="text-white/40 text-xs mb-3">${item.version || 'v5'}</p>
                     
-                    <div class="flex flex-wrap gap-1.5">
+                    <div class="flex items-center justify-between">
                         <span class="px-2 py-0.5 rounded text-xs font-medium" style="background: ${color.bg}; color: ${color.icon}; border: 1px solid ${color.border};">
                             ${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)}
                         </span>
+                        <button onclick="event.stopPropagation(); deleteFromCard('${item.id}', '${(item.name || 'Sans nom').replace(/'/g, String.fromCharCode(92) + String.fromCharCode(39))}')" class="p-1.5 rounded-lg transition-all opacity-0 group-hover:opacity-100 hover:bg-red-500/20" style="color: rgba(255,255,255,0.25);" onmouseenter="this.style.color='#f87171'" onmouseleave="this.style.color='rgba(255,255,255,0.25)'">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             `;
@@ -414,18 +419,44 @@
             );
         }
 
+        function deleteFromCard(itemId, itemName) {
+            showConfirm(
+                'Supprimer cet élément ?',
+                'Êtes-vous sûr de vouloir supprimer "' + itemName + '" ? Cette action est irréversible.',
+                'Supprimer',
+                async () => { await executeDelete(itemId); },
+                '#ef4444'
+            );
+        }
+
+        async function executeDelete(itemId) {
+            try {
+                const response = await fetch('https://api.dtego.net/api/library/' + itemId, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+                if (result.success) {
+                    allItems = allItems.filter(i => i.id !== itemId);
+                    updateCounts();
+                    displayItems();
+                    closeDetailsModal();
+                } else {
+                    showConfirm('Erreur', result.error || 'Impossible de supprimer.', 'OK', () => {}, '#ef4444', true);
+                }
+            } catch (error) {
+                showConfirm('Erreur', 'Erreur réseau: ' + error.message, 'OK', () => {}, '#ef4444', true);
+            }
+        }
+
         function confirmDelete() {
             if (!currentItemId) return;
             const item = allItems.find(i => i.id === currentItemId);
             showConfirm(
                 'Supprimer cet élément ?',
-                `Êtes-vous sûr de vouloir supprimer "${item?.name || 'cet élément'}" ? Cette action est irréversible.`,
+                'Êtes-vous sûr de vouloir supprimer "' + (item?.name || 'cet élément') + '" ? Cette action est irréversible.',
                 'Supprimer',
-                async () => {
-                    // TODO: Appel API DELETE
-                    showConfirm('Suppression', 'Fonction de suppression à implémenter.', 'OK', () => {}, '#6366f1', true);
-                },
-                '#ef4444' // rouge
+                async () => { await executeDelete(currentItemId); },
+                '#ef4444'
             );
         }
 
