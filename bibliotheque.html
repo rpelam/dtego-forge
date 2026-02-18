@@ -412,7 +412,7 @@
             grid.innerHTML = '<div class="col-span-4 text-center py-16"><p class="text-white/40 text-sm">Ouverture dans l\'Atelier...</p></div>';
             try {
                 const projectName = item.name + ' (édition)';
-                const createResp = await fetch(API_BASE + '/api/forge/projects', {
+                const createResp = await fetch('https://api.dtego.net/api/forge/projects', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name: projectName, description: 'Importé depuis la Bibliothèque (' + item.type + ')' })
@@ -428,7 +428,7 @@
                 if (code) {
                     const codeType = item.pine_code ? 'Pine Script' : 'Python';
                     const msg = 'Voici mon code ' + codeType + ' ("' + item.name + '") importé depuis la Bibliothèque :\n\n```\n' + code + '\n```\n\nJe souhaite le modifier.';
-                    await fetch(API_BASE + '/api/forge/chat', {
+                    await fetch('https://api.dtego.net/api/forge/chat', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ project_id: projectId, message: msg, skip_ai: true })
