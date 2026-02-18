@@ -444,12 +444,13 @@
                     codeMessage = 'Voici mon code ' + codeType + ' ("' + item.name + '") importé depuis la Bibliothèque :\n\n```\n' + code + '\n```\n\nJe souhaite le modifier.';
                     messages.push({ role: 'user', content: codeMessage, message_type: 'text' });
                 }
-                sessionStorage.setItem('forge_open_project', JSON.stringify({
-                    projectId: projectId,
-                    project: project,
-                    messages: messages,
-                    codeMessage: codeMessage
-                }));
+                if (codeMessage) {
+                    await fetch('https://api.dtego.net/api/forge/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ project_id: projectId, message: codeMessage, skip_ai: true })
+                    });
+                }
                 window.location.href = 'index.html?openProject=' + projectId;
             } catch (error) {
                 grid.innerHTML = savedHTML;

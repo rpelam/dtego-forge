@@ -28,59 +28,22 @@ async function grantAccess() {
 
     if (openProjectId) {
         window.history.replaceState({}, '', window.location.pathname);
-        var cached = null;
-        try {
-            var raw = sessionStorage.getItem('forge_open_project');
-            if (raw) { cached = JSON.parse(raw); sessionStorage.removeItem('forge_open_project'); }
-        } catch(e) {}
+        forgeState.atelierMode = 'create';
+        forgeState.createView = 'chat';
+    }
 
-        if (cached && cached.projectId === openProjectId) {
-            forgeState.atelierMode = 'create';
-            forgeState.createView = 'chat';
-            forgeState.currentProjectId = cached.projectId;
-            forgeState.currentProject = cached.project;
-            forgeState.messages = cached.messages || [];
-            forgeState.versions = [];
-            renderSection();
-            setTimeout(function() {
-                var chatEl = document.getElementById('forge-chat-messages');
-                if (chatEl) chatEl.scrollTop = chatEl.scrollHeight;
-            }, 100);
-            if (cached.codeMessage) {
-                fetch(API_BASE + '/api/forge/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ project_id: openProjectId, message: cached.codeMessage, skip_ai: true })
-                }).catch(function(){});
-            }
-            fetch(API_BASE + '/api/forge/projects?_t=' + Date.now(), {
-                cache: 'no-store', headers: { 'Cache-Control': 'no-cache' }
-            }).then(function(r) { return r.json(); })
-              .then(function(data) { if (data.success) forgeState.projects = data.projects; })
-              .catch(function(){});
-            loadLibraryData();
-        } else {
-            await Promise.all([
-                loadLibraryData(),
-                fetch(API_BASE + '/api/forge/projects?_t=' + Date.now(), {
-                    cache: 'no-store', headers: { 'Cache-Control': 'no-cache' }
-                }).then(function(r) { return r.json(); })
-                  .then(function(data) { if (data.success) forgeState.projects = data.projects; })
-                  .catch(function(){})
-            ]);
-            forgeState.atelierMode = 'create';
-            forgeState.createView = 'chat';
-            await forgeOpenProject(openProjectId);
-        }
+    await Promise.all([
+        loadLibraryData(),
+        fetch(API_BASE + '/api/forge/projects?_t=' + Date.now(), {
+            cache: 'no-store', headers: { 'Cache-Control': 'no-cache' }
+        }).then(function(r) { return r.json(); })
+          .then(function(data) { if (data.success) forgeState.projects = data.projects; })
+          .catch(function(){})
+    ]);
+
+    if (openProjectId) {
+        await forgeOpenProject(openProjectId);
     } else {
-        await Promise.all([
-            loadLibraryData(),
-            fetch(API_BASE + '/api/forge/projects?_t=' + Date.now(), {
-                cache: 'no-store', headers: { 'Cache-Control': 'no-cache' }
-            }).then(function(r) { return r.json(); })
-              .then(function(data) { if (data.success) forgeState.projects = data.projects; })
-              .catch(function(){})
-        ]);
         renderSection();
     }
 }
