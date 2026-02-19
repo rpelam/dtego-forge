@@ -404,7 +404,8 @@
 
         async function loadInAtelier() {
             if (!currentItemId) return;
-            const item = allItems.find(i => i.id === currentItemId);
+            const itemId = currentItemId;
+            const item = allItems.find(i => i.id === itemId);
             if (!item) return;
             closeDetailsModal();
             const grid = document.getElementById('libraryGrid');
@@ -414,7 +415,7 @@
                 const resp = await fetch('https://api.dtego.net/api/forge/create-from-library', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ library_item_id: currentItemId })
+                    body: JSON.stringify({ library_item_id: itemId })
                 });
                 const data = await resp.json();
                 if (!data.success || !data.project_id) {
